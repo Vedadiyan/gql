@@ -32,135 +32,191 @@ func (c *Context) Prepare(query string) error {
 	}
 	return c.prepare(sqlStatement)
 }
-
-func (c *Context) prepare(statement sqlparser.Statement) error {
-	slct, ok := statement.(*sqlparser.Select)
-	if !ok {
-		return fmt.Errorf("invalid statement")
-	}
-	fromExpr := slct.From[0]
-	switch fromExprType := fromExpr.(type) {
-	case *sqlparser.AliasedTableExpr:
-		{
-			switch exprType := fromExprType.Expr.(type) {
-			case sqlparser.TableName:
-				{
-					objName := exprType.Name
-					from, err := From(c.document, objName.String())
-					if err != nil {
-						return err
-					}
-					name := fromExprType.As.String()
-					if name != "" {
-						list := make([]any, len(from))
-						for index, item := range from {
-							list[index] = map[string]any{
-								name: item,
-							}
-						}
-						c.from = list
-					} else {
-						c.from = from
-					}
-				}
-			case *sqlparser.Subquery:
-				{
-					_sql := New(c.document)
-					_sql.prepare(exprType.Select)
-					from, err := _sql.Exec()
-					if err != nil {
-						return err
-					}
-					name := fromExprType.As.String()
-					if name != "" {
-						list := make([]any, len(from.([]any)))
-						for index, item := range from.([]any) {
-							list[index] = map[string]any{
-								name: item,
-							}
-						}
-						c.from = list
-					} else {
-						c.from = from.([]any)
-					}
-				}
-			default:
-				{
-					return UNSUPPORTED_CASE.Extend("invalid from")
-				}
-			}
-		}
-	default:
-		{
-			return UNSUPPORTED_CASE.Extend("invalid from")
-		}
-	}
-
-	c.selectStmt = slct.SelectExprs
-	c.whereCond = slct.Where
-	return nil
-}
-
 func (c *Context) Exec() (any, error) {
-	collect := make([]any, 0)
 	id := time.Now().UnixNano()
-	for _, row := range c.from {
-		final := true
-		if c.whereCond != nil {
-			result, err := unwrap[bool](ExprReader(&c.from, row, c.whereCond.Expr))
-			if err != nil {
-				return nil, err
-			}
-			final = result
+	collect := make([]any, 0)
+	count := 0
+	for index, row := range c.from {
+		if index < c.offset {
+			continue
 		}
-		if final {
-			output := make(map[string]any, 0)
-			for index, i := range c.selectStmt {
-				switch iType := i.(type) {
-				case *sqlparser.StarExpr:
-					{
-						switch rowType := row.(type) {
-						case map[string]any:
-							{
-								output = rowType
-							}
-						default:
-							{
-								output = map[string]any{
-									fmt.Sprintf("col_%d", index): row,
-								}
-							}
-						}
-					}
-				case *sqlparser.AliasedExpr:
-					{
-						var name string
-						if iType.As.String() != "" {
-							name = iType.As.String()
-						} else {
-							_name, err := unwrap[string](ExprReader(nil, nil, iType.Expr, true))
-							if err != nil {
-								return nil, err
-							}
-							name = _name
-						}
-						id := fmt.Sprintf("%d_%d", id, index)
-						result := ExprReader(&c.from, row, iType.Expr, id)
-						output[name] = result
-					}
-				default:
-					{
-						c := 10
-						_ = c
-					}
-				}
-			}
-			collect = append(collect, output)
+		if count == c.limit {
+			break
 		}
+		count++
+		cond, err := execWhere(&c.from, row, c.whereCond)
+		if err != nil {
+			return nil, err
+		}
+		if cond {
+			collect = append(collect, row)
+		}
+	}
+	for index, row := range collect {
+		result, err := execSelect(&c.from, row, id, c.selectStmt)
+		if err != nil {
+			return nil, err
+		}
+		collect[index] = result
 	}
 	for index := range c.selectStmt {
 		id := fmt.Sprintf("%d_%d", id, index)
 		_cache.Delete(id)
 	}
 	return collect, nil
+}
+
+func (c *Context) setFrom(expr sqlparser.TableExpr) error {
+	switch fromExprType := expr.(type) {
+	case *sqlparser.AliasedTableExpr:
+		{
+			result, err := readAliasedTableExpr(c.document, fromExprType)
+			if err != nil {
+				return err
+			}
+			c.from = result
+			return nil
+		}
+	default:
+		{
+			return UNSUPPORTED_CASE.Extend("invalid from")
+		}
+	}
+}
+
+func (c *Context) setLimit(expr *sqlparser.Limit) error {
+	if expr.Offset != nil {
+		offset, err := unwrap[float64](ExprReader(nil, nil, expr.Offset))
+		if err != nil {
+			return err
+		}
+		c.offset = int(offset)
+	}
+	limit, err := unwrap[float64](ExprReader(nil, nil, expr.Rowcount))
+	if err != nil {
+		return err
+	}
+	c.limit = int(limit)
+	return nil
+}
+
+func (c *Context) prepare(statement sqlparser.Statement) error {
+	slct, ok := statement.(*sqlparser.Select)
+	if !ok {
+		return fmt.Errorf("invalid statement")
+	}
+	c.setFrom(slct.From[0])
+	c.setLimit(slct.Limit)
+	c.selectStmt = slct.SelectExprs
+	c.whereCond = slct.Where
+	return nil
+}
+
+func readFrom(expr *sqlparser.AliasedTableExpr, from any) ([]any, error) {
+	rows, ok := from.([]any)
+	if !ok {
+		return nil, INVALID_CAST
+	}
+	name := expr.As.String()
+	if name != "" {
+		list := make([]any, len(rows))
+		for index, item := range rows {
+			list[index] = map[string]any{
+				name: item,
+			}
+		}
+		return list, nil
+	}
+	return rows, nil
+}
+
+func readAliasedTableExpr(document map[string]any, expr *sqlparser.AliasedTableExpr) ([]any, error) {
+	switch exprType := expr.Expr.(type) {
+	case sqlparser.TableName:
+		{
+			objName := exprType.Name
+			from, err := From(document, objName.String())
+			if err != nil {
+				return nil, err
+			}
+
+			return readFrom(expr, from)
+		}
+	case *sqlparser.Subquery:
+		{
+			innerCtx := New(document)
+			innerCtx.prepare(exprType.Select)
+			from, err := innerCtx.Exec()
+			if err != nil {
+				return nil, err
+			}
+			return readFrom(expr, from)
+		}
+	default:
+		{
+			return nil, UNSUPPORTED_CASE.Extend("invalid from")
+		}
+	}
+}
+
+func execWhere(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
+	if expr != nil {
+		result, err := unwrap[bool](ExprReader(scope, row, expr.Expr))
+		if err != nil {
+			return false, err
+		}
+		return result, nil
+	}
+	return true, nil
+}
+
+func readStarExpr(row any, index int) map[string]any {
+	switch rowType := row.(type) {
+	case map[string]any:
+		{
+			return rowType
+		}
+	default:
+		{
+			return map[string]any{
+				fmt.Sprintf("col_%d", index): row,
+			}
+		}
+	}
+}
+
+func readAliasedExpr(expr *sqlparser.AliasedExpr) (string, error) {
+	if expr.As.String() != "" {
+		return expr.As.String(), nil
+	}
+	return unwrap[string](ExprReader(nil, nil, expr.Expr, true))
+}
+
+func execSelect(from *[]any, row any, id int64, exprs sqlparser.SelectExprs) (map[string]any, error) {
+	output := make(map[string]any, 0)
+LOOP:
+	for index, expr := range exprs {
+		switch exprType := expr.(type) {
+		case *sqlparser.StarExpr:
+			{
+				output = readStarExpr(row, index)
+				break LOOP
+			}
+		case *sqlparser.AliasedExpr:
+			{
+				name, err := readAliasedExpr(exprType)
+				if err != nil {
+					return nil, err
+				}
+				id := fmt.Sprintf("%d_%d", id, index)
+				result := ExprReader(from, row, exprType.Expr, id)
+				output[name] = result
+			}
+		default:
+			{
+				return nil, UNSUPPORTED_CASE
+			}
+		}
+	}
+	return output, nil
 }
