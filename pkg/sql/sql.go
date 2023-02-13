@@ -272,13 +272,11 @@ func readAliasedExpr(expr *sqlparser.AliasedExpr) (string, error) {
 
 func execSelect(from *[]any, row any, id int64, key *string, exprs sqlparser.SelectExprs, groupBy GroupBy) (map[string]any, error) {
 	output := make(map[string]any, 0)
-LOOP:
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
 				output = readStarExpr(row, key, index)
-				break LOOP
 			}
 		case *sqlparser.AliasedExpr:
 			{

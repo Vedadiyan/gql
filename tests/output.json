@@ -1,5 +1,6 @@
 [
 	{
+		"OK": 1,
 		"Q.Rate.any_residency:false.#.Q.Rate.meal:nomeal": [
 			{
 				"Q": {
@@ -60957,6 +60958,7 @@
 		]
 	},
 	{
+		"OK": 1,
 		"Q.Rate.any_residency:false.#.Q.Rate.meal:breakfast": [
 			{
 				"Q": {
@@ -65003,6 +65005,7 @@
 		]
 	},
 	{
+		"OK": 1,
 		"Q.Rate.any_residency:false.#.Q.Rate.meal:breakfast-for-2": [
 			{
 				"Q": {
@@ -69011,6 +69014,7 @@
 		]
 	},
 	{
+		"OK": 1,
 		"Q.Rate.any_residency:true.#.Q.Rate.meal:nomeal": [
 			{
 				"Q": {
