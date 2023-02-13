@@ -273,6 +273,35 @@ func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
 			}
 			return toResult(out), nil
 		}
+	case []any:
+		{
+			groupBy, _ := hasGroupBy(opt...)
+			_ = groupBy
+			output := make([]any, 0)
+			for _, row := range r {
+				result, err := colExpr(row, expr, opt...)
+				if err != nil {
+					return nil, err
+				}
+				switch result.(type) {
+				case map[string]any, []any:
+					{
+						output = append(output, result)
+					}
+				default:
+					{
+						_, ok := groupBy[expr.Name.String()]
+						if ok {
+							return result, nil
+						}
+						output = append(output, result)
+
+					}
+				}
+
+			}
+			return toResult(output), nil
+		}
 	}
 	return nil, nil
 }

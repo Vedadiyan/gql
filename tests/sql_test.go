@@ -60,7 +60,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("SELECT ONCE(AVG(UNWIND(UNWIND(`$.rates.{?}.daily_prices`)))) as Price FROM `$.data.hotels` GROUP BY id LIMIT 2 OFFSET 10 --WHERE `rates.{?}.payment_options.payment_types.{?}.show_amount` = '2003.00' --not like '%als' and `ref` = CASE WHEN `test` BETWEEN 0 AND 2 THEN 'small' WHEN `test` BETWEEN 100 AND 500 THEN 'medium' ELSE 'large' END")
+	sql.Prepare("SELECT * FROM (SELECT `rates.{0}` Rate FROM `$.data.hotels`) Q GROUP BY `Q.Rate.meal`, `Q.Rate.any_residency` --LIMIT 2 OFFSET 10 --WHERE `rates.{?}.payment_options.payment_types.{?}.show_amount` = '2003.00' --not like '%als' and `ref` = CASE WHEN `test` BETWEEN 0 AND 2 THEN 'small' WHEN `test` BETWEEN 100 AND 500 THEN 'medium' ELSE 'large' END")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()

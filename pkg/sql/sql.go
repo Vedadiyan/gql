@@ -1,11 +1,15 @@
 package sql
 
 import (
+	"bytes"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/xwb1989/sqlparser"
 )
+
+type GroupBy map[string]bool
 
 type Context struct {
 	document   map[string]any
@@ -14,7 +18,7 @@ type Context struct {
 	from       []any
 	offset     int
 	limit      int
-	groupBy    []string
+	groupBy    map[string]bool
 }
 
 func New(document map[string]any) *Context {
@@ -22,7 +26,7 @@ func New(document map[string]any) *Context {
 		document: document,
 		offset:   -1,
 		limit:    -1,
-		groupBy:  make([]string, 0),
+		groupBy:  make(map[string]bool),
 	}
 	return &ctx
 }
@@ -54,12 +58,55 @@ func (c *Context) Exec() (any, error) {
 			collect = append(collect, row)
 		}
 	}
-	for index, row := range collect {
-		result, err := execSelect(&c.from, row, id, c.selectStmt)
-		if err != nil {
-			return nil, err
+	if len(c.groupBy) > 0 {
+		groupped := make(map[string][]any)
+		for _, row := range collect {
+			var buffer bytes.Buffer
+			keys := make([]string, 0)
+			for groupBy := range c.groupBy {
+				value, err := Select(row.(map[string]any), groupBy)
+				if err != nil {
+					return nil, err
+				}
+				switch value.(type) {
+				case map[string]any, []any:
+					{
+						return nil, UNSUPPORTED_CASE.Extend("only value types can be used in group by")
+					}
+				default:
+					{
+						keys = append(keys, fmt.Sprintf("%v", value))
+					}
+				}
+			}
+			sort.Strings(keys)
+			for _, key := range keys {
+				buffer.WriteString(key)
+				buffer.WriteString(".#.")
+			}
+			key := string(buffer.Bytes()[:buffer.Len()-3])
+			_, ok := groupped[key]
+			if !ok {
+				groupped[key] = make([]any, 0)
+			}
+			groupped[key] = append(groupped[key], row)
 		}
-		collect[index] = result
+		collect = make([]any, 0)
+		for key, group := range groupped {
+			result, err := execSelect(&c.from, group, id, &key, c.selectStmt, GroupBy(c.groupBy))
+			if err != nil {
+				return nil, err
+			}
+			collect = append(collect, result)
+		}
+	} else {
+		for index, row := range collect {
+			result, err := execSelect(&c.from, row, id, nil, c.selectStmt, nil)
+			if err != nil {
+				return nil, err
+			}
+			collect[index] = result
+		}
 	}
 	for index := range c.selectStmt {
 		id := fmt.Sprintf("%d_%d", id, index)
@@ -87,6 +134,9 @@ func (c *Context) setFrom(expr sqlparser.TableExpr) error {
 }
 
 func (c *Context) setLimit(expr *sqlparser.Limit) error {
+	if expr == nil {
+		return nil
+	}
 	if expr.Offset != nil {
 		offset, err := unwrap[float64](ExprReader(nil, nil, expr.Offset))
 		if err != nil {
@@ -108,7 +158,7 @@ func (c *Context) setGroupBy(expr sqlparser.GroupBy) error {
 		if err != nil {
 			return err
 		}
-		c.groupBy = append(c.groupBy, result)
+		c.groupBy[result] = true
 	}
 	return nil
 }
@@ -193,7 +243,7 @@ func execWhere(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
-func readStarExpr(row any, index int) map[string]any {
+func readStarExpr(row any, key *string, index int) map[string]any {
 	switch rowType := row.(type) {
 	case map[string]any:
 		{
@@ -201,8 +251,13 @@ func readStarExpr(row any, index int) map[string]any {
 		}
 	default:
 		{
+			if key == nil {
+				return map[string]any{
+					fmt.Sprintf("col_%d", index): row,
+				}
+			}
 			return map[string]any{
-				fmt.Sprintf("col_%d", index): row,
+				*key: row,
 			}
 		}
 	}
@@ -215,14 +270,14 @@ func readAliasedExpr(expr *sqlparser.AliasedExpr) (string, error) {
 	return unwrap[string](ExprReader(nil, nil, expr.Expr, true))
 }
 
-func execSelect(from *[]any, row any, id int64, exprs sqlparser.SelectExprs) (map[string]any, error) {
+func execSelect(from *[]any, row any, id int64, key *string, exprs sqlparser.SelectExprs, groupBy GroupBy) (map[string]any, error) {
 	output := make(map[string]any, 0)
 LOOP:
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
-				output = readStarExpr(row, index)
+				output = readStarExpr(row, key, index)
 				break LOOP
 			}
 		case *sqlparser.AliasedExpr:
@@ -232,7 +287,7 @@ LOOP:
 					return nil, err
 				}
 				id := fmt.Sprintf("%d_%d", id, index)
-				result := ExprReader(from, row, exprType.Expr, id)
+				result := ExprReader(from, row, exprType.Expr, id, groupBy)
 				output[name] = result
 			}
 		default:
