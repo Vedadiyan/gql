@@ -33,87 +33,105 @@ func (c *Context) Prepare(query string) error {
 	return c.prepare(sqlStatement)
 }
 
-func (c *Context) prepare(statement sqlparser.Statement) error {
-	slct, ok := statement.(*sqlparser.Select)
-	if !ok {
-		return fmt.Errorf("invalid statement")
+func readAliasedTableExpr(document map[string]any, expr *sqlparser.AliasedTableExpr) ([]any, error) {
+	switch exprType := expr.Expr.(type) {
+	case sqlparser.TableName:
+		{
+			objName := exprType.Name
+			from, err := From(document, objName.String())
+			if err != nil {
+				return nil, err
+			}
+			name := expr.As.String()
+			if name != "" {
+				list := make([]any, len(from))
+				for index, item := range from {
+					list[index] = map[string]any{
+						name: item,
+					}
+				}
+				return list, nil
+			} else {
+				return from, nil
+			}
+		}
+	case *sqlparser.Subquery:
+		{
+			_sql := New(document)
+			_sql.prepare(exprType.Select)
+			from, err := _sql.Exec()
+			if err != nil {
+				return nil, err
+			}
+			name := expr.As.String()
+			if name != "" {
+				list := make([]any, len(from.([]any)))
+				for index, item := range from.([]any) {
+					list[index] = map[string]any{
+						name: item,
+					}
+				}
+				return list, nil
+			} else {
+				return from.([]any), nil
+			}
+		}
+	default:
+		{
+			return nil, UNSUPPORTED_CASE.Extend("invalid from")
+		}
 	}
-	fromExpr := slct.From[0]
-	switch fromExprType := fromExpr.(type) {
+}
+
+func (c *Context) setFrom(expr sqlparser.TableExpr) error {
+	switch fromExprType := expr.(type) {
 	case *sqlparser.AliasedTableExpr:
 		{
-			switch exprType := fromExprType.Expr.(type) {
-			case sqlparser.TableName:
-				{
-					objName := exprType.Name
-					from, err := From(c.document, objName.String())
-					if err != nil {
-						return err
-					}
-					name := fromExprType.As.String()
-					if name != "" {
-						list := make([]any, len(from))
-						for index, item := range from {
-							list[index] = map[string]any{
-								name: item,
-							}
-						}
-						c.from = list
-					} else {
-						c.from = from
-					}
-				}
-			case *sqlparser.Subquery:
-				{
-					_sql := New(c.document)
-					_sql.prepare(exprType.Select)
-					from, err := _sql.Exec()
-					if err != nil {
-						return err
-					}
-					name := fromExprType.As.String()
-					if name != "" {
-						list := make([]any, len(from.([]any)))
-						for index, item := range from.([]any) {
-							list[index] = map[string]any{
-								name: item,
-							}
-						}
-						c.from = list
-					} else {
-						c.from = from.([]any)
-					}
-				}
-			default:
-				{
-					return UNSUPPORTED_CASE.Extend("invalid from")
-				}
+			result, err := readAliasedTableExpr(c.document, fromExprType)
+			if err != nil {
+				return err
 			}
+			c.from = result
+			return nil
 		}
 	default:
 		{
 			return UNSUPPORTED_CASE.Extend("invalid from")
 		}
 	}
+}
 
+func (c *Context) prepare(statement sqlparser.Statement) error {
+	slct, ok := statement.(*sqlparser.Select)
+	if !ok {
+		return fmt.Errorf("invalid statement")
+	}
+	c.setFrom(slct.From[0])
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
 	return nil
+}
+
+func execWhere(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
+	if expr != nil {
+		result, err := unwrap[bool](ExprReader(scope, row, expr.Expr))
+		if err != nil {
+			return false, err
+		}
+		return result, nil
+	}
+	return true, nil
 }
 
 func (c *Context) Exec() (any, error) {
 	collect := make([]any, 0)
 	id := time.Now().UnixNano()
 	for _, row := range c.from {
-		final := true
-		if c.whereCond != nil {
-			result, err := unwrap[bool](ExprReader(&c.from, row, c.whereCond.Expr))
-			if err != nil {
-				return nil, err
-			}
-			final = result
+		cond, err := execWhere(&c.from, row, c.whereCond)
+		if err != nil {
+			return nil, err
 		}
-		if final {
+		if cond {
 			output := make(map[string]any, 0)
 			for index, i := range c.selectStmt {
 				switch iType := i.(type) {
