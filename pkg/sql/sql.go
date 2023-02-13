@@ -35,7 +35,15 @@ func (c *Context) Prepare(query string) error {
 func (c *Context) Exec() (any, error) {
 	id := time.Now().UnixNano()
 	collect := make([]any, 0)
-	for _, row := range c.from {
+	count := 0
+	for index, row := range c.from {
+		if index < c.offset {
+			continue
+		}
+		if count == c.limit {
+			break
+		}
+		count++
 		cond, err := execWhere(&c.from, row, c.whereCond)
 		if err != nil {
 			return nil, err
@@ -76,12 +84,29 @@ func (c *Context) setFrom(expr sqlparser.TableExpr) error {
 	}
 }
 
+func (c *Context) setLimit(expr *sqlparser.Limit) error {
+	if expr.Offset != nil {
+		offset, err := unwrap[float64](ExprReader(nil, nil, expr.Offset))
+		if err != nil {
+			return err
+		}
+		c.offset = int(offset)
+	}
+	limit, err := unwrap[float64](ExprReader(nil, nil, expr.Rowcount))
+	if err != nil {
+		return err
+	}
+	c.limit = int(limit)
+	return nil
+}
+
 func (c *Context) prepare(statement sqlparser.Statement) error {
 	slct, ok := statement.(*sqlparser.Select)
 	if !ok {
 		return fmt.Errorf("invalid statement")
 	}
 	c.setFrom(slct.From[0])
+	c.setLimit(slct.Limit)
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
 	return nil
