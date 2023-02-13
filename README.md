@@ -32,6 +32,15 @@ GQL allows you to query up multi-dimensional data in complex and large JSON file
         ctx := sql.New(json)
         result, err := ctx.Exec("SELECT ONCE(AVG(UNWIND(`$.root.data.users.{?}.age`))) as avg_of_age, name, `email.{0}` first_email FROM `$.root.data.users` WHERE `is_verified` = true")
     }
+    
+# Using Functions 
+To use functions, simply import them from the `function` package:
+
+    import (
+	    _ "github.com/vedadiyan/gql/pkg/functions/avg"
+	    _ "github.com/vedadiyan/gql/pkg/functions/once"
+	    _ "github.com/vedadiyan/gql/pkg/functions/unwind"
+    )
 
 # IMPORTANT NOTES
 
