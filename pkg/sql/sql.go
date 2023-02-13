@@ -14,6 +14,7 @@ type Context struct {
 	from       []any
 	offset     int
 	limit      int
+	groupBy    []string
 }
 
 func New(document map[string]any) *Context {
@@ -21,6 +22,7 @@ func New(document map[string]any) *Context {
 		document: document,
 		offset:   -1,
 		limit:    -1,
+		groupBy:  make([]string, 0),
 	}
 	return &ctx
 }
@@ -100,13 +102,34 @@ func (c *Context) setLimit(expr *sqlparser.Limit) error {
 	return nil
 }
 
+func (c *Context) setGroupBy(expr sqlparser.GroupBy) error {
+	for _, groupBy := range expr {
+		result, err := unwrap[string](ExprReader(nil, nil, groupBy, true))
+		if err != nil {
+			return err
+		}
+		c.groupBy = append(c.groupBy, result)
+	}
+	return nil
+}
+
 func (c *Context) prepare(statement sqlparser.Statement) error {
 	slct, ok := statement.(*sqlparser.Select)
 	if !ok {
 		return fmt.Errorf("invalid statement")
 	}
-	c.setFrom(slct.From[0])
-	c.setLimit(slct.Limit)
+	err := c.setFrom(slct.From[0])
+	if err != nil {
+		return err
+	}
+	err = c.setLimit(slct.Limit)
+	if err != nil {
+		return err
+	}
+	err = c.setGroupBy(slct.GroupBy)
+	if err != nil {
+		return err
+	}
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
 	return nil
