@@ -18,7 +18,7 @@ const (
 
 func CheckSingnature(args []any, argTypes []ArgTypes, readers []Reader) error {
 	if len(args)^len(argTypes)^len(readers) != len(args) {
-		return sql.EXPECTAION_FAILED.Extend(fmt.Sprintf("expected %d arguments and readers but recieved %d argument and %d readers", len(argTypes), len(args), len(readers)))
+		return sql.EXPECTATION_FAILED.Extend(fmt.Sprintf("expected %d arguments and readers but received %d argument and %d readers", len(argTypes), len(args), len(readers)))
 	}
 	for index, item := range args {
 		switch argTypes[index] {
@@ -26,7 +26,7 @@ func CheckSingnature(args []any, argTypes []ArgTypes, readers []Reader) error {
 			{
 				str, ok := item.(string)
 				if !ok {
-					return sql.EXPECTAION_FAILED.Extend(fmt.Sprintf("expected string but recieved %T", item))
+					return sql.EXPECTATION_FAILED.Extend(fmt.Sprintf("expected string but received %T", item))
 				}
 				err := readers[index](str)
 				if err != nil {
@@ -37,7 +37,7 @@ func CheckSingnature(args []any, argTypes []ArgTypes, readers []Reader) error {
 			{
 				number, ok := item.(float64)
 				if !ok {
-					return sql.EXPECTAION_FAILED.Extend(fmt.Sprintf("expected float64 but recieved %T", item))
+					return sql.EXPECTATION_FAILED.Extend(fmt.Sprintf("expected float64 but received %T", item))
 				}
 				err := readers[index](number)
 				if err != nil {
@@ -48,7 +48,7 @@ func CheckSingnature(args []any, argTypes []ArgTypes, readers []Reader) error {
 			{
 				boolean, ok := item.(bool)
 				if !ok {
-					return sql.EXPECTAION_FAILED.Extend(fmt.Sprintf("expected boolean but recieved %T", item))
+					return sql.EXPECTATION_FAILED.Extend(fmt.Sprintf("expected boolean but received %T", item))
 				}
 				err := readers[index](boolean)
 				if err != nil {

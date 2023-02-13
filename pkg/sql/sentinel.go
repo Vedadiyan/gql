@@ -19,5 +19,5 @@ const (
 	INVALID_TYPE       SQLError = SQLError("invalid type")
 	UNSUPPORTED_CASE   SQLError = SQLError("unsupported operation")
 	KEY_NOT_FOUND      SQLError = SQLError("key not found")
-	EXPECTAION_FAILED  SQLError = SQLError("expectation failed")
+	EXPECTATION_FAILED SQLError = SQLError("expectation failed")
 )
