@@ -75,7 +75,7 @@ func (c *Context) Exec() (any, error) {
 					}
 				default:
 					{
-						keys = append(keys, fmt.Sprintf("%v", value))
+						keys = append(keys, fmt.Sprintf("%s:%v", groupBy, value))
 					}
 				}
 			}
