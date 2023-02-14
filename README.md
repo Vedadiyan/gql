@@ -50,7 +50,7 @@ This query will retrieve `amount` from an array of objects called `tax_data`.
 
 4- Array Selectors 
 
-    SELECT `rates.{0}` AS first_item  FROM `$.data.items` WHERE `rates.{?}.amount` > 10
+    SELECT `rates.{0}` AS first_item FROM `$.data.items` WHERE `rates.{?}.amount` > 10
 
 Array indexes can be reached using the `{}` selector. You can pass either a number or a wildcard using the `{?}` to select and query arrays.
 
