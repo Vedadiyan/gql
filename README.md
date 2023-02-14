@@ -22,9 +22,9 @@ GQL allows you to query up multi-dimensional data in complex and large JSON file
  - [X] Singleton Functions (`ONCE` function only executes the function once for all rows) 
  - [X] Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
  - [X] Limit
+ - [X] Group By
  - [ ] Joins (planned) *GQL does not require joins but this feature will be added for convenience in future versions* 
- - [ ] Group By (in development) 
- - [ ] Having Expression 
+ - [ ] Having Expression (in development) 
 
 # Examples
 
