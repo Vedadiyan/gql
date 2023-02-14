@@ -5,9 +5,12 @@
 
 GQL is an implementation of `MySQL` querying syntax for JSON. It is simply SQL for JSON.
 
-  
+
 
 GQL allows you to query up multi-dimensional data in complex and large JSON files at very high performance. The motivation behind writing this library was to use it together with `Protobuf` in order to bring about automatic mapping between `Message` structures and JSON data at runtime.
+
+# Compilation 
+GQL relies on  [sqlparser](https://github.com/xwb1989/sqlparser) which itself relies on [vitess](https://github.com/vitessio/vitess). For that reason, compilation of `MySQL` is done reliably and efficiently as vitess is a reliable database clustering system for horizontal scaling of MySQL through generalized sharding.
 
 # Usage 
 You can use GQL to re-model JSON data structures so that they can be auto mapped to your desired data models. For instance, if you are writing a microservice that retrieves data from a third-party API, you can focus on modeling internal data structures while using GQL to re-shape the output of that API to match the internal data model. Once this is done, the output of GQL can be automatically mapped to the internal data model.  
