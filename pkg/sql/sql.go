@@ -100,7 +100,7 @@ func (c *Context) Exec() (any, error) {
 			collect = append(collect, result)
 		}
 	} else {
-		if c.from[0] == nil {
+		if len(c.from) > 0 && c.from[0] == nil {
 			result, err := execSelect(&c.from, c.document, id, nil, c.selectStmt, nil)
 			if err != nil {
 				return nil, err
