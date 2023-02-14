@@ -60,7 +60,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("SELECT (SELECT `daily_prices`, `allotment` FROM `Q.Rate`) FROM (SELECT `rates` Rate FROM `$.data.hotels`) Q --GROUP BY `Q.Rate.meal`, `Q.Rate.any_residency` --LIMIT 2 OFFSET 10 --WHERE `rates.{?}.payment_options.payment_types.{?}.show_amount` = '2003.00' --not like '%als' and `ref` = CASE WHEN `test` BETWEEN 0 AND 2 THEN 'small' WHEN `test` BETWEEN 100 AND 500 THEN 'medium' ELSE 'large' END")
+	sql.Prepare("SELECT `Q1.rates.{0}` as first, `Q2.id` as second FROM `$.data.hotels` AS Q1 JOIN `$.data.hotels` AS Q2 ON `Q1.id` = `Q2.id` WHERE `Q1.id` = 'the_strand_palace'")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()
@@ -86,7 +86,7 @@ func TestHeavyProtobuf(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("select id, (select `match_hash`,`daily_prices` as rates, `meal`, (select (select `show_amount`, `currency_code`) as Amount from `payment_options.payment_types`) as payment_types from `rates`) as rates from `$.data.hotels`")
+	sql.Prepare("select id, (select `match_hash`,`daily_prices` as rates, `meal`, (select (select `show_amount`, `currency_code`) as Amount from `payment_options.payment_types`) as payment_types from `rates` limit 1) as rates from `$.data.hotels` limit 1")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()

@@ -1,721 +1,6 @@
 [
 	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"250.37",
-				"250.37",
-				"250.37",
-				"250.37",
-				"250.37",
-				"250.37",
-				"250.37",
-				"250.37"
-			],
-			"deposit": null,
-			"match_hash": "m-1aab36b4-1366-5c5e-a031-323082b76e0f",
-			"meal": "nomeal",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2003.00",
-									"amount_show": "2003.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2003.00",
-											"amount_net": "2003.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2003.00",
-											"amount_net": "2003.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2003.00",
-								"amount_net": "2003.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2003.00",
-								"amount_net": "2003.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2003.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "222.56",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								},
-								{
-									"amount": "999999",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 5,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Superior Double room",
-				"main_room_type": "Superior Double room",
-				"misc_room_type": null
-			},
-			"room_name": "Superior Double room (full double bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"273.62",
-				"273.62",
-				"273.62",
-				"273.62",
-				"273.62",
-				"273.62",
-				"273.62",
-				"273.62"
-			],
-			"deposit": null,
-			"match_hash": "m-58efc57b-6413-5faf-a780-71a742a4a4da",
-			"meal": "nomeal",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2189.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2189.00",
-									"amount_show": "2189.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2189.00",
-											"amount_net": "2189.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2189.00",
-											"amount_net": "2189.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2189.00",
-								"amount_net": "2189.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2189.00",
-								"amount_net": "2189.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2189.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "243.22",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 6,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Deluxe Double room",
-				"main_room_type": "Deluxe Double room",
-				"misc_room_type": null
-			},
-			"room_name": "Deluxe Double room (full double bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"non-smoking",
-				"king-bed"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"274.25",
-				"274.25",
-				"274.25",
-				"274.25",
-				"274.25",
-				"274.25",
-				"274.25",
-				"274.25"
-			],
-			"deposit": null,
-			"match_hash": "m-94e71107-acde-53e5-a31a-b1725ce63076",
-			"meal": "nomeal",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2194.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2194.00",
-									"amount_show": "2194.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2194.00",
-											"amount_net": "2194.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2194.00",
-											"amount_net": "2194.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2194.00",
-								"amount_net": "2194.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2194.00",
-								"amount_net": "2194.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2194.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "243.78",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 5,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Superior Double room",
-				"main_room_type": "Superior Double room",
-				"misc_room_type": "king size bed"
-			},
-			"room_name": "Superior Double room (full double bed) (king size bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"non-smoking",
-				"king-bed",
-				"window"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"284.62",
-				"284.62",
-				"284.62",
-				"284.62",
-				"284.62",
-				"284.62",
-				"284.62",
-				"284.62"
-			],
-			"deposit": null,
-			"match_hash": "m-647c805b-f568-5013-ad95-9a5732caa137",
-			"meal": "nomeal",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2277.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2277.00",
-									"amount_show": "2277.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2277.00",
-											"amount_net": "2277.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2277.00",
-											"amount_net": "2277.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2277.00",
-								"amount_net": "2277.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2277.00",
-								"amount_net": "2277.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2277.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "253.00",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 6,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Deluxe Double room",
-				"main_room_type": "Deluxe Double room",
-				"misc_room_type": "king size bed"
-			},
-			"room_name": "Deluxe Double room (full double bed) (king size bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"294.37",
-				"294.37",
-				"294.37",
-				"294.37",
-				"294.37",
-				"294.37",
-				"294.37",
-				"294.37"
-			],
-			"deposit": null,
-			"match_hash": "m-b9b26ee6-fc90-5ae9-a653-5ef3cde5797a",
-			"meal": "nomeal",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2355.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-17T21:00:00",
-							"policies": [
-								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-17T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "259.00",
-									"amount_show": "259.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "259.00",
-											"amount_net": "259.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "259.00",
-											"amount_net": "259.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-17T21:00:00"
-								},
-								{
-									"amount_charge": "2355.00",
-									"amount_show": "2355.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2355.00",
-											"amount_net": "2355.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2355.00",
-											"amount_net": "2355.00"
-										}
-									},
-									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2355.00",
-								"amount_net": "2355.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2355.00",
-								"amount_net": "2355.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2355.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "261.67",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 5,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Superior Double room",
-				"main_room_type": "Superior Double room",
-				"misc_room_type": null
-			},
-			"room_name": "Superior Double room (full double bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"318.62",
-				"318.62",
-				"318.62",
-				"318.62",
-				"318.62",
-				"318.62",
-				"318.62",
-				"318.62"
-			],
-			"deposit": null,
-			"match_hash": "m-1b0d93cb-7ead-5d8f-9fc3-c3c5d914e1a0",
-			"meal": "nomeal",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2549.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2549.00",
-									"amount_show": "2549.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2549.00",
-											"amount_net": "2549.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2549.00",
-											"amount_net": "2549.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2549.00",
-								"amount_net": "2549.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2549.00",
-								"amount_net": "2549.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2549.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "283.22",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 0,
-				"capacity": 0,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 6,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": null,
-				"main_name": "Deluxe room",
-				"main_room_type": "Deluxe room",
-				"misc_room_type": null
-			},
-			"room_name": "Deluxe room",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
+		"first": {
 			"allotment": 1,
 			"amenities_data": [
 				"non-smoking",
@@ -724,105 +9,69 @@
 			"any_residency": false,
 			"bar_rate_price_data": null,
 			"daily_prices": [
-				"321.75",
-				"321.75",
-				"321.75",
-				"321.75",
-				"321.75",
-				"321.75",
-				"321.75",
-				"321.75"
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13"
 			],
 			"deposit": null,
-			"match_hash": "m-6de2d3d0-d33c-5581-8f54-ae7c18c563f9",
+			"match_hash": "m-13afe278-d618-5960-a2f3-7e781fd04ad8",
 			"meal": "nomeal",
 			"no_show": null,
 			"payment_options": {
 				"payment_types": [
 					{
-						"amount": "2574.00",
+						"amount": "1041.00",
 						"by": null,
 						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-17T21:00:00",
+							"free_cancellation_before": null,
 							"policies": [
 								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
+									"amount_charge": "1041.00",
+									"amount_show": "1041.00",
 									"commission_info": {
 										"charge": {
 											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										},
 										"show": {
 											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-17T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "283.00",
-									"amount_show": "283.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "283.00",
-											"amount_net": "283.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "283.00",
-											"amount_net": "283.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-17T21:00:00"
-								},
-								{
-									"amount_charge": "2574.00",
-									"amount_show": "2574.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2574.00",
-											"amount_net": "2574.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2574.00",
-											"amount_net": "2574.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										}
 									},
 									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
+									"start_at": null
 								}
 							]
 						},
 						"commission_info": {
 							"charge": {
 								"amount_commission": "0.00",
-								"amount_gross": "2574.00",
-								"amount_net": "2574.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							},
 							"show": {
 								"amount_commission": "0.00",
-								"amount_gross": "2574.00",
-								"amount_net": "2574.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							}
 						},
 						"currency_code": "EUR",
 						"is_need_credit_card_data": false,
 						"is_need_cvc": false,
 						"perks": {},
-						"show_amount": "2574.00",
+						"show_amount": "1041.00",
 						"show_currency_code": "EUR",
 						"tax_data": {
 							"taxes": [
 								{
-									"amount": "286.00",
+									"amount": "115.67",
 									"currency_code": "EUR",
 									"included_by_supplier": true,
 									"name": "vat"
@@ -845,133 +94,97 @@
 				"class": 3,
 				"club": 0,
 				"family": 0,
-				"quality": 6,
+				"quality": 2,
 				"sex": 0
 			},
 			"room_data_trans": {
 				"bathroom": null,
 				"bedding_type": "full double bed",
-				"main_name": "Deluxe Double room",
-				"main_room_type": "Deluxe Double room",
+				"main_name": "Standard Double room",
+				"main_room_type": "Standard Double room",
 				"misc_room_type": null
 			},
-			"room_name": "Deluxe Double room (full double bed)",
+			"room_name": "Standard Double room (full double bed)",
 			"sell_price_limits": null,
 			"serp_filters": [
 				"has_bathroom"
 			]
-		}
+		},
+		"second": "the_strand_palace"
 	},
 	{
-		"Q": {
+		"first": {
 			"allotment": 1,
 			"amenities_data": [
 				"non-smoking",
-				"king-bed",
 				"window"
 			],
 			"any_residency": false,
 			"bar_rate_price_data": null,
 			"daily_prices": [
-				"322.50",
-				"322.50",
-				"322.50",
-				"322.50",
-				"322.50",
-				"322.50",
-				"322.50",
-				"322.50"
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13"
 			],
 			"deposit": null,
-			"match_hash": "m-b0067399-b5af-5a42-bfb3-88542e33b7b9",
+			"match_hash": "m-13afe278-d618-5960-a2f3-7e781fd04ad8",
 			"meal": "nomeal",
 			"no_show": null,
 			"payment_options": {
 				"payment_types": [
 					{
-						"amount": "2580.00",
+						"amount": "1041.00",
 						"by": null,
 						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-17T21:00:00",
+							"free_cancellation_before": null,
 							"policies": [
 								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
+									"amount_charge": "1041.00",
+									"amount_show": "1041.00",
 									"commission_info": {
 										"charge": {
 											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										},
 										"show": {
 											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-17T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "258.00",
-									"amount_show": "258.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "258.00",
-											"amount_net": "258.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "258.00",
-											"amount_net": "258.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-17T21:00:00"
-								},
-								{
-									"amount_charge": "2580.00",
-									"amount_show": "2580.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2580.00",
-											"amount_net": "2580.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2580.00",
-											"amount_net": "2580.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										}
 									},
 									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
+									"start_at": null
 								}
 							]
 						},
 						"commission_info": {
 							"charge": {
 								"amount_commission": "0.00",
-								"amount_gross": "2580.00",
-								"amount_net": "2580.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							},
 							"show": {
 								"amount_commission": "0.00",
-								"amount_gross": "2580.00",
-								"amount_net": "2580.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							}
 						},
 						"currency_code": "EUR",
 						"is_need_credit_card_data": false,
 						"is_need_cvc": false,
 						"perks": {},
-						"show_amount": "2580.00",
+						"show_amount": "1041.00",
 						"show_currency_code": "EUR",
 						"tax_data": {
 							"taxes": [
 								{
-									"amount": "286.67",
+									"amount": "115.67",
 									"currency_code": "EUR",
 									"included_by_supplier": true,
 									"name": "vat"
@@ -994,133 +207,97 @@
 				"class": 3,
 				"club": 0,
 				"family": 0,
-				"quality": 5,
+				"quality": 2,
 				"sex": 0
 			},
 			"room_data_trans": {
 				"bathroom": null,
 				"bedding_type": "full double bed",
-				"main_name": "Superior Double room",
-				"main_room_type": "Superior Double room",
-				"misc_room_type": "king size bed"
+				"main_name": "Standard Double room",
+				"main_room_type": "Standard Double room",
+				"misc_room_type": null
 			},
-			"room_name": "Superior Double room (full double bed) (king size bed)",
+			"room_name": "Standard Double room (full double bed)",
 			"sell_price_limits": null,
 			"serp_filters": [
 				"has_bathroom"
 			]
-		}
+		},
+		"second": "the_strand_palace"
 	},
 	{
-		"Q": {
+		"first": {
 			"allotment": 1,
 			"amenities_data": [
 				"non-smoking",
-				"window",
-				"king-bed"
+				"window"
 			],
 			"any_residency": false,
 			"bar_rate_price_data": null,
 			"daily_prices": [
-				"334.62",
-				"334.62",
-				"334.62",
-				"334.62",
-				"334.62",
-				"334.62",
-				"334.62",
-				"334.62"
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13"
 			],
 			"deposit": null,
-			"match_hash": "m-04970570-8f1b-5cc3-96b9-80d4e79d0577",
+			"match_hash": "m-13afe278-d618-5960-a2f3-7e781fd04ad8",
 			"meal": "nomeal",
 			"no_show": null,
 			"payment_options": {
 				"payment_types": [
 					{
-						"amount": "2677.00",
+						"amount": "1041.00",
 						"by": null,
 						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-17T21:00:00",
+							"free_cancellation_before": null,
 							"policies": [
 								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
+									"amount_charge": "1041.00",
+									"amount_show": "1041.00",
 									"commission_info": {
 										"charge": {
 											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										},
 										"show": {
 											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-17T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "267.00",
-									"amount_show": "267.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "267.00",
-											"amount_net": "267.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "267.00",
-											"amount_net": "267.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-17T21:00:00"
-								},
-								{
-									"amount_charge": "2677.00",
-									"amount_show": "2677.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2677.00",
-											"amount_net": "2677.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2677.00",
-											"amount_net": "2677.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										}
 									},
 									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
+									"start_at": null
 								}
 							]
 						},
 						"commission_info": {
 							"charge": {
 								"amount_commission": "0.00",
-								"amount_gross": "2677.00",
-								"amount_net": "2677.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							},
 							"show": {
 								"amount_commission": "0.00",
-								"amount_gross": "2677.00",
-								"amount_net": "2677.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							}
 						},
 						"currency_code": "EUR",
 						"is_need_credit_card_data": false,
 						"is_need_cvc": false,
 						"perks": {},
-						"show_amount": "2677.00",
+						"show_amount": "1041.00",
 						"show_currency_code": "EUR",
 						"tax_data": {
 							"taxes": [
 								{
-									"amount": "297.44",
+									"amount": "115.67",
 									"currency_code": "EUR",
 									"included_by_supplier": true,
 									"name": "vat"
@@ -1143,137 +320,26 @@
 				"class": 3,
 				"club": 0,
 				"family": 0,
-				"quality": 6,
+				"quality": 2,
 				"sex": 0
 			},
 			"room_data_trans": {
 				"bathroom": null,
 				"bedding_type": "full double bed",
-				"main_name": "Deluxe Double room",
-				"main_room_type": "Deluxe Double room",
-				"misc_room_type": "king size bed"
-			},
-			"room_name": "Deluxe Double room (full double bed) (king size bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"non-smoking",
-				"window"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"337.25",
-				"337.25",
-				"337.25",
-				"337.25",
-				"337.25",
-				"337.25",
-				"337.25",
-				"337.25"
-			],
-			"deposit": null,
-			"match_hash": "m-51d02332-2397-596c-a19e-8bfb35cb2c7a",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2698.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2698.00",
-									"amount_show": "2698.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2698.00",
-											"amount_net": "2698.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2698.00",
-											"amount_net": "2698.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2698.00",
-								"amount_net": "2698.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2698.00",
-								"amount_net": "2698.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2698.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "299.78",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 0,
-				"capacity": 0,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 5,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": null,
-				"main_name": "Superior room",
-				"main_room_type": "Superior room",
+				"main_name": "Standard Double room",
+				"main_room_type": "Standard Double room",
 				"misc_room_type": null
 			},
-			"room_name": "Superior room",
+			"room_name": "Standard Double room (full double bed)",
 			"sell_price_limits": null,
 			"serp_filters": [
 				"has_bathroom"
 			]
-		}
+		},
+		"second": "the_strand_palace"
 	},
 	{
-		"Q": {
+		"first": {
 			"allotment": 1,
 			"amenities_data": [
 				"non-smoking",
@@ -1282,414 +348,40 @@
 			"any_residency": false,
 			"bar_rate_price_data": null,
 			"daily_prices": [
-				"360.50",
-				"360.50",
-				"360.50",
-				"360.50",
-				"360.50",
-				"360.50",
-				"360.50",
-				"360.50"
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13",
+				"130.13"
 			],
 			"deposit": null,
-			"match_hash": "m-cf9deb22-08b7-5e02-96c5-950a1ba9db2c",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2884.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2884.00",
-									"amount_show": "2884.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2884.00",
-											"amount_net": "2884.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2884.00",
-											"amount_net": "2884.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2884.00",
-								"amount_net": "2884.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2884.00",
-								"amount_net": "2884.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2884.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "320.44",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 0,
-				"capacity": 0,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 6,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": null,
-				"main_name": "Deluxe room",
-				"main_room_type": "Deluxe room",
-				"misc_room_type": null
-			},
-			"room_name": "Deluxe room",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"king-bed",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"361.25",
-				"361.25",
-				"361.25",
-				"361.25",
-				"361.25",
-				"361.25",
-				"361.25",
-				"361.25"
-			],
-			"deposit": null,
-			"match_hash": "m-8b9f9f5d-42ad-5055-91a6-f00536fd4eb1",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2890.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": null,
-							"policies": [
-								{
-									"amount_charge": "2890.00",
-									"amount_show": "2890.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2890.00",
-											"amount_net": "2890.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2890.00",
-											"amount_net": "2890.00"
-										}
-									},
-									"end_at": null,
-									"start_at": null
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2890.00",
-								"amount_net": "2890.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2890.00",
-								"amount_net": "2890.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2890.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "321.11",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 5,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Superior Double room",
-				"main_room_type": "Superior Double room",
-				"misc_room_type": "king size bed"
-			},
-			"room_name": "Superior Double room (full double bed) (king size bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"non-smoking",
-				"window"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"370.75",
-				"370.75",
-				"370.75",
-				"370.75",
-				"370.75",
-				"370.75",
-				"370.75",
-				"370.75"
-			],
-			"deposit": null,
-			"match_hash": "m-780be28a-44a2-5ce7-bf95-5743dc469ef2",
+			"match_hash": "m-13afe278-d618-5960-a2f3-7e781fd04ad8",
 			"meal": "nomeal",
 			"no_show": null,
 			"payment_options": {
 				"payment_types": [
 					{
-						"amount": "2966.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-16T21:00:00",
-							"policies": [
-								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-16T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "355.00",
-									"amount_show": "355.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "355.00",
-											"amount_net": "355.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "355.00",
-											"amount_net": "355.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-16T21:00:00"
-								},
-								{
-									"amount_charge": "2966.00",
-									"amount_show": "2966.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "2966.00",
-											"amount_net": "2966.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "2966.00",
-											"amount_net": "2966.00"
-										}
-									},
-									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "2966.00",
-								"amount_net": "2966.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "2966.00",
-								"amount_net": "2966.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "2966.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "329.56",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 0,
-				"capacity": 0,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 6,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": null,
-				"main_name": "Deluxe room",
-				"main_room_type": "Deluxe room",
-				"misc_room_type": null
-			},
-			"room_name": "Deluxe room",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"king-bed",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"373.12",
-				"373.12",
-				"373.12",
-				"373.12",
-				"373.12",
-				"373.12",
-				"373.12",
-				"373.12"
-			],
-			"deposit": null,
-			"match_hash": "m-130fc3fa-393c-596b-986d-2cb8c43134f2",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "2985.00",
+						"amount": "1041.00",
 						"by": null,
 						"cancellation_penalties": {
 							"free_cancellation_before": null,
 							"policies": [
 								{
-									"amount_charge": "2985.00",
-									"amount_show": "2985.00",
+									"amount_charge": "1041.00",
+									"amount_show": "1041.00",
 									"commission_info": {
 										"charge": {
 											"amount_commission": "0.00",
-											"amount_gross": "2985.00",
-											"amount_net": "2985.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										},
 										"show": {
 											"amount_commission": "0.00",
-											"amount_gross": "2985.00",
-											"amount_net": "2985.00"
+											"amount_gross": "1041.00",
+											"amount_net": "1041.00"
 										}
 									},
 									"end_at": null,
@@ -1700,25 +392,25 @@
 						"commission_info": {
 							"charge": {
 								"amount_commission": "0.00",
-								"amount_gross": "2985.00",
-								"amount_net": "2985.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							},
 							"show": {
 								"amount_commission": "0.00",
-								"amount_gross": "2985.00",
-								"amount_net": "2985.00"
+								"amount_gross": "1041.00",
+								"amount_net": "1041.00"
 							}
 						},
 						"currency_code": "EUR",
 						"is_need_credit_card_data": false,
 						"is_need_cvc": false,
 						"perks": {},
-						"show_amount": "2985.00",
+						"show_amount": "1041.00",
 						"show_currency_code": "EUR",
 						"tax_data": {
 							"taxes": [
 								{
-									"amount": "331.67",
+									"amount": "115.67",
 									"currency_code": "EUR",
 									"included_by_supplier": true,
 									"name": "vat"
@@ -1741,615 +433,22 @@
 				"class": 3,
 				"club": 0,
 				"family": 0,
-				"quality": 6,
+				"quality": 2,
 				"sex": 0
 			},
 			"room_data_trans": {
 				"bathroom": null,
 				"bedding_type": "full double bed",
-				"main_name": "Deluxe Double room",
-				"main_room_type": "Deluxe Double room",
-				"misc_room_type": "king size bed"
-			},
-			"room_name": "Deluxe Double room (full double bed) (king size bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"non-smoking",
-				"window"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"384.50",
-				"384.50",
-				"384.50",
-				"384.50",
-				"384.50",
-				"384.50",
-				"384.50",
-				"384.50"
-			],
-			"deposit": null,
-			"match_hash": "m-8ae6eab3-bcc9-5774-9d2c-b6524d1f9803",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "3076.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-16T21:00:00",
-							"policies": [
-								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-16T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "369.00",
-									"amount_show": "369.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "369.00",
-											"amount_net": "369.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "369.00",
-											"amount_net": "369.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-16T21:00:00"
-								},
-								{
-									"amount_charge": "3076.00",
-									"amount_show": "3076.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "3076.00",
-											"amount_net": "3076.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "3076.00",
-											"amount_net": "3076.00"
-										}
-									},
-									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "3076.00",
-								"amount_net": "3076.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "3076.00",
-								"amount_net": "3076.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "3076.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "341.78",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 0,
-				"capacity": 0,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 5,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": null,
-				"main_name": "Superior room",
-				"main_room_type": "Superior room",
+				"main_name": "Standard Double room",
+				"main_room_type": "Standard Double room",
 				"misc_room_type": null
 			},
-			"room_name": "Superior room",
+			"room_name": "Standard Double room (full double bed)",
 			"sell_price_limits": null,
 			"serp_filters": [
 				"has_bathroom"
 			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"416.00",
-				"416.00",
-				"416.00",
-				"416.00",
-				"416.00",
-				"416.00",
-				"416.00",
-				"416.00"
-			],
-			"deposit": null,
-			"match_hash": "m-a85feba1-1d87-53bd-bdc1-65e1b9699ad5",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "3328.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-16T21:00:00",
-							"policies": [
-								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-16T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "399.00",
-									"amount_show": "399.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "399.00",
-											"amount_net": "399.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "399.00",
-											"amount_net": "399.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-16T21:00:00"
-								},
-								{
-									"amount_charge": "3328.00",
-									"amount_show": "3328.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "3328.00",
-											"amount_net": "3328.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "3328.00",
-											"amount_net": "3328.00"
-										}
-									},
-									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "3328.00",
-								"amount_net": "3328.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "3328.00",
-								"amount_net": "3328.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "3328.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "369.78",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 0,
-				"capacity": 0,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 6,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": null,
-				"main_name": "Deluxe room",
-				"main_room_type": "Deluxe room",
-				"misc_room_type": null
-			},
-			"room_name": "Deluxe room",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"king-bed",
-				"non-smoking",
-				"window"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"416.87",
-				"416.87",
-				"416.87",
-				"416.87",
-				"416.87",
-				"416.87",
-				"416.87",
-				"416.87"
-			],
-			"deposit": null,
-			"match_hash": "m-5a9a28ef-c33a-5128-8d47-6df0c4a5b270",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "3335.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-16T21:00:00",
-							"policies": [
-								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-16T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "366.00",
-									"amount_show": "366.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "366.00",
-											"amount_net": "366.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "366.00",
-											"amount_net": "366.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-16T21:00:00"
-								},
-								{
-									"amount_charge": "3335.00",
-									"amount_show": "3335.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "3335.00",
-											"amount_net": "3335.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "3335.00",
-											"amount_net": "3335.00"
-										}
-									},
-									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "3335.00",
-								"amount_net": "3335.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "3335.00",
-								"amount_net": "3335.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "3335.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "370.56",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 5,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Superior Double room",
-				"main_room_type": "Superior Double room",
-				"misc_room_type": "king size bed"
-			},
-			"room_name": "Superior Double room (full double bed) (king size bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
-	},
-	{
-		"Q": {
-			"allotment": 1,
-			"amenities_data": [
-				"window",
-				"king-bed",
-				"non-smoking"
-			],
-			"any_residency": false,
-			"bar_rate_price_data": null,
-			"daily_prices": [
-				"430.87",
-				"430.87",
-				"430.87",
-				"430.87",
-				"430.87",
-				"430.87",
-				"430.87",
-				"430.87"
-			],
-			"deposit": null,
-			"match_hash": "m-9816526e-6fe2-59da-9513-3d420a5ede35",
-			"meal": "breakfast",
-			"no_show": null,
-			"payment_options": {
-				"payment_types": [
-					{
-						"amount": "3447.00",
-						"by": null,
-						"cancellation_penalties": {
-							"free_cancellation_before": "2023-02-16T21:00:00",
-							"policies": [
-								{
-									"amount_charge": "0.00",
-									"amount_show": "0.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "0.00",
-											"amount_net": "0.00"
-										}
-									},
-									"end_at": "2023-02-16T21:00:00",
-									"start_at": null
-								},
-								{
-									"amount_charge": "413.00",
-									"amount_show": "413.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "413.00",
-											"amount_net": "413.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "413.00",
-											"amount_net": "413.00"
-										}
-									},
-									"end_at": "2023-02-18T21:00:00",
-									"start_at": "2023-02-16T21:00:00"
-								},
-								{
-									"amount_charge": "3447.00",
-									"amount_show": "3447.00",
-									"commission_info": {
-										"charge": {
-											"amount_commission": "0.00",
-											"amount_gross": "3447.00",
-											"amount_net": "3447.00"
-										},
-										"show": {
-											"amount_commission": "0.00",
-											"amount_gross": "3447.00",
-											"amount_net": "3447.00"
-										}
-									},
-									"end_at": null,
-									"start_at": "2023-02-18T21:00:00"
-								}
-							]
-						},
-						"commission_info": {
-							"charge": {
-								"amount_commission": "0.00",
-								"amount_gross": "3447.00",
-								"amount_net": "3447.00"
-							},
-							"show": {
-								"amount_commission": "0.00",
-								"amount_gross": "3447.00",
-								"amount_net": "3447.00"
-							}
-						},
-						"currency_code": "EUR",
-						"is_need_credit_card_data": false,
-						"is_need_cvc": false,
-						"perks": {},
-						"show_amount": "3447.00",
-						"show_currency_code": "EUR",
-						"tax_data": {
-							"taxes": [
-								{
-									"amount": "383.00",
-									"currency_code": "EUR",
-									"included_by_supplier": true,
-									"name": "vat"
-								}
-							]
-						},
-						"type": "deposit",
-						"vat_data": {
-							"applied": false,
-							"included": false,
-							"value": "0.00"
-						}
-					}
-				]
-			},
-			"rg_ext": {
-				"bathroom": 2,
-				"bedding": 3,
-				"capacity": 2,
-				"class": 3,
-				"club": 0,
-				"family": 0,
-				"quality": 6,
-				"sex": 0
-			},
-			"room_data_trans": {
-				"bathroom": null,
-				"bedding_type": "full double bed",
-				"main_name": "Deluxe Double room",
-				"main_room_type": "Deluxe Double room",
-				"misc_room_type": "king size bed"
-			},
-			"room_name": "Deluxe Double room (full double bed) (king size bed)",
-			"sell_price_limits": null,
-			"serp_filters": [
-				"has_bathroom"
-			]
-		}
+		},
+		"second": "the_strand_palace"
 	}
 ]
