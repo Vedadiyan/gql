@@ -18,7 +18,7 @@ GQL allows you to query up multi-dimensional data in complex and large JSON file
  - [X] Case When
  - [X] Aliases 
  - [X] Like Expressions 
- - [X] Aggregated Functions (functions are extensible and can be injected when required)
+ - [X] Aggregated Functions (GQL functions are extensible and can be injected when required)
  - [X] Singleton Functions (`ONCE` function only executes the function once for all rows) 
  - [X] Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
  - [X] Limit
