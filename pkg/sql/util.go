@@ -47,6 +47,15 @@ func isColumnName(opt ...any) bool {
 	return len(opt) > 0 && opt[0] == true
 }
 
+func hasGroupBy(opt ...any) (GroupBy, bool) {
+	for _, value := range opt {
+		if groupBy, ok := value.(GroupBy); ok {
+			return groupBy, true
+		}
+	}
+	return nil, false
+}
+
 func isIndex(key string) bool {
 	return strings.HasPrefix(key, "{") && strings.HasSuffix(key, "}")
 }

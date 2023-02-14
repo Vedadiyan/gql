@@ -273,6 +273,35 @@ func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
 			}
 			return toResult(out), nil
 		}
+	case []any:
+		{
+			groupBy, _ := hasGroupBy(opt...)
+			_ = groupBy
+			output := make([]any, 0)
+			for _, row := range r {
+				result, err := colExpr(row, expr, opt...)
+				if err != nil {
+					return nil, err
+				}
+				switch result.(type) {
+				case map[string]any, []any:
+					{
+						output = append(output, result)
+					}
+				default:
+					{
+						_, ok := groupBy[expr.Name.String()]
+						if ok {
+							return result, nil
+						}
+						output = append(output, result)
+
+					}
+				}
+
+			}
+			return toResult(output), nil
+		}
 	}
 	return nil, nil
 }
@@ -388,12 +417,30 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 		}
 	case *sqlparser.Subquery:
 		{
-			context := New(row.(map[string]any))
-			err := context.prepare(t.Select)
-			if err != nil {
-				return wrap(nil, err)
+			switch rowType := row.(type) {
+			case map[string]any:
+				{
+					context := New(rowType)
+					err := context.prepare(t.Select)
+					if err != nil {
+						return wrap(nil, err)
+					}
+					return wrap(context.Exec())
+				}
+			case []any:
+				{
+					output := make([]any, 0)
+					for _, item := range rowType {
+						value := ExprReader(jo, item, expr, opt...)
+						if err, ok := value.(error); ok {
+							return wrap(nil, err)
+						}
+						output = append(output, value)
+					}
+					return wrap(output, nil)
+				}
 			}
-			return wrap(context.Exec())
+
 		}
 	case *sqlparser.ExistsExpr:
 		{
