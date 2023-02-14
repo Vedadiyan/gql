@@ -417,12 +417,30 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 		}
 	case *sqlparser.Subquery:
 		{
-			context := New(row.(map[string]any))
-			err := context.prepare(t.Select)
-			if err != nil {
-				return wrap(nil, err)
+			switch rowType := row.(type) {
+			case map[string]any:
+				{
+					context := New(rowType)
+					err := context.prepare(t.Select)
+					if err != nil {
+						return wrap(nil, err)
+					}
+					return wrap(context.Exec())
+				}
+			case []any:
+				{
+					output := make([]any, 0)
+					for _, item := range rowType {
+						value := ExprReader(jo, item, expr, opt...)
+						if err, ok := value.(error); ok {
+							return wrap(nil, err)
+						}
+						output = append(output, value)
+					}
+					return wrap(output, nil)
+				}
 			}
-			return wrap(context.Exec())
+
 		}
 	case *sqlparser.ExistsExpr:
 		{
