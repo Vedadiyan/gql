@@ -74,6 +74,32 @@ func TestHeavyZero(t *testing.T) {
 	json, _ := json.MarshalIndent(rs, "", "\t")
 	os.WriteFile("output.json", json, os.ModePerm)
 }
+func TestHeavyProtobuf(t *testing.T) {
+	data, err := os.ReadFile("source.json")
+	if err != nil {
+		t.FailNow()
+	}
+	topLevel := make(map[string]any)
+	err = json.Unmarshal([]byte(fmt.Sprintf(`{"$": %s}`, data)), &topLevel)
+	if err != nil {
+		t.FailNow()
+	}
+	then := time.Now()
+	sql := sql.New(topLevel)
+	sql.Prepare("select id, (select `match_hash`,`daily_prices` as rates, `meal`, (select (select `show_amount`, `currency_code`) as Amount from `payment_options.payment_types`) as payment_types from `rates`) as rates from `$.data.hotels`")
+	now := time.Now()
+	fmt.Println("prepared", now.Sub(then).Milliseconds())
+	then = time.Now()
+	rs, err := sql.Exec()
+	fmt.Println(len(rs.([]any)))
+	if err != nil {
+		t.FailNow()
+	}
+	now = time.Now()
+	fmt.Println(now.Sub(then).Milliseconds())
+	json, _ := json.MarshalIndent(rs, "", "\t")
+	os.WriteFile("output.json", json, os.ModePerm)
+}
 func TestHeavy(t *testing.T) {
 	data, err := os.ReadFile("large-file.json")
 	if err != nil {

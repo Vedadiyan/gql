@@ -100,12 +100,20 @@ func (c *Context) Exec() (any, error) {
 			collect = append(collect, result)
 		}
 	} else {
-		for index, row := range collect {
-			result, err := execSelect(&c.from, row, id, nil, c.selectStmt, nil)
+		if c.from[0] == nil {
+			result, err := execSelect(&c.from, c.document, id, nil, c.selectStmt, nil)
 			if err != nil {
 				return nil, err
 			}
-			collect[index] = result
+			collect[0] = result
+		} else {
+			for index, row := range collect {
+				result, err := execSelect(&c.from, row, id, nil, c.selectStmt, nil)
+				if err != nil {
+					return nil, err
+				}
+				collect[index] = result
+			}
 		}
 	}
 	for index := range c.selectStmt {
