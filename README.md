@@ -9,7 +9,8 @@ GQL is an implementation of `MySQL` querying syntax for JSON. It is simply SQL f
 
 GQL allows you to query up multi-dimensional data in complex and large JSON files at very high performance. The motivation behind writing this library was to use it together with `Protobuf` in order to bring about automatic mapping between `Message` structures and JSON data at runtime.
 
-  
+# Usage 
+You can use GQL to re-model JSON structures so that they can be auto mapped to your desired data models. For instance, if you are writing a microservice that retrieves data from a third-party API, you can focus on modeling internal data structures while using GQL to re-shape the output of that API to match the internal data model. Once this is done, the output of GQL can be automatically mapped to the internal data model.  
 
 # What's Supported
 
