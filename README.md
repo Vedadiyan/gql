@@ -44,7 +44,7 @@ This query will retrieve `price` and `quantity` from the row and will turn them 
 
 3- Arrays
 
-       SELECT (SELECT `amount` FROM `tax_data`) AS taxes  FROM `$.data.items` 
+    SELECT (SELECT `amount` FROM `tax_data`) AS taxes  FROM `$.data.items` 
 
 This query will retrieve `amount` from an array of objects called `tax_data`. 
 
