@@ -29,11 +29,33 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 
 # Examples
 
+1- Basic Example
+
     func Query(json map[string]any) {
         ctx := sql.New(json)
         result, err := ctx.Exec("SELECT ONCE(AVG(UNWIND(`$.root.data.users.{?}.age`))) as avg_of_age, name, `email.{0}` first_email FROM `$.root.data.users` WHERE `is_verified` = true")
     }
-    
+
+2- Encapsulation
+
+    SELECT (SELECT `price`, `quantity`) AS stock  FROM `$.data.items`    
+
+This query will retrieve `price` and `quantity` from the row and will turn them into a new object called `stock` which will be created per row.
+
+3- Arrays
+
+       SELECT (SELECT `amount` FROM `tax_data`) AS taxes  FROM `$.data.items` 
+
+This query will retrieve `amount` from an array of objects called `tax_data`. 
+
+4- Array Selectors 
+
+    SELECT `rates.{0}` AS first_item  FROM `$.data.items` WHERE `rates.{?}.amount` > 10
+
+Array indexes can be reached using the `{}` selector. You can pass either a number or a wildcard using the `{?}` to select and query arrays.
+
+*Please note that although multi-dimensional selectors such as `{?}.{?}` are supported, the `FROM` clause does not support multi-dimensional selectors. However, the following is valid `$.data.items.{0}.rates` *
+
 # Using Functions 
 To use functions, simply import them from the `function` package:
 
