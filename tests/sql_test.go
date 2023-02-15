@@ -55,7 +55,7 @@ func TestSQL(t *testing.T) {
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("SELECT `Q.value` FROM (SELECT value FROM `numbers`) Q WHERE `Q.value` between 1 and 5")
+	sql.Prepare("WITH Query AS (SELECT `Q.value` AS value FROM (SELECT value FROM `numbers`) Q WHERE `Q.value` between 1 and 5), Query2 AS (SELECT *, 1 as OK FROM Query) SELECT * FROM Query2")
 	rs, err := sql.Exec()
 	if err != nil {
 		t.FailNow()

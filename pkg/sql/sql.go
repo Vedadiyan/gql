@@ -264,10 +264,71 @@ func (c *Context) setGroupBy(expr sqlparser.GroupBy) error {
 	return nil
 }
 
+func Copy(array []any) any {
+	cp := make([]any, len(array))
+	for index, item := range array {
+		switch itemType := item.(type) {
+		case *[]any:
+			{
+				cp[index] = Copy(*itemType)
+			}
+		case map[string]any:
+			{
+				mapper := make(map[string]any, len(itemType))
+				for key, value := range itemType {
+					switch valueType := value.(type) {
+					case []any:
+						{
+							mapper[key] = Copy(valueType)
+						}
+					case *[]any:
+						{
+							mapper[key] = Copy(*valueType)
+						}
+					default:
+						{
+							mapper[key] = valueType
+						}
+					}
+				}
+				cp[index] = mapper
+			}
+		default:
+			{
+				cp[index] = itemType
+			}
+		}
+	}
+	return cp
+}
+
 func (c *Context) prepare(statement sqlparser.Statement) error {
 	slct, ok := statement.(*sqlparser.Select)
 	if !ok {
 		return fmt.Errorf("invalid statement")
+	}
+	if slct.With != nil {
+		data := make(map[string]any)
+		for _, cte := range slct.With.Ctes {
+			document := make(map[string]any)
+			for key, value := range c.document {
+				document[key] = value
+			}
+			for key, value := range data {
+				document[key] = value
+			}
+			sql := New(document)
+			err := sql.prepare(cte.Subquery.Select)
+			if err != nil {
+				return err
+			}
+			rs, err := sql.Exec()
+			if err != nil {
+				return err
+			}
+			data[cte.ID.String()] = rs
+		}
+		c.document = data
 	}
 	err := c.setFrom(slct.From[0])
 	if err != nil {
@@ -377,7 +438,9 @@ func execSelect(from *[]any, row any, id int64, key *string, exprs sqlparser.Sel
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
-				output = readStarExpr(row, key, index)
+				for key, value := range readStarExpr(row, key, index) {
+					output[key] = value
+				}
 			}
 		case *sqlparser.AliasedExpr:
 			{
