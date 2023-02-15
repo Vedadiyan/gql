@@ -316,16 +316,16 @@ func readAliasedTableExpr(document map[string]any, expr *sqlparser.AliasedTableE
 
 			return readFrom(expr, from)
 		}
-	// case *sqlparser.Subquery:
-	// 	{
-	// 		innerCtx := New(document)
-	// 		innerCtx.prepare(exprType.Select)
-	// 		from, err := innerCtx.Exec()
-	// 		if err != nil {
-	// 			return nil, err
-	// 		}
-	// 		return readFrom(expr, from)
-	// 	}
+	case *sqlparser.DerivedTable:
+		{
+			innerCtx := New(document)
+			innerCtx.prepare(exprType.Select)
+			from, err := innerCtx.Exec()
+			if err != nil {
+				return nil, err
+			}
+			return readFrom(expr, from)
+		}
 	default:
 		{
 			return nil, UNSUPPORTED_CASE.Extend("invalid from")
