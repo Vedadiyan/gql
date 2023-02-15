@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/xwb1989/sqlparser"
+	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
 type GroupBy map[string]bool
@@ -149,7 +149,7 @@ func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, er
 			case *sqlparser.ComparisonExpr:
 				{
 					switch joinCondition.Operator {
-					case "=":
+					case sqlparser.EqualOp:
 						{
 							lv, err := unwrap[string](ExprReader(nil, nil, joinCondition.Left, true))
 							if err != nil {
@@ -207,7 +207,7 @@ func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, er
 							}
 							return collect, nil
 						}
-					case "!=":
+					case sqlparser.NotEqualOp:
 						{
 
 						}
@@ -316,16 +316,16 @@ func readAliasedTableExpr(document map[string]any, expr *sqlparser.AliasedTableE
 
 			return readFrom(expr, from)
 		}
-	case *sqlparser.Subquery:
-		{
-			innerCtx := New(document)
-			innerCtx.prepare(exprType.Select)
-			from, err := innerCtx.Exec()
-			if err != nil {
-				return nil, err
-			}
-			return readFrom(expr, from)
-		}
+	// case *sqlparser.Subquery:
+	// 	{
+	// 		innerCtx := New(document)
+	// 		innerCtx.prepare(exprType.Select)
+	// 		from, err := innerCtx.Exec()
+	// 		if err != nil {
+	// 			return nil, err
+	// 		}
+	// 		return readFrom(expr, from)
+	// 	}
 	default:
 		{
 			return nil, UNSUPPORTED_CASE.Extend("invalid from")

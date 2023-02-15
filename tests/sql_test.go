@@ -19,21 +19,34 @@ func TestSQL(t *testing.T) {
 	{
 		"numbers": [
 			{
-				"id": 1,
-				"name": "Pouya",
-				"email": "vedadiyan@gmail.com",
-				"test": [
-					{
-						"ok": "ok",
-						"then": [
-							1
-						]
-					}
-				]
+				"value": 1
 			},
 			{
-				"id": 2,
-				"name": "Vedadiyan"
+				"value": 2
+			},
+			{
+				"value": 3
+			},
+			{
+				"value": 4
+			},
+			{
+				"value": 5
+			},
+			{
+				"value": 6
+			},
+			{
+				"value": 7
+			},
+			{
+				"value": 8
+			},
+			{
+				"value": 9
+			},
+			{
+				"value": 10
 			}
 		]
 	}
@@ -42,9 +55,13 @@ func TestSQL(t *testing.T) {
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("SELECT hello FROM `numbers.{?}.test.{?}` WHERE ok = 'ok'")
-	sql.Exec()
+	sql.Prepare("SELECT value FROM `numbers` WHERE value between 1 and 5")
+	rs, err := sql.Exec()
+	if err != nil {
+		t.FailNow()
+	}
 	now := time.Now()
+	fmt.Println(fmt.Sprintf("%v", rs))
 	fmt.Println(now.Sub(then).Microseconds())
 }
 

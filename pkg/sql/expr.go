@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/xwb1989/sqlparser"
+	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
 func andExpr(jo *[]any, row any, expr *sqlparser.AndExpr) (any, error) {
@@ -37,23 +37,23 @@ func comparisonExpr(jo *[]any, row any, expr *sqlparser.ComparisonExpr) (bool, e
 	l := ExprReader(jo, row, expr.Left)
 	r := ExprReader(jo, row, expr.Right)
 	switch expr.Operator {
-	case "=", "<>", "!=":
+	case sqlparser.EqualOp, sqlparser.NotEqualOp:
 		{
-			return equalityCompare(l, r, expr.Operator)
+			return equalityCompare(l, r, expr.Operator.ToString())
 		}
-	case ">", "<", "<=", ">=":
+	case sqlparser.GreaterThanOp, sqlparser.LessThanOp, sqlparser.GreaterEqualOp, sqlparser.LessEqualOp:
 		{
-			return numericCompare(l, r, expr.Operator)
+			return numericCompare(l, r, expr.Operator.ToString())
 		}
-	case "in", "not in":
+	case sqlparser.InOp, sqlparser.NotInOp:
 		{
-			return inComparison(l, r, expr.Operator)
+			return inComparison(l, r, expr.Operator.ToString())
 		}
-	case "like":
+	case sqlparser.LikeOp:
 		{
 			return regexComparison(l, r.(string))
 		}
-	case "not like":
+	case sqlparser.NotLikeOp:
 		{
 			b, err := regexComparison(l, r.(string))
 			if err != nil {
@@ -62,10 +62,10 @@ func comparisonExpr(jo *[]any, row any, expr *sqlparser.ComparisonExpr) (bool, e
 			return !b, nil
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(expr.Operator)
+	return false, UNDEFINED_OPERATOR.Extend(expr.Operator.ToString())
 }
 
-func rangeExpr(jo *[]any, row any, expr *sqlparser.RangeCond) (bool, error) {
+func rangeExpr(jo *[]any, row any, expr *sqlparser.BetweenExpr) (bool, error) {
 	value, err := unwrap[float64](ExprReader(jo, row, expr.Left))
 	if err != nil {
 		return false, err
@@ -78,17 +78,17 @@ func rangeExpr(jo *[]any, row any, expr *sqlparser.RangeCond) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	switch expr.Operator {
-	case "between":
+	switch expr.IsBetween {
+	case true:
 		{
 			return (value > from) && (value < to), nil
 		}
-	case "not between":
+	case false:
 		{
 			return (value < from) && (value > to), nil
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(expr.Operator)
+	return false, UNDEFINED_OPERATOR
 }
 
 func binaryExpr(jo *[]any, row any, expr *sqlparser.BinaryExpr) (float64, error) {
@@ -101,55 +101,55 @@ func binaryExpr(jo *[]any, row any, expr *sqlparser.BinaryExpr) (float64, error)
 		return 0, err
 	}
 	switch expr.Operator {
-	case "+":
+	case sqlparser.PlusOp:
 		{
 			return left + right, nil
 		}
-	case "-":
+	case sqlparser.MinusOp:
 		{
 			return left - right, nil
 		}
-	case "*":
+	case sqlparser.MultOp:
 		{
 			return left * right, nil
 		}
-	case "/":
+	case sqlparser.DivOp:
 		{
 			return left / right, nil
 		}
-	case "div":
+	case sqlparser.IntDivOp:
 		{
 			return float64(int64(left) / int64(right)), nil
 		}
-	case "%":
+	case sqlparser.ModOp:
 		{
 			return math.Mod(left, right), nil
 		}
-	case "&":
+	case sqlparser.BitAndOp:
 		{
 			return float64(int64(left) & int64(right)), nil
 		}
-	case "|":
+	case sqlparser.BitOrOp:
 		{
 			return float64(int64(left) | int64(right)), nil
 		}
-	case "^":
+	case sqlparser.BitXorOp:
 		{
 			return float64(int64(left) ^ int64(right)), nil
 		}
-	case ">>":
+	case sqlparser.ShiftLeftOp:
 		{
 			return float64(int64(left) >> int64(right)), nil
 		}
-	case "<<":
+	case sqlparser.ShiftRightOp:
 		{
 			return float64(int64(left) << int64(right)), nil
 		}
 	}
-	return 0, UNDEFINED_OPERATOR.Extend(expr.Operator)
+	return 0, UNDEFINED_OPERATOR.Extend(expr.Operator.ToString())
 }
 
-func sqlValExpr(expr *sqlparser.SQLVal) (any, error) {
+func sqlValExpr(expr *sqlparser.Literal) (any, error) {
 	switch expr.Type {
 	case sqlparser.StrVal:
 		{
@@ -163,21 +163,21 @@ func sqlValExpr(expr *sqlparser.SQLVal) (any, error) {
 }
 
 func isExpr(jo *[]any, row any, expr *sqlparser.IsExpr) (any, error) {
-	left, err := unwrapAny(ExprReader(jo, row, expr.Expr))
+	left, err := unwrapAny(ExprReader(jo, row, expr.Left))
 	if err != nil {
 		return nil, err
 	}
-	switch expr.Operator {
-	case "is null", "is not null":
+	switch expr.Right {
+	case sqlparser.IsNullOp, sqlparser.IsNotNullOp:
 		{
-			return isNull(left, expr.Operator)
+			return isNull(left, expr.Right.ToString())
 		}
-	case "is true", "is not true", "is false", "is not false":
+	case sqlparser.IsTrueOp, sqlparser.IsNotTrueOp, sqlparser.IsFalseOp, sqlparser.IsNotFalseOp:
 		{
-			return boolComparison(left, expr.Operator)
+			return boolComparison(left, expr.Right.ToString())
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(expr.Operator)
+	return false, UNDEFINED_OPERATOR.Extend(expr.Right.ToString())
 }
 
 func notExpr(jo *[]any, row any, expr *sqlparser.NotExpr) (bool, error) {
@@ -209,7 +209,7 @@ func unaryExpr(expr *sqlparser.UnaryExpr) (float64, error) {
 	if err != nil {
 		return 0, err
 	}
-	switch expr.Operator {
+	switch expr.Operator.ToString() {
 	case "-":
 		{
 			return -1 * val, nil
@@ -219,7 +219,7 @@ func unaryExpr(expr *sqlparser.UnaryExpr) (float64, error) {
 			return float64(^int64(val)), nil
 		}
 	}
-	return 0, UNDEFINED_OPERATOR.Extend(expr.Operator)
+	return 0, UNDEFINED_OPERATOR.Extend(expr.Operator.ToString())
 }
 
 func valueTupleExpr(jo *[]any, row any, expr sqlparser.ValTuple) ([]any, error) {
@@ -320,7 +320,7 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 		{
 			return wrap(comparisonExpr(jo, row, t))
 		}
-	case *sqlparser.RangeCond:
+	case *sqlparser.BetweenExpr:
 		{
 			return wrap(rangeExpr(jo, row, t))
 		}
@@ -328,7 +328,7 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 		{
 			return wrap(binaryExpr(jo, row, t))
 		}
-	case *sqlparser.SQLVal:
+	case *sqlparser.Literal:
 		{
 			return wrap(sqlValExpr(t))
 		}
@@ -344,10 +344,10 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 		{
 			return wrap(notExpr(jo, row, t))
 		}
-	case *sqlparser.ParenExpr:
-		{
-			return ExprReader(jo, row, t.Expr)
-		}
+	// case *sqlparser.ParenExpr:
+	// 	{
+	// 		return ExprReader(jo, row, t.Expr)
+	// 	}
 	case *sqlparser.SubstrExpr:
 		{
 			return wrap(subStrExpr(jo, row, t))
