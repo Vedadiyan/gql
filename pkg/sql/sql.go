@@ -135,15 +135,25 @@ func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, er
 		}
 	case *sqlparser.JoinTableExpr:
 		{
-			ln := fromExprType.LeftExpr.(*sqlparser.AliasedTableExpr).As.String()
+			lAs := fromExprType.LeftExpr.(*sqlparser.AliasedTableExpr).As.String()
 			left, err := readTableExpr(document, fromExprType.LeftExpr)
 			if err != nil {
 				return nil, err
 			}
-			rn := fromExprType.RightExpr.(*sqlparser.AliasedTableExpr).As.String()
+			ln := ""
+			if lAs == "" {
+				t := fromExprType.LeftExpr.(*sqlparser.AliasedTableExpr).Expr.(sqlparser.SimpleTableExpr).(sqlparser.TableName)
+				ln = t.Name.String()
+			}
+			rAs := fromExprType.RightExpr.(*sqlparser.AliasedTableExpr).As.String()
 			right, err := readTableExpr(document, fromExprType.RightExpr)
 			if err != nil {
 				return nil, err
+			}
+			rn := ""
+			if lAs == "" {
+				t := fromExprType.RightExpr.(*sqlparser.AliasedTableExpr).Expr.(sqlparser.SimpleTableExpr).(sqlparser.TableName)
+				rn = t.Name.String()
 			}
 			switch joinCondition := fromExprType.Condition.On.(type) {
 			case *sqlparser.ComparisonExpr:
@@ -193,8 +203,16 @@ func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, er
 										if ok {
 											innerMap := make(map[string]any)
 											for _, v := range value {
-												innerMap[ln] = v.(map[string]any)[ln]
-												innerMap[rn] = row.(map[string]any)[rn]
+												if lAs == "" {
+													innerMap[ln] = v.(map[string]any)
+												} else {
+													innerMap[lAs] = v.(map[string]any)[lAs]
+												}
+												if rAs == "" {
+													innerMap[rn] = row.(map[string]any)
+												} else {
+													innerMap[rAs] = row.(map[string]any)[rAs]
+												}
 												collect = append(collect, innerMap)
 											}
 										}

@@ -1,14 +1,29 @@
 [
 	{
-		"OK": 1,
-		"value": 2
+		"Query": {
+			"value": 2
+		},
+		"Query2": {
+			"OK": 1,
+			"value": 2
+		}
 	},
 	{
-		"OK": 1,
-		"value": 3
+		"Query": {
+			"value": 3
+		},
+		"Query2": {
+			"OK": 1,
+			"value": 3
+		}
 	},
 	{
-		"OK": 1,
-		"value": 4
+		"Query": {
+			"value": 4
+		},
+		"Query2": {
+			"OK": 1,
+			"value": 4
+		}
 	}
 ]
