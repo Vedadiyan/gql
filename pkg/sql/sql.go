@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
@@ -32,7 +33,41 @@ func New(document map[string]any) *Context {
 }
 
 func (c *Context) Prepare(query string) error {
-	sqlStatement, err := sqlparser.Parse(query)
+	buffer := bytes.NewBufferString("")
+	hold := false
+	jump := false
+	count := 0
+	data := strings.FieldsFunc(query, func(r rune) bool {
+		return r == '\r' || r == '\n'
+	})
+	for _, line := range data {
+		for _, c := range line {
+			if jump {
+				jump = !jump
+			} else if hold {
+				if c == '\\' {
+					jump = true
+				}
+				if c == '\'' {
+					hold = false
+				}
+			} else if c == '\'' {
+				hold = true
+			} else if c == '-' {
+				count++
+				if count == 2 {
+					break
+				}
+				continue
+			} else {
+				count = 0
+			}
+			buffer.WriteRune(c)
+		}
+		buffer.WriteString("\r\n")
+	}
+	text := buffer.String()
+	sqlStatement, err := sqlparser.Parse(text)
 	if err != nil {
 		return err
 	}
