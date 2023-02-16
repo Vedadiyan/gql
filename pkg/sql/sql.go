@@ -235,7 +235,7 @@ func runJoinComparison(expr *sqlparser.ComparisonExpr, left []any, right []any) 
 					{
 						_, ok := lookup[valueType]
 						if !ok {
-							collect = append(collect, []int{-1, index})
+							collect = append(collect, []int{index, index})
 						}
 					}
 				default:
@@ -266,36 +266,19 @@ func readJoinCond(document map[string]any, expr sqlparser.Expr, left []any, righ
 			if err != nil {
 				return nil, err
 			}
-			if len(r) > 0 && r[0].([]int)[0] == -1 {
-				tmp := l
-				l = r
-				r = tmp
-			}
-			flag := false
 			lookup := make(map[string]bool)
 			for _, value := range l {
 				val := value.([]int)
-				if val[0] != -1 {
-					lookup[fmt.Sprintf("%d-%d", val[0], val[1])] = true
-					continue
-				}
-				flag = true
-				lookup[fmt.Sprintf("%d", val[1])] = true
+				lookup[fmt.Sprintf("%d-%d", val[0], val[1])] = true
 			}
 			collect := make([]any, 0)
 			for _, value := range r {
 				val := value.([]int)
-				if !flag {
-					_, ok := lookup[fmt.Sprintf("%d-%d", val[0], val[1])]
-					if ok {
-						collect = append(collect, value)
-					}
-					continue
-				}
-				_, ok := lookup[fmt.Sprintf("%d", val[1])]
+				_, ok := lookup[fmt.Sprintf("%d-%d", val[0], val[1])]
 				if ok {
 					collect = append(collect, value)
 				}
+				continue
 			}
 			return collect, nil
 		}
@@ -331,21 +314,89 @@ func readJoinExpr(document map[string]any, expr *sqlparser.JoinTableExpr) ([]any
 	if err != nil {
 		return nil, err
 	}
-	collect := make([]any, 0)
-	for _, value := range rs {
-		val := value.([]int)
-		out := make(map[string]any)
-		if val[0] != -1 {
-			for key, value := range left[val[0]].(map[string]any) {
-				out[key] = value
+	switch expr.Join {
+	case sqlparser.NormalJoinType:
+		{
+			collect := make([]any, 0)
+			for _, value := range rs {
+				val := value.([]int)
+				out := make(map[string]any)
+				for key, value := range left[val[0]].(map[string]any) {
+					out[key] = value
+				}
+				for key, value := range right[val[1]].(map[string]any) {
+					out[key] = value
+				}
+				collect = append(collect, out)
 			}
+			return collect, nil
 		}
-		for key, value := range right[val[1]].(map[string]any) {
-			out[key] = value
+	case sqlparser.LeftJoinType:
+		{
+			lookup := make(map[int]int)
+			for _, value := range rs {
+				val := value.([]int)
+				lookup[val[0]] = val[1]
+			}
+			collect := make([]any, 0)
+			for index, value := range left {
+				i, ok := lookup[index]
+				if ok {
+					out := make(map[string]any)
+					for key, value := range value.(map[string]any) {
+						out[key] = value
+					}
+					for key, value := range right[i].(map[string]any) {
+						out[key] = value
+					}
+					collect = append(collect, out)
+					continue
+				}
+				out := make(map[string]any)
+				for key, value := range value.(map[string]any) {
+					out[key] = value
+				}
+				for key := range right[0].(map[string]any) {
+					out[key] = nil
+				}
+				collect = append(collect, out)
+			}
+			return collect, nil
 		}
-		collect = append(collect, out)
+	case sqlparser.RightJoinType:
+		{
+			lookup := make(map[int]int)
+			for _, value := range rs {
+				val := value.([]int)
+				lookup[val[0]] = val[1]
+			}
+			collect := make([]any, 0)
+			for index, value := range right {
+				i, ok := lookup[index]
+				if ok {
+					out := make(map[string]any)
+					for key, value := range value.(map[string]any) {
+						out[key] = value
+					}
+					for key, value := range left[i].(map[string]any) {
+						out[key] = value
+					}
+					collect = append(collect, out)
+					continue
+				}
+				out := make(map[string]any)
+				for key, value := range value.(map[string]any) {
+					out[key] = value
+				}
+				for key := range left[0].(map[string]any) {
+					out[key] = nil
+				}
+				collect = append(collect, out)
+			}
+			return collect, nil
+		}
 	}
-	return collect, nil
+	return nil, nil
 }
 
 func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, error) {

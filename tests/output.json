@@ -5,118 +5,15 @@
 			"value": 1
 		},
 		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 2
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 3
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 4
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 500
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 600
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 700
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 800
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 9
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 10
-		},
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": {
-			"ok": true,
+			"ok": false,
 			"value": 1
-		},
-		"B": {
-			"ok": true,
-			"value": 6
 		}
 	},
 	{
-		"A": {
-			"ok": true,
-			"value": 2
-		},
+		"A": null,
 		"B": {
 			"ok": true,
-			"value": 6
+			"value": 2
 		}
 	},
 	{
@@ -125,278 +22,57 @@
 			"value": 3
 		},
 		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 4
-		},
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 500
-		},
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 600
-		},
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 700
-		},
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 800
-		},
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 9
-		},
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 10
-		},
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 1
-		},
-		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 2
-		},
-		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": {
-			"ok": true,
+			"ok": false,
 			"value": 3
-		},
-		"B": {
-			"ok": true,
-			"value": 7
 		}
 	},
 	{
-		"A": {
+		"A": null,
+		"B": {
 			"ok": true,
 			"value": 4
-		},
+		}
+	},
+	{
+		"A": null,
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": null,
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": null,
 		"B": {
 			"ok": true,
 			"value": 7
 		}
 	},
 	{
-		"A": {
-			"ok": true,
-			"value": 500
-		},
+		"A": null,
 		"B": {
 			"ok": true,
-			"value": 7
+			"value": 8
 		}
 	},
 	{
-		"A": {
-			"ok": true,
-			"value": 600
-		},
+		"A": null,
 		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 700
-		},
-		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 800
-		},
-		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": {
 			"ok": true,
 			"value": 9
-		},
-		"B": {
-			"ok": true,
-			"value": 7
 		}
 	},
 	{
-		"A": {
+		"A": null,
+		"B": {
 			"ok": true,
 			"value": 10
-		},
-		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 1
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 2
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 3
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 4
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 500
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 600
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 700
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 800
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 9
-		},
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 10
-		},
-		"B": {
-			"ok": true,
-			"value": 8
 		}
 	}
 ]
