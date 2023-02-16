@@ -14,26 +14,26 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 
 # What's Supported
 
- - [X] Subqueries
- - [X] Select Only Expressions
- - [X] Case When
- - [X] Aliases 
- - [X] Like Expressions 
- - [X] Aggregate Functions (GQL functions are extensible and can be injected when required)
- - [X] Singleton Functions (The `ONCE` function only executes the function once for all rows) 
- - [X] Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
- - [X] Limit
- - [X] Group By
- - [X] Joins (Joins are experimental in the current version. Joining on SQL literals such `1 = 1` is not supported)
-   - [X] INNER JOIN
-   - [X] LEFT JOIN
-   - [X] RIGHT JOIN
-   - [ ] NATURAL JOIN *There is no plan to implement this feature*
-   - [ ] NATURAL LEFT JOIN *There is no plan to implement this feature*
-   - [ ] NATURAL RIGHT JOIN *There is no plan to implement this feature*
- - [ ] Unions (planned)
- - [X] CTEs 
- - [ ] Having Expression (in development) 
+    ✅ Subqueries
+    ✅ Select Only Expressions
+    ✅ Case When
+    ✅ Aliases 
+    ✅ Like Expressions 
+    ✅ Aggregate Functions (GQL functions are extensible and can be injected when required)
+    ✅ Singleton Functions (The `ONCE` function only executes the function once for all rows) 
+    ✅ Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
+    ✅ Limit
+    ✅ Group By
+    ✅ Joins (Joins are experimental in the current version. Joining on SQL literals such `1 = 1` is not supported)
+        ✅ INNER JOIN
+        ✅ LEFT JOIN
+        ✅ RIGHT JOIN
+        ❌ NATURAL JOIN *There is no plan to implement this feature*
+        ❌ NATURAL LEFT JOIN *There is no plan to implement this feature*
+        ❌ NATURAL RIGHT JOIN *There is no plan to implement this feature*
+    ⏳ Unions (planned)
+    ✅ CTEs 
+    ⏳ Having Expression (in development) 
 
 # Examples
 
