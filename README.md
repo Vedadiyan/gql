@@ -28,8 +28,8 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
    - [X] INNER JOIN
    - [X] LEFT JOIN
    - [X] RIGHT JOIN
-   - [ ] NATURAL JOIN       *There is no plan to implement this feature*
-   - [ ] NATURAL LEFT JOIN  *There is no plan to implement this feature*
+   - [ ] NATURAL JOIN *There is no plan to implement this feature*
+   - [ ] NATURAL LEFT JOIN *There is no plan to implement this feature*
    - [ ] NATURAL RIGHT JOIN *There is no plan to implement this feature*
  - [X] CTEs 
  - [ ] Having Expression (in development) 
