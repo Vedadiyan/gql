@@ -32,7 +32,7 @@ func New(document map[string]any) *Context {
 	return &ctx
 }
 
-func (c *Context) Prepare(query string) error {
+func removeComments(query string) string {
 	buffer := bytes.NewBufferString("")
 	hold := false
 	jump := false
@@ -66,8 +66,11 @@ func (c *Context) Prepare(query string) error {
 		}
 		buffer.WriteString("\r\n")
 	}
-	text := buffer.String()
-	sqlStatement, err := sqlparser.Parse(text)
+	return buffer.String()
+}
+
+func (c *Context) Prepare(query string) error {
+	sqlStatement, err := sqlparser.Parse(removeComments(query))
 	if err != nil {
 		return err
 	}
@@ -158,6 +161,145 @@ func (c *Context) Exec() (any, error) {
 	return collect, nil
 }
 
+func getTableName(expr *sqlparser.AliasedTableExpr) (string, string) {
+	return expr.As.String(), expr.Expr.(sqlparser.TableName).Name.String()
+}
+
+func runJoinComparison(expr *sqlparser.ComparisonExpr, left []any, right []any, lAs string, ln string, rAs string, rn string) ([]any, error) {
+	switch expr.Operator {
+	case sqlparser.EqualOp:
+		{
+			lv, err := unwrap[string](ExprReader(nil, nil, expr.Left, true))
+			if err != nil {
+				return nil, err
+			}
+			rv, err := unwrap[string](ExprReader(nil, nil, expr.Right, true))
+			if err != nil {
+				return nil, err
+			}
+			lookup := make(map[any][]int)
+			for index, row := range left {
+				value, err := Select(row.(map[string]any), lv)
+				if err != nil {
+					return nil, err
+				}
+				switch valueType := value.(type) {
+				case string, float64, bool:
+					{
+						_, ok := lookup[valueType]
+						if !ok {
+							lookup[valueType] = make([]int, 0)
+						}
+						lookup[valueType] = append(lookup[valueType], index)
+					}
+				default:
+					{
+						return nil, UNSUPPORTED_CASE.Extend("only value types are valid on join conditions")
+					}
+				}
+			}
+			collect := make([]any, 0)
+			for index, row := range right {
+				value, err := Select(row.(map[string]any), rv)
+				if err != nil {
+					return nil, err
+				}
+				switch valueType := value.(type) {
+				case string, float64, bool:
+					{
+						value, ok := lookup[valueType]
+						if ok {
+							for _, association := range value {
+								collect = append(collect, []int{association, index})
+							}
+						}
+					}
+				default:
+					{
+						return nil, UNSUPPORTED_CASE.Extend("only value types are valid on join conditions")
+					}
+				}
+			}
+			return collect, nil
+		}
+	case sqlparser.NotEqualOp:
+		{
+
+		}
+	}
+	return nil, nil
+}
+
+func readJoinCond(document map[string]any, expr sqlparser.Expr, left []any, right []any, lAs string, ln string, rAs string, rn string) ([]any, error) {
+	switch joinCondition := expr.(type) {
+	case *sqlparser.ComparisonExpr:
+		{
+			return runJoinComparison(joinCondition, left, right, lAs, ln, rAs, rn)
+		}
+	case *sqlparser.AndExpr:
+		{
+			l, err := readJoinCond(document, joinCondition.Left, left, right, lAs, ln, rAs, rn)
+			if err != nil {
+				return nil, err
+			}
+			r, err := readJoinCond(document, joinCondition.Right, left, right, lAs, ln, rAs, rn)
+			if err != nil {
+				return nil, err
+			}
+			lookup := make(map[string]bool)
+			for _, value := range l {
+				val := value.([]int)
+				lookup[fmt.Sprintf("%d-%d", val[0], val[1])] = true
+			}
+			collect := make([]any, 0)
+			for _, value := range r {
+				val := value.([]int)
+				_, ok := lookup[fmt.Sprintf("%d-%d", val[0], val[1])]
+				if ok {
+					collect = append(collect, value)
+				}
+			}
+			return collect, nil
+		}
+	case *sqlparser.OrExpr:
+		{
+			return nil, UNSUPPORTED_CASE
+		}
+	}
+	return nil, nil
+}
+
+func readJoinExpr(document map[string]any, expr *sqlparser.JoinTableExpr) ([]any, error) {
+	lAs, ln := getTableName(expr.LeftExpr.(*sqlparser.AliasedTableExpr))
+	left, err := readTableExpr(document, expr.LeftExpr)
+	if err != nil {
+		return nil, err
+	}
+
+	rAs, rn := getTableName(expr.RightExpr.(*sqlparser.AliasedTableExpr))
+	right, err := readTableExpr(document, expr.RightExpr)
+	if err != nil {
+		return nil, err
+	}
+	rs, err := readJoinCond(document, expr.Condition.On, left, right, lAs, ln, rAs, rn)
+	if err != nil {
+		return nil, err
+	}
+	collect := make([]any, 0)
+	for _, value := range rs {
+		val := value.([]int)
+		out := make(map[string]any)
+		for key, value := range left[val[0]].(map[string]any) {
+			out[key] = value
+		}
+		for key, value := range right[val[1]].(map[string]any) {
+			out[key] = value
+		}
+		collect = append(collect, out)
+	}
+	return collect, nil
+}
+
 func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, error) {
 	switch fromExprType := expr.(type) {
 	case *sqlparser.AliasedTableExpr:
@@ -170,106 +312,7 @@ func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, er
 		}
 	case *sqlparser.JoinTableExpr:
 		{
-			lAs := fromExprType.LeftExpr.(*sqlparser.AliasedTableExpr).As.String()
-			left, err := readTableExpr(document, fromExprType.LeftExpr)
-			if err != nil {
-				return nil, err
-			}
-			ln := ""
-			if lAs == "" {
-				t := fromExprType.LeftExpr.(*sqlparser.AliasedTableExpr).Expr.(sqlparser.SimpleTableExpr).(sqlparser.TableName)
-				ln = t.Name.String()
-			}
-			rAs := fromExprType.RightExpr.(*sqlparser.AliasedTableExpr).As.String()
-			right, err := readTableExpr(document, fromExprType.RightExpr)
-			if err != nil {
-				return nil, err
-			}
-			rn := ""
-			if lAs == "" {
-				t := fromExprType.RightExpr.(*sqlparser.AliasedTableExpr).Expr.(sqlparser.SimpleTableExpr).(sqlparser.TableName)
-				rn = t.Name.String()
-			}
-			switch joinCondition := fromExprType.Condition.On.(type) {
-			case *sqlparser.ComparisonExpr:
-				{
-					switch joinCondition.Operator {
-					case sqlparser.EqualOp:
-						{
-							lv, err := unwrap[string](ExprReader(nil, nil, joinCondition.Left, true))
-							if err != nil {
-								return nil, err
-							}
-							rv, err := unwrap[string](ExprReader(nil, nil, joinCondition.Right, true))
-							if err != nil {
-								return nil, err
-							}
-							lookup := make(map[any][]any)
-							for _, row := range left {
-								value, err := Select(row.(map[string]any), lv)
-								if err != nil {
-									return nil, err
-								}
-								switch valueType := value.(type) {
-								case string, float64, bool:
-									{
-										_, ok := lookup[valueType]
-										if !ok {
-											lookup[valueType] = make([]any, 0)
-										}
-										lookup[valueType] = append(lookup[valueType], row)
-									}
-								default:
-									{
-										return nil, UNSUPPORTED_CASE.Extend("only value types are valid on join conditions")
-									}
-								}
-							}
-							collect := make([]any, 0)
-							for _, row := range right {
-								value, err := Select(row.(map[string]any), rv)
-								if err != nil {
-									return nil, err
-								}
-								switch valueType := value.(type) {
-								case string, float64, bool:
-									{
-										value, ok := lookup[valueType]
-										if ok {
-											innerMap := make(map[string]any)
-											for _, v := range value {
-												if lAs == "" {
-													innerMap[ln] = v.(map[string]any)
-												} else {
-													innerMap[lAs] = v.(map[string]any)[lAs]
-												}
-												if rAs == "" {
-													innerMap[rn] = row.(map[string]any)
-												} else {
-													innerMap[rAs] = row.(map[string]any)[rAs]
-												}
-												collect = append(collect, innerMap)
-											}
-										}
-									}
-								default:
-									{
-										return nil, UNSUPPORTED_CASE.Extend("only value types are valid on join conditions")
-									}
-								}
-							}
-							return collect, nil
-						}
-					case sqlparser.NotEqualOp:
-						{
-
-						}
-					}
-				}
-			}
-			_ = left
-			_ = right
-			return nil, nil
+			return readJoinExpr(document, fromExprType)
 		}
 	default:
 		{

@@ -1,17 +1,42 @@
 [
 	{
-		"OK": 1,
-		"value": 2,
-		"x": "--'--"
+		"A": {
+			"ok": true,
+			"value": 2
+		},
+		"B": {
+			"ok": true,
+			"value": 2
+		}
 	},
 	{
-		"OK": 1,
-		"value": 3,
-		"x": "--'--"
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
 	},
 	{
-		"OK": 1,
-		"value": 4,
-		"x": "--'--"
+		"A": {
+			"ok": true,
+			"value": 9
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 10
+		}
 	}
 ]

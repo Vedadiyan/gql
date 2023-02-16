@@ -17,51 +17,103 @@ import (
 func TestSQL(t *testing.T) {
 	test := `
 	{
-		"numbers": [
-			{
-				"value": 1
-			},
-			{
-				"value": 2
-			},
-			{
-				"value": 3
-			},
-			{
-				"value": 4
-			},
-			{
-				"value": 5
-			},
-			{
-				"value": 6
-			},
-			{
-				"value": 7
-			},
-			{
-				"value": 8
-			},
-			{
-				"value": 9
-			},
-			{
-				"value": 10
-			}
-		]
+		"$": {
+			"numbers": [{
+					"value": 1,
+					"ok": true
+				},
+				{
+					"value": 2,
+					"ok": true
+				},
+				{
+					"value": 3,
+					"ok": true
+				},
+				{
+					"value": 4,
+					"ok": true
+				},
+				{
+					"value": 500,
+					"ok": true
+				},
+				{
+					"value": 600,
+					"ok": true
+				},
+				{
+					"value": 700,
+					"ok": true
+				},
+				{
+					"value": 800,
+					"ok": true
+				},
+				{
+					"value": 9,
+					"ok": true
+				},
+				{
+					"value": 10,
+					"ok": true
+				}
+			],
+			"factors": [{
+					"value": 1,
+					"ok": false
+				},
+				{
+					"value": 2,
+					"ok": true
+				},
+				{
+					"value": 3,
+					"ok": false
+				},
+				{
+					"value": 4,
+					"ok": true
+				},
+				{
+					"value": 5,
+					"ok": true
+				},
+				{
+					"value": 6,
+					"ok": true
+				},
+				{
+					"value": 7,
+					"ok": true
+				},
+				{
+					"value": 8,
+					"ok": true
+				},
+				{
+					"value": 9,
+					"ok": true
+				},
+				{
+					"value": 10,
+					"ok": true
+				}
+			]
+		}
 	}
 	`
 	val := make(map[string]any)
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("WITH Query AS \r\n (SELECT `Q.value` AS value FROM (SELECT value FROM `numbers`) Q WHERE `Q.value` between 1 and 5), Query2 AS (SELECT *, 1 as OK FROM Query) SELECT '--\\'--' AS x, * FROM Query2 --JOIN Query on value = value")
+	sql.Prepare("SELECT * FROM `$.numbers` as A JOIN `$.factors` as B on `A.value` = `B.value` AND `A.ok` = `B.ok` AND `A.ok` = `B.ok`")
 	rs, err := sql.Exec()
 	if err != nil {
 		t.FailNow()
 	}
 	now := time.Now()
-	fmt.Println(now.Sub(then).Microseconds())
+	fmt.Println(now.Sub(then).Milliseconds())
 	json, _ := json.MarshalIndent(rs, "", "\t")
 	os.WriteFile("output.json", json, os.ModePerm)
 }
