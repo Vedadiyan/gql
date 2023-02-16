@@ -10,7 +10,7 @@ GQL is an implementation of `MySQL` querying syntax for complex data structures.
 GQL allows you to query up data in large and complex data structures at very high performance. The motivation behind writing this library was to use it together with `Protobuf` in order to bring about automatic mapping between `Message` structures and JSON data at runtime.
 
 # SQL Interpretation
-GQL relies on a modified version of the SQL parser in the Vitess project. It is guaranteed to parse SQL code flawlessly. 
+GQL relies on a modified version of `sqlparser` in the Vitess project. It is guaranteed to parse SQL code flawlessly. 
 
 # Usage 
 You can use GQL to re-model JSON data structures so that they can be auto mapped to your desired data models. For instance, if you are writing a microservice that retrieves data from a third-party API, you can focus on modeling internal data structures while using GQL to re-shape the output of that API to match the internal data model. Once this is done, the output of GQL can be automatically mapped to the internal data model.  
