@@ -439,7 +439,7 @@ func readJoinExpr(document map[string]any, expr *sqlparser.JoinTableExpr) ([]any
 			return collect, nil
 		}
 	}
-	return nil, nil
+	return nil, UNSUPPORTED_CASE
 }
 
 func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, error) {
