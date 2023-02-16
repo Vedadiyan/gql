@@ -1,5 +1,5 @@
 
-# GQL
+# GQL (General Quering Language)
 ![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.19-%23007d9c)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vedadiyan/gql)](https://goreportcard.com/report/github.com/vedadiyan/gql)
 
