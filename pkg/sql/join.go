@@ -17,7 +17,7 @@ type join struct {
 	rightName string
 }
 
-func (j *join) joinComparisonFunc(fn func(lookup map[any][]int, objType any, rightIdx int, list *[]association)) ([]association, error) {
+func (j *join) joinComparisonFunc(fn func(objType any, rightIdx int, list *[]association)) ([]association, error) {
 	list := make([]association, 0)
 	for rightIdx, row := range j.right {
 		obj, err := Select(row.(map[string]any), j.rightName)
@@ -27,7 +27,7 @@ func (j *join) joinComparisonFunc(fn func(lookup map[any][]int, objType any, rig
 		switch objType := obj.(type) {
 		case string, float64, bool:
 			{
-				fn(j.lookup, objType, rightIdx, &list)
+				fn(objType, rightIdx, &list)
 			}
 		default:
 			{
@@ -82,7 +82,7 @@ func (j *join) joinComparison(expr *sqlparser.ComparisonExpr) ([]association, er
 	switch expr.Operator {
 	case sqlparser.EqualOp:
 		{
-			return j.joinComparisonFunc(func(lookup map[any][]int, objType any, rightIdx int, list *[]association) {
+			return j.joinComparisonFunc(func(objType any, rightIdx int, list *[]association) {
 				value, ok := lookup[objType]
 				if ok {
 					for _, leftIdx := range value {
@@ -96,7 +96,7 @@ func (j *join) joinComparison(expr *sqlparser.ComparisonExpr) ([]association, er
 		}
 	case sqlparser.NotEqualOp:
 		{
-			return j.joinComparisonFunc(func(lookup map[any][]int, objType any, rightIdx int, list *[]association) {
+			return j.joinComparisonFunc(func(objType any, rightIdx int, list *[]association) {
 				_, ok := lookup[objType]
 				if !ok {
 					for i := 0; i < len(j.left); i++ {
@@ -113,43 +113,43 @@ func (j *join) joinComparison(expr *sqlparser.ComparisonExpr) ([]association, er
 }
 
 func (j *join) joinAnd(document map[string]any, expr *sqlparser.AndExpr) ([]association, error) {
-	leftAssociations, err := j.readJoinCond(document, expr.Left)
+	leftAscns, err := j.readJoinCond(document, expr.Left)
 	if err != nil {
 		return nil, err
 	}
-	rightAssociations, err := j.readJoinCond(document, expr.Right)
+	rightAscns, err := j.readJoinCond(document, expr.Right)
 	if err != nil {
 		return nil, err
 	}
 	lookup := make(map[association]bool)
-	for _, association := range leftAssociations {
-		lookup[association] = true
+	for _, ascn := range leftAscns {
+		lookup[ascn] = true
 	}
 	list := make([]association, 0)
-	for _, association := range rightAssociations {
-		_, ok := lookup[association]
+	for _, ascn := range rightAscns {
+		_, ok := lookup[ascn]
 		if ok {
-			list = append(list, association)
+			list = append(list, ascn)
 		}
 	}
 	return list, nil
 }
 
 func (j *join) joinOr(document map[string]any, expr *sqlparser.OrExpr) ([]association, error) {
-	leftAssociations, err := j.readJoinCond(document, expr.Left)
+	leftAscns, err := j.readJoinCond(document, expr.Left)
 	if err != nil {
 		return nil, err
 	}
-	rightAssociations, err := j.readJoinCond(document, expr.Right)
+	rightAscns, err := j.readJoinCond(document, expr.Right)
 	if err != nil {
 		return nil, err
 	}
 	lookup := make(map[association]bool)
-	for _, association := range leftAssociations {
-		lookup[association] = true
+	for _, ascn := range leftAscns {
+		lookup[ascn] = true
 	}
-	for _, association := range rightAssociations {
-		lookup[association] = true
+	for _, ascn := range rightAscns {
+		lookup[ascn] = true
 	}
 	list := make([]association, 0)
 	for key := range lookup {
