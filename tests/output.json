@@ -1,29 +1,5 @@
 [
 	{
-		"A": {
-			"ok": true,
-			"value": 1
-		},
-		"B": {
-			"ok": false,
-			"value": 1
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
 		"A": null,
 		"B": {
 			"ok": true,
@@ -31,13 +7,10 @@
 		}
 	},
 	{
-		"A": {
-			"ok": true,
-			"value": 3
-		},
+		"A": null,
 		"B": {
 			"ok": false,
-			"value": 3
+			"value": 1
 		}
 	},
 	{
@@ -72,7 +45,28 @@
 		"A": null,
 		"B": {
 			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": null,
+		"B": {
+			"ok": true,
 			"value": 9
+		}
+	},
+	{
+		"A": null,
+		"B": {
+			"ok": false,
+			"value": 3
+		}
+	},
+	{
+		"A": null,
+		"B": {
+			"ok": true,
+			"value": 7
 		}
 	}
 ]
