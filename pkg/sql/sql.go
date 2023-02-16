@@ -235,7 +235,9 @@ func runJoinComparison(expr *sqlparser.ComparisonExpr, left []any, right []any) 
 					{
 						_, ok := lookup[valueType]
 						if !ok {
-							collect = append(collect, []int{index, index})
+							for i := 0; i < len(left); i++ {
+								collect = append(collect, []int{i, index})
+							}
 						}
 					}
 				default:
@@ -278,7 +280,6 @@ func readJoinCond(document map[string]any, expr sqlparser.Expr, left []any, righ
 				if ok {
 					collect = append(collect, value)
 				}
-				continue
 			}
 			return collect, nil
 		}
@@ -292,10 +293,30 @@ func readJoinCond(document map[string]any, expr sqlparser.Expr, left []any, righ
 			if err != nil {
 				return nil, err
 			}
-			if len(l) > len(r) {
-				return l, nil
+			type t struct {
+				l int
+				r int
 			}
-			return r, nil
+			lookup := make(map[t]bool)
+			for _, lv := range l {
+				lvv := lv.([]int)
+				lookup[t{
+					l: lvv[0],
+					r: lvv[1],
+				}] = true
+			}
+			for _, rv := range r {
+				lvv := rv.([]int)
+				lookup[t{
+					l: lvv[0],
+					r: lvv[1],
+				}] = true
+			}
+			collect := make([]any, 0)
+			for key := range lookup {
+				collect = append(collect, []int{key.l, key.r})
+			}
+			return collect, nil
 		}
 	}
 	return nil, nil
@@ -333,27 +354,38 @@ func readJoinExpr(document map[string]any, expr *sqlparser.JoinTableExpr) ([]any
 		}
 	case sqlparser.LeftJoinType:
 		{
-			lookup := make(map[int]int)
+			lookup := make(map[int][]int)
 			for _, value := range rs {
 				val := value.([]int)
-				lookup[val[0]] = val[1]
+				_, ok := lookup[val[0]]
+				if !ok {
+					lookup[val[0]] = make([]int, 0)
+				}
+				lookup[val[0]] = append(lookup[val[0]], val[1])
+			}
+			for index := range left {
+				_, ok := lookup[index]
+				if !ok {
+					lookup[index] = make([]int, 0)
+				}
 			}
 			collect := make([]any, 0)
-			for index, value := range left {
-				i, ok := lookup[index]
-				if ok {
-					out := make(map[string]any)
-					for key, value := range value.(map[string]any) {
-						out[key] = value
+			for index, value := range lookup {
+				if len(value) > 0 {
+					for _, v := range value {
+						out := make(map[string]any)
+						for key, value := range left[index].(map[string]any) {
+							out[key] = value
+						}
+						for key, value := range right[v].(map[string]any) {
+							out[key] = value
+						}
+						collect = append(collect, out)
 					}
-					for key, value := range right[i].(map[string]any) {
-						out[key] = value
-					}
-					collect = append(collect, out)
 					continue
 				}
 				out := make(map[string]any)
-				for key, value := range value.(map[string]any) {
+				for key, value := range left[index].(map[string]any) {
 					out[key] = value
 				}
 				for key := range right[0].(map[string]any) {
@@ -365,27 +397,38 @@ func readJoinExpr(document map[string]any, expr *sqlparser.JoinTableExpr) ([]any
 		}
 	case sqlparser.RightJoinType:
 		{
-			lookup := make(map[int]int)
+			lookup := make(map[int][]int)
 			for _, value := range rs {
 				val := value.([]int)
-				lookup[val[0]] = val[1]
+				_, ok := lookup[val[1]]
+				if !ok {
+					lookup[val[1]] = make([]int, 0)
+				}
+				lookup[val[1]] = append(lookup[val[1]], val[0])
+			}
+			for index := range right {
+				_, ok := lookup[index]
+				if !ok {
+					lookup[index] = make([]int, 0)
+				}
 			}
 			collect := make([]any, 0)
-			for index, value := range right {
-				i, ok := lookup[index]
-				if ok {
-					out := make(map[string]any)
-					for key, value := range value.(map[string]any) {
-						out[key] = value
+			for index, value := range lookup {
+				if len(value) > 0 {
+					for _, v := range value {
+						out := make(map[string]any)
+						for key, value := range right[index].(map[string]any) {
+							out[key] = value
+						}
+						for key, value := range left[v].(map[string]any) {
+							out[key] = value
+						}
+						collect = append(collect, out)
 					}
-					for key, value := range left[i].(map[string]any) {
-						out[key] = value
-					}
-					collect = append(collect, out)
 					continue
 				}
 				out := make(map[string]any)
-				for key, value := range value.(map[string]any) {
+				for key, value := range right[index].(map[string]any) {
 					out[key] = value
 				}
 				for key := range left[0].(map[string]any) {
