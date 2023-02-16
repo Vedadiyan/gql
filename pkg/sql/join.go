@@ -9,17 +9,25 @@ type association struct {
 	right int
 }
 
-func joinComparisonFunc(lookup map[any][]int, left []any, right []any, leftName string, rightName string, fn func(lookup map[any][]int, objType any, rightIdx int, list *[]association)) ([]association, error) {
+type join struct {
+	lookup    map[any][]int
+	left      []any
+	right     []any
+	leftName  string
+	rightName string
+}
+
+func (j *join) joinComparisonFunc(fn func(lookup map[any][]int, objType any, rightIdx int, list *[]association)) ([]association, error) {
 	list := make([]association, 0)
-	for rightIdx, row := range right {
-		obj, err := Select(row.(map[string]any), rightName)
+	for rightIdx, row := range j.right {
+		obj, err := Select(row.(map[string]any), j.rightName)
 		if err != nil {
 			return nil, err
 		}
 		switch objType := obj.(type) {
 		case string, float64, bool:
 			{
-				fn(lookup, objType, rightIdx, &list)
+				fn(j.lookup, objType, rightIdx, &list)
 			}
 		default:
 			{
@@ -55,23 +63,26 @@ func leftToLookUp(left []any, leftName string) (map[any][]int, error) {
 	return lookup, nil
 }
 
-func joinComparison(expr *sqlparser.ComparisonExpr, left []any, right []any) ([]association, error) {
+func (j *join) joinComparison(expr *sqlparser.ComparisonExpr) ([]association, error) {
 	leftName, err := unwrap[string](ExprReader(nil, nil, expr.Left, true))
 	if err != nil {
 		return nil, err
 	}
+	j.leftName = leftName
 	rightName, err := unwrap[string](ExprReader(nil, nil, expr.Right, true))
 	if err != nil {
 		return nil, err
 	}
-	lookup, err := leftToLookUp(left, leftName)
+	j.rightName = rightName
+	lookup, err := leftToLookUp(j.left, leftName)
 	if err != nil {
 		return nil, err
 	}
+	j.lookup = lookup
 	switch expr.Operator {
 	case sqlparser.EqualOp:
 		{
-			return joinComparisonFunc(lookup, left, right, leftName, rightName, func(lookup map[any][]int, objType any, rightIdx int, list *[]association) {
+			return j.joinComparisonFunc(func(lookup map[any][]int, objType any, rightIdx int, list *[]association) {
 				value, ok := lookup[objType]
 				if ok {
 					for _, leftIdx := range value {
@@ -85,10 +96,10 @@ func joinComparison(expr *sqlparser.ComparisonExpr, left []any, right []any) ([]
 		}
 	case sqlparser.NotEqualOp:
 		{
-			return joinComparisonFunc(lookup, left, right, leftName, rightName, func(lookup map[any][]int, objType any, rightIdx int, list *[]association) {
+			return j.joinComparisonFunc(func(lookup map[any][]int, objType any, rightIdx int, list *[]association) {
 				_, ok := lookup[objType]
 				if !ok {
-					for i := 0; i < len(left); i++ {
+					for i := 0; i < len(j.left); i++ {
 						*list = append(*list, association{
 							left:  i,
 							right: rightIdx,
@@ -101,12 +112,12 @@ func joinComparison(expr *sqlparser.ComparisonExpr, left []any, right []any) ([]
 	return nil, nil
 }
 
-func joinAnd(document map[string]any, expr *sqlparser.AndExpr, left []any, right []any) ([]association, error) {
-	leftAssociations, err := readJoinCond(document, expr.Left, left, right)
+func (j *join) joinAnd(document map[string]any, expr *sqlparser.AndExpr) ([]association, error) {
+	leftAssociations, err := j.readJoinCond(document, expr.Left)
 	if err != nil {
 		return nil, err
 	}
-	rightAssociations, err := readJoinCond(document, expr.Right, left, right)
+	rightAssociations, err := j.readJoinCond(document, expr.Right)
 	if err != nil {
 		return nil, err
 	}
@@ -124,12 +135,12 @@ func joinAnd(document map[string]any, expr *sqlparser.AndExpr, left []any, right
 	return list, nil
 }
 
-func joinOr(document map[string]any, expr *sqlparser.OrExpr, left []any, right []any) ([]association, error) {
-	leftAssociations, err := readJoinCond(document, expr.Left, left, right)
+func (j *join) joinOr(document map[string]any, expr *sqlparser.OrExpr) ([]association, error) {
+	leftAssociations, err := j.readJoinCond(document, expr.Left)
 	if err != nil {
 		return nil, err
 	}
-	rightAssociations, err := readJoinCond(document, expr.Right, left, right)
+	rightAssociations, err := j.readJoinCond(document, expr.Right)
 	if err != nil {
 		return nil, err
 	}
@@ -147,19 +158,19 @@ func joinOr(document map[string]any, expr *sqlparser.OrExpr, left []any, right [
 	return list, nil
 }
 
-func readJoinCond(document map[string]any, expr sqlparser.Expr, left []any, right []any) ([]association, error) {
+func (j *join) readJoinCond(document map[string]any, expr sqlparser.Expr) ([]association, error) {
 	switch joinCondition := expr.(type) {
 	case *sqlparser.ComparisonExpr:
 		{
-			return joinComparison(joinCondition, left, right)
+			return j.joinComparison(joinCondition)
 		}
 	case *sqlparser.AndExpr:
 		{
-			return joinAnd(document, joinCondition, left, right)
+			return j.joinAnd(document, joinCondition)
 		}
 	case *sqlparser.OrExpr:
 		{
-			return joinOr(document, joinCondition, left, right)
+			return j.joinOr(document, joinCondition)
 		}
 	}
 	return nil, nil
@@ -174,7 +185,11 @@ func readJoinExpr(document map[string]any, expr *sqlparser.JoinTableExpr) ([]any
 	if err != nil {
 		return nil, err
 	}
-	rs, err := readJoinCond(document, expr.Condition.On, left, right)
+	join := join{
+		left:  left,
+		right: right,
+	}
+	rs, err := join.readJoinCond(document, expr.Condition.On)
 	if err != nil {
 		return nil, err
 	}
