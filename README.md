@@ -19,7 +19,7 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
  - [X] Case When
  - [X] Aliases 
  - [X] Like Expressions 
- - [X] Aggregated Functions (GQL functions are extensible and can be injected when required)
+ - [X] Aggregate Functions (GQL functions are extensible and can be injected when required)
  - [X] Singleton Functions (The `ONCE` function only executes the function once for all rows) 
  - [X] Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
  - [X] Limit
