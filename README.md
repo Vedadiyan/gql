@@ -25,12 +25,12 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 -    ✅ Limit
 -    ✅ Group By
 -    ✅ Joins (Joins are experimental in the curr-ent version. Joining on SQL literals such `1 = 1` is -not supported)
--       ✅ INNER JOIN
--       ✅ LEFT JOIN
--       ✅ RIGHT JOIN
--       ❌ NATURAL JOIN *There is no plan to implement t-his feature*
--       ❌ NATURAL LEFT JOIN *There is no plan to implem-ent this feature*
--       ❌ NATURAL RIGHT JOIN *There is no plan- to implement this feature*
+-      ✅ INNER JOIN
+-      ✅ LEFT JOIN
+-      ✅ RIGHT JOIN
+-      ❌ NATURAL JOIN *There is no plan to implement t-his feature*
+-      ❌ NATURAL LEFT JOIN *There is no plan to implem-ent this feature*
+-      ❌ NATURAL RIGHT JOIN *There is no plan- to implement this feature*
 -    ⏳ Unions (planned)
 -    ✅ CTEs 
 -    ⏳ Having Expression (in development) 
