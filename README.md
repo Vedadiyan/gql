@@ -24,7 +24,8 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
  - [X] Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
  - [X] Limit
  - [X] Group By
- - [ ] Joins (planned) *GQL does not require joins but this feature will be added for convenience in future versions* 
+ - [X] Joins
+ - [X] CTEs 
  - [ ] Having Expression (in development) 
 
 # Examples
