@@ -15,7 +15,7 @@ GQL relies on a modified version of the `sqlparser` package in the Vitess projec
 # Usage 
 You can use GQL to re-model JSON data structures so that they can be auto mapped to your desired data models. For instance, if you are writing a microservice that retrieves data from a third-party API, you can focus on modeling internal data structures while using GQL to re-shape the output of that API to match the internal data model. Once this is done, the output of GQL can be automatically mapped to the internal data model.  
 
-# What's Supported
+# 📌 What's Supported
 
  - ✅ Subqueries
  - ✅ Select Only Expressions
@@ -24,18 +24,19 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
  - ✅ Aliases
  - ✅ Like Expressions
  - ✅ Aggregate Functions (GQL functions are extensible and can be injected when required)
- - ✅ Singleton Functions (The `ONCE` function only executes the function once for all rows)
- - ✅ Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
+ - 🆒 Singleton Functions (The `ONCE` function only executes the function once for all rows)
+ - 🆒 Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
  - ✅ Limit
  - ✅ Group By
  - ❎ Joins
 	 - ✅ INNER JOIN
 	 - ✅ LEFT JOIN
 	 - ✅ RIGHT JOIN
-	 - ❌ FULL OUTER JOIN *(MySQL does not have full outer joins and GQL is restricted by the MySQL syntax)*
+	 - ⭕ FULL OUTER JOIN *(MySQL does not have full outer joins and GQL is restricted by the MySQL syntax)*
 	 - ❌ NATURAL JOIN *(There is no plan to implement this feature)*
 	 - ❌ NATURAL LEFT JOIN *(There is no plan to implement this feature)*
 	 - ❌ NATURAL RIGHT JOIN *(There is no plan to implement this feature)*
+ - ⭕ Apply / Cross Apply *(MySQL does not have apply / cross apply and GQL is restricted by the MySQL syntax)*
  - ✅ Unions
  - ✅ CTEs
  - ⏳ Having Expression (in development)
