@@ -107,7 +107,7 @@ func TestSQL(t *testing.T) {
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("SELECT * FROM `$.numbers` as A RIGHT JOIN `$.factors` as B on `A.ok` != `B.ok` OR `A.value` = `B.value`")
+	sql.Prepare("SELECT * FROM `$.numbers` UNION SELECT * FROM `$.factors` LIMIT 2")
 	rs, err := sql.Exec()
 	if err != nil {
 		t.FailNow()

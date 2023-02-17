@@ -1,72 +1,10 @@
 [
 	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 10
-		}
+		"ok": true,
+		"value": 1
 	},
 	{
-		"A": null,
-		"B": {
-			"ok": false,
-			"value": 1
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 2
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 4
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 5
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 6
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 8
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 9
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": false,
-			"value": 3
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 7
-		}
+		"ok": true,
+		"value": 2
 	}
 ]

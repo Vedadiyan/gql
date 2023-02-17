@@ -263,11 +263,7 @@ func Copy(array []any) any {
 	return cp
 }
 
-func (c *Context) prepare(statement sqlparser.Statement) error {
-	slct, ok := statement.(*sqlparser.Select)
-	if !ok {
-		return fmt.Errorf("invalid statement")
-	}
+func (c *Context) execSelect(slct *sqlparser.Select) error {
 	if slct.With != nil {
 		data := make(map[string]any)
 		for _, cte := range slct.With.Ctes {
@@ -291,6 +287,9 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 		}
 		c.document = data
 	}
+	if len(slct.From) > 1 {
+		return fmt.Errorf("multiple tables are not supported")
+	}
 	err := c.setFrom(slct.From[0])
 	if err != nil {
 		return err
@@ -305,6 +304,48 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 	}
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
+	return nil
+}
+
+func (c *Context) prepare(statement sqlparser.Statement) error {
+	switch statementType := statement.(type) {
+	case *sqlparser.Select:
+		{
+			return c.execSelect(statementType)
+		}
+	case *sqlparser.Union:
+		{
+			left := New(c.document)
+			err := left.prepare(statementType.Left)
+			if err != nil {
+				return err
+			}
+			leftRs, err := left.Exec()
+			if err != nil {
+				return err
+			}
+			right := New(c.document)
+			err = right.prepare(statementType.Right)
+			if err != nil {
+				return err
+			}
+			rightRs, err := right.Exec()
+			if err != nil {
+				return err
+			}
+			leftList := leftRs.([]any)
+			rightList := rightRs.([]any)
+			leftList = append(leftList, rightList...)
+			c.from = leftList
+			c.selectStmt = sqlparser.SelectExprs{
+				&sqlparser.StarExpr{},
+			}
+			err = c.setLimit(statementType.Limit)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
