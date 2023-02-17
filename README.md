@@ -19,7 +19,7 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 
  - ✅ Subqueries
  - ✅ Select Only Expressions
- - ❌ Multiple Object Selection *Statements such as `SELECT * FROM object_01, object_02` are not supported*
+ - ❌ Multiple Object Selection *(Statements such as `SELECT * FROM object_01, object_02` are not supported)*
  - ✅ Case When
  - ✅ Aliases
  - ✅ Like Expressions
@@ -32,9 +32,9 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 	 - ✅ INNER JOIN
 	 - ✅ LEFT JOIN
 	 - ✅ RIGHT JOIN
-	 - ❌ NATURAL JOIN *There is no plan to implement this feature*
-	 - ❌ NATURAL LEFT JOIN *There is no plan to implement this feature*
-	 - ❌ NATURAL RIGHT JOIN *There is no plan to implement this feature*
+	 - ❌ NATURAL JOIN *(There is no plan to implement this feature)*
+	 - ❌ NATURAL LEFT JOIN *(There is no plan to implement this feature)*
+	 - ❌ NATURAL RIGHT JOIN *(There is no plan to implement this feature)*
  - ✅ Unions
  - ✅ CTEs
  - ⏳ Having Expression (in development)
