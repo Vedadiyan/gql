@@ -5,12 +5,15 @@
 
 GQL is an implementation of `MySQL` querying syntax for complex data structures.
 
-  
+
 
 GQL allows you to query up data in large and complex data structures at very high performance. The motivation behind writing this library was to use it together with `Protobuf` in order to bring about automatic mapping between `Message` structures and JSON data at runtime.
 
 # SQL Interpretation
 GQL relies on a modified version of the `sqlparser` package in the Vitess project. It is guaranteed to parse SQL code flawlessly. 
+
+# SQL Interpretation 
+GQL relies on  [sqlparser](https://github.com/xwb1989/sqlparser) which itself relies on [vitess](https://github.com/vitessio/vitess). For that reason, interpreting SQL code is done reliably and efficiently as vitess is a reliable database clustering system for horizontal scaling of MySQL through generalized sharding.
 
 # Usage 
 You can use GQL to re-model JSON data structures so that they can be auto mapped to your desired data models. For instance, if you are writing a microservice that retrieves data from a third-party API, you can focus on modeling internal data structures while using GQL to re-shape the output of that API to match the internal data model. Once this is done, the output of GQL can be automatically mapped to the internal data model.  
@@ -69,7 +72,7 @@ This query will retrieve `amount` from an array of objects called `tax_data`.
 
 Array indexes can be reached using the `{}` selector. You can pass either a number or a wildcard using the `{?}` to select and query arrays.
 
-*Please note that although multi-dimensional selectors such as `{?}.{?}` are supported, the `FROM` clause does not support multi-dimensional selectors. However, the following is valid `$.data.items.{0}.rates` *
+*Please note that although multi-dimensional selectors such as `{?}.{?}` are supported, the `FROM` clause does not support multi-dimensional selectors. However, the following is valid `$.data.items.{0}.rates`*
 
 # Using Functions 
 To use functions, simply import them from the `function` package:
