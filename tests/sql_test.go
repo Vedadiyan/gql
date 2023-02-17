@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -14,90 +15,83 @@ import (
 	"github.com/vedadiyan/gql/pkg/sql"
 )
 
+func TestSort(t *testing.T) {
+	const test = `
+	[
+		{
+			"first_name": "alice",
+			"last_name": "zhang"
+		},
+		{
+			"first_name": "alice",
+			"last_name": "lee"
+		},
+		{
+			"first_name": "bob",
+			"last_name": "zhang"
+		},
+		{
+			"first_name": "bob",
+			"last_name": "lee"
+		}
+	]
+	`
+	data := make([]map[string]string, 0)
+	err := json.Unmarshal([]byte(test), &data)
+	if err != nil {
+		t.FailNow()
+	}
+
+	sort.Slice(data, func(i, j int) bool {
+		if data[i]["first_name"] != data[j]["first_name"] {
+			return data[i]["first_name"] < data[j]["first_name"]
+		}
+		return data[i]["last_name"] > data[j]["last_name"]
+	})
+	// sorted := make([]map[string]string, 0, len(data))
+	// add := func(item map[string]string, key string) {
+	// 	trend := false
+	// 	for index, value := range sorted {
+	// 		if trend || value[key] == item[key] {
+	// 			current := sorted[index]
+	// 			tmp := sorted[index+1:]
+	// 			sorted = sorted[:index]
+	// 			sorted = append(sorted, item)
+	// 			sorted = append(sorted, current)
+	// 			sorted = append(sorted, tmp...)
+	// 			return
+	// 		}
+	// 		trend = value[key] > item[key]
+	// 	}
+	// 	sorted = append(sorted, item)
+	// }
+	// for _, item := range data {
+	// 	add(item, "first_name")
+	// }
+	c := 10
+	_ = c
+}
+
 func TestSQL(t *testing.T) {
 	test := `
 	{
 		"$": {
-			"numbers": [{
-					"value": 1,
-					"ok": true
+			"names": [
+				{
+					"first_name": "alice",
+					"last_name": "zhang"
 				},
 				{
-					"value": 2,
-					"ok": true
+					"first_name": "alice",
+					"last_name": "lee"
 				},
 				{
-					"value": 3,
-					"ok": true
+					"first_name": "bob",
+					"last_name": "zhang"
 				},
 				{
-					"value": 4,
-					"ok": true
-				},
-				{
-					"value": 500,
-					"ok": true
-				},
-				{
-					"value": 600,
-					"ok": true
-				},
-				{
-					"value": 700,
-					"ok": true
-				},
-				{
-					"value": 800,
-					"ok": true
-				},
-				{
-					"value": 9,
-					"ok": true
-				},
-				{
-					"value": 10,
-					"ok": true
-				}
-			],
-			"factors": [{
-					"value": 1,
-					"ok": false
-				},
-				{
-					"value": 2,
-					"ok": true
-				},
-				{
-					"value": 3,
-					"ok": false
-				},
-				{
-					"value": 4,
-					"ok": true
-				},
-				{
-					"value": 5,
-					"ok": true
-				},
-				{
-					"value": 6,
-					"ok": true
-				},
-				{
-					"value": 7,
-					"ok": true
-				},
-				{
-					"value": 8,
-					"ok": true
-				},
-				{
-					"value": 9,
-					"ok": true
-				},
-				{
-					"value": 10,
-					"ok": true
+					"first_name": "bob",
+					"last_name": "lee"
 				}
 			]
 		}
@@ -107,7 +101,7 @@ func TestSQL(t *testing.T) {
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("SELECT * FROM `$.numbers` as A FULL JOIN `$.factors` as B on 1 = 1")
+	sql.Prepare("SELECT * FROM `$.names` ORDER BY `first_name` DESC, `last_name` ASC")
 	rs, err := sql.Exec()
 	if err != nil {
 		t.FailNow()

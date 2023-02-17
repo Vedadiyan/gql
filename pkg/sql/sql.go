@@ -20,6 +20,7 @@ type Context struct {
 	offset     int
 	limit      int
 	groupBy    map[string]bool
+	orderBy    map[string]bool
 }
 
 func New(document map[string]any) *Context {
@@ -28,6 +29,7 @@ func New(document map[string]any) *Context {
 		offset:   -1,
 		limit:    -1,
 		groupBy:  make(map[string]bool),
+		orderBy:  make(map[string]bool),
 	}
 	return &ctx
 }
@@ -154,6 +156,82 @@ func (c *Context) Exec() (any, error) {
 			}
 		}
 	}
+	rowValue := func(index int, key string) (any, error) {
+		switch rowType := collect[index].(type) {
+		case map[string]any:
+			{
+				return Select(rowType, key)
+			}
+		case []any:
+			{
+				return nil, UNSUPPORTED_CASE
+			}
+		default:
+			{
+				return rowType, nil
+			}
+		}
+	}
+	sort.Slice(collect, func(i, j int) bool {
+		for key, value := range c.orderBy {
+			first, err := rowValue(i, key)
+			if err != nil {
+				panic(err)
+			}
+			second, err := rowValue(j, key)
+			if err != nil {
+				panic(err)
+			}
+			if fmt.Sprintf("%T", first) != fmt.Sprintf("%T", second) {
+				panic("type mismatch")
+			}
+			switch t := first.(type) {
+			case string:
+				{
+					if t != second {
+						second := second.(string)
+						if value {
+							return t < second
+						}
+						return t > second
+					}
+				}
+			case float64:
+				{
+					if t != second {
+						second := second.(float64)
+						if value {
+							return t < second
+						}
+						return t > second
+					}
+				}
+			case bool:
+				{
+					if t != second {
+						second := second.(bool)
+						_p := 0
+						if t {
+							_p = 1
+						}
+						p := 0
+						if second {
+							p = 1
+						}
+						if value {
+							return _p < p
+						}
+						return _p > p
+					}
+				}
+			default:
+				{
+					panic(UNSUPPORTED_CASE)
+				}
+			}
+		}
+		panic(UNSUPPORTED_CASE)
+	})
 	for index := range c.selectStmt {
 		id := fmt.Sprintf("%d_%d", id, index)
 		_cache.Delete(id)
@@ -304,6 +382,23 @@ func (c *Context) execSelect(slct *sqlparser.Select) error {
 	}
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
+	for _, order := range slct.OrderBy {
+		name, err := unwrap[string](ExprReader(nil, nil, order.Expr, true))
+		if err != nil {
+			return err
+		}
+		switch order.Direction {
+		case sqlparser.AscOrder:
+			{
+				c.orderBy[name] = true
+
+			}
+		default:
+			{
+				c.orderBy[name] = false
+			}
+		}
+	}
 	return nil
 }
 
