@@ -172,66 +172,68 @@ func (c *Context) Exec() (any, error) {
 			}
 		}
 	}
-	sort.Slice(collect, func(i, j int) bool {
-		for key, value := range c.orderBy {
-			first, err := rowValue(i, key)
-			if err != nil {
-				panic(err)
-			}
-			second, err := rowValue(j, key)
-			if err != nil {
-				panic(err)
-			}
-			if fmt.Sprintf("%T", first) != fmt.Sprintf("%T", second) {
-				panic("type mismatch")
-			}
-			switch t := first.(type) {
-			case string:
-				{
-					if t != second {
-						second := second.(string)
-						if value {
-							return t < second
+	if len(c.orderBy) > 0 {
+		sort.Slice(collect, func(i, j int) bool {
+			for key, value := range c.orderBy {
+				first, err := rowValue(i, key)
+				if err != nil {
+					panic(err)
+				}
+				second, err := rowValue(j, key)
+				if err != nil {
+					panic(err)
+				}
+				if fmt.Sprintf("%T", first) != fmt.Sprintf("%T", second) {
+					panic("type mismatch")
+				}
+				switch t := first.(type) {
+				case string:
+					{
+						if t != second {
+							second := second.(string)
+							if value {
+								return t < second
+							}
+							return t > second
 						}
-						return t > second
+					}
+				case float64:
+					{
+						if t != second {
+							second := second.(float64)
+							if value {
+								return t < second
+							}
+							return t > second
+						}
+					}
+				case bool:
+					{
+						if t != second {
+							second := second.(bool)
+							_p := 0
+							if t {
+								_p = 1
+							}
+							p := 0
+							if second {
+								p = 1
+							}
+							if value {
+								return _p < p
+							}
+							return _p > p
+						}
+					}
+				default:
+					{
+						panic(UNSUPPORTED_CASE)
 					}
 				}
-			case float64:
-				{
-					if t != second {
-						second := second.(float64)
-						if value {
-							return t < second
-						}
-						return t > second
-					}
-				}
-			case bool:
-				{
-					if t != second {
-						second := second.(bool)
-						_p := 0
-						if t {
-							_p = 1
-						}
-						p := 0
-						if second {
-							p = 1
-						}
-						if value {
-							return _p < p
-						}
-						return _p > p
-					}
-				}
-			default:
-				{
-					panic(UNSUPPORTED_CASE)
-				}
 			}
-		}
-		panic(UNSUPPORTED_CASE)
-	})
+			panic(UNSUPPORTED_CASE)
+		})
+	}
 	for index := range c.selectStmt {
 		id := fmt.Sprintf("%d_%d", id, index)
 		_cache.Delete(id)
