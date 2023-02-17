@@ -35,6 +35,7 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 	 - ❌ NATURAL JOIN *(There is no plan to implement this feature)*
 	 - ❌ NATURAL LEFT JOIN *(There is no plan to implement this feature)*
 	 - ❌ NATURAL RIGHT JOIN *(There is no plan to implement this feature)*
+	 - ❌ FULL OUTER JOIN *(MySQL does not have full outer joins and GQL is restricted by MySQL syntax)*
  - ✅ Unions
  - ✅ CTEs
  - ⏳ Having Expression (in development)
