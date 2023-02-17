@@ -34,9 +34,10 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 	 - ❌ NATURAL JOIN *There is no plan to implement this feature*
 	 - ❌ NATURAL LEFT JOIN *There is no plan to implement this feature*
 	 - ❌ NATURAL RIGHT JOIN *There is no plan to implement this feature*
- - ⏳ Unions (planned)
+ - ✅ Unions
  - ✅ CTEs
- - ⏳Having Expression (in development)
+ - ⏳ Having Expression (in development)
+ - ⏳ Order By (in development)
 
 # Examples
 
