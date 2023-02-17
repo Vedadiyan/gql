@@ -13,14 +13,14 @@ type join struct {
 	lookup    map[any][]int
 	left      []any
 	right     []any
-	leftName  string
-	rightName string
+	leftExpr  sqlparser.Expr
+	rightExpr sqlparser.Expr
 }
 
 func (j *join) joinComparisonFunc(fn func(objType any, rightIdx int, list *[]association)) ([]association, error) {
 	list := make([]association, 0)
 	for rightIdx, row := range j.right {
-		obj, err := Select(row.(map[string]any), j.rightName)
+		obj, err := unwrap[any](ExprReader(nil, row, j.rightExpr))
 		if err != nil {
 			return nil, err
 		}
@@ -38,10 +38,10 @@ func (j *join) joinComparisonFunc(fn func(objType any, rightIdx int, list *[]ass
 	return list, nil
 }
 
-func leftToLookUp(left []any, leftName string) (map[any][]int, error) {
+func leftToLookUp(left []any, leftExpr sqlparser.Expr) (map[any][]int, error) {
 	lookup := make(map[any][]int)
 	for index, row := range left {
-		obj, err := Select(row.(map[string]any), leftName)
+		obj, err := unwrap[any](ExprReader(nil, row, leftExpr))
 		if err != nil {
 			return nil, err
 		}
@@ -64,17 +64,19 @@ func leftToLookUp(left []any, leftName string) (map[any][]int, error) {
 }
 
 func (j *join) joinComparison(expr *sqlparser.ComparisonExpr) ([]association, error) {
-	leftName, err := unwrap[string](ExprReader(nil, nil, expr.Left, true))
-	if err != nil {
-		return nil, err
-	}
-	j.leftName = leftName
-	rightName, err := unwrap[string](ExprReader(nil, nil, expr.Right, true))
-	if err != nil {
-		return nil, err
-	}
-	j.rightName = rightName
-	lookup, err := leftToLookUp(j.left, leftName)
+	// leftName, err := unwrap[string](ExprReader(nil, nil, expr.Left, true))
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// j.leftName = leftName
+	// rightName, err := unwrap[string](ExprReader(nil, nil, expr.Right, true))
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// j.rightName = rightName
+	j.leftExpr = expr.Left
+	j.rightExpr = expr.Right
+	lookup, err := leftToLookUp(j.left, j.leftExpr)
 	if err != nil {
 		return nil, err
 	}
