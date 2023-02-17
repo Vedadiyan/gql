@@ -19,6 +19,7 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 
  - ✅ Subqueries
  - ✅ Select Only Expressions
+ - ❌ Multiple Table Selection *Statements such as `SELECT * FROM table_01, table_02` are not supported*
  - ✅ Case When
  - ✅ Aliases
  - ✅ Like Expressions
