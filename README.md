@@ -86,3 +86,10 @@ To use functions, simply import them from the `function` package:
 # IMPORTANT NOTES
 
 Although this project is well tested, it is still in development.
+
+## 📝 License
+
+Copyright © 2022 [Pouya Vedadiyan](https://github.com/vedadiyan).
+
+This project is [Apache-2.0](./LICENSE) licensed.
+
