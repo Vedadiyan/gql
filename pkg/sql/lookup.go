@@ -217,11 +217,24 @@ func referenceArray(ref *any, rows []any, key string) {
 		case []any:
 			{
 				for index, value := range itemType {
-					_, ok := array[value]
-					if !ok {
-						array[value] = map[int]bool{}
+					switch valueType := value.(type) {
+					case []any, map[string]any:
+						{
+							_, ok := array[&valueType]
+							if !ok {
+								array[&valueType] = map[int]bool{}
+							}
+							array[&valueType][index] = true
+						}
+					default:
+						{
+							_, ok := array[valueType]
+							if !ok {
+								array[valueType] = map[int]bool{}
+							}
+							array[valueType][index] = true
+						}
 					}
-					array[value][index] = true
 				}
 
 			}

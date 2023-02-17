@@ -1,13 +1,16 @@
 
-# GQL
+# GQL (General Querying Language)
 ![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.19-%23007d9c)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vedadiyan/gql)](https://goreportcard.com/report/github.com/vedadiyan/gql)
 
-GQL is an implementation of `MySQL` querying syntax for JSON. It is simply SQL for JSON.
+GQL is an implementation of `MySQL` querying syntax for complex data structures.
 
 
 
-GQL allows you to query up multi-dimensional data in complex and large JSON files at very high performance. The motivation behind writing this library was to use it together with `Protobuf` in order to bring about automatic mapping between `Message` structures and JSON data at runtime.
+GQL allows you to query up data in large and complex data structures at very high performance. The motivation behind writing this library was to use it together with `Protobuf` in order to bring about automatic mapping between `Message` structures and JSON data at runtime.
+
+# SQL Interpretation
+GQL relies on a modified version of the `sqlparser` package in the Vitess project. It is guaranteed to parse SQL code flawlessly. 
 
 # SQL Interpretation 
 GQL relies on  [sqlparser](https://github.com/xwb1989/sqlparser) which itself relies on [vitess](https://github.com/vitessio/vitess). For that reason, interpreting SQL code is done reliably and efficiently as vitess is a reliable database clustering system for horizontal scaling of MySQL through generalized sharding.
@@ -15,20 +18,32 @@ GQL relies on  [sqlparser](https://github.com/xwb1989/sqlparser) which itself re
 # Usage 
 You can use GQL to re-model JSON data structures so that they can be auto mapped to your desired data models. For instance, if you are writing a microservice that retrieves data from a third-party API, you can focus on modeling internal data structures while using GQL to re-shape the output of that API to match the internal data model. Once this is done, the output of GQL can be automatically mapped to the internal data model.  
 
-# What's Supported
+# 📌 What's Supported
 
- - [X] Subqueries
- - [X] Select Only Expression
- - [X] Case When
- - [X] Aliases 
- - [X] Like Expressions 
- - [X] Aggregated Functions (GQL functions are extensible and can be injected when required)
- - [X] Singleton Functions (The `ONCE` function only executes the function once for all rows) 
- - [X] Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
- - [X] Limit
- - [X] Group By
- - [ ] Joins (in development) *GQL does not require joins but this feature will be added for convenience in future versions* 
- - [ ] Having Expression (in development) 
+ - ✅ Subqueries
+ - ✅ Select Only Expressions
+ - ❌ Multiple Object Selection *(Statements such as `SELECT * FROM object_01, object_02` are not supported)*
+ - ✅ Case When
+ - ✅ Aliases
+ - ✅ Like Expressions
+ - ✅ Aggregate Functions (GQL functions are extensible and can be injected when required)
+ - 🆒 Singleton Functions (The `ONCE` function only executes the function once for all rows)
+ - 🆒 Multi-Dimensional Selectors (`$.root.data.users.{?}.coordinates.{?}.{?}`)
+ - ✅ Limit
+ - ✅ Group By
+ - ❎ Joins
+	 - ✅ INNER JOIN
+	 - ✅ LEFT JOIN
+	 - ✅ RIGHT JOIN
+	 - ⭕ FULL OUTER JOIN *(MySQL does not have full outer joins and GQL is restricted by the MySQL syntax)*
+	 - ❌ NATURAL JOIN *(There is no plan to implement this feature)*
+	 - ❌ NATURAL LEFT JOIN *(There is no plan to implement this feature)*
+	 - ❌ NATURAL RIGHT JOIN *(There is no plan to implement this feature)*
+ - ⭕ Apply / Cross Apply *(MySQL does not have apply / cross apply and GQL is restricted by the MySQL syntax)*
+ - ✅ Unions
+ - ✅ CTEs
+ - ⏳ Having Expression (in development)
+ - ⏳ Order By (in development)
 
 # Examples
 

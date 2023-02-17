@@ -17,35 +17,105 @@ import (
 func TestSQL(t *testing.T) {
 	test := `
 	{
-		"numbers": [
-			{
-				"id": 1,
-				"name": "Pouya",
-				"email": "vedadiyan@gmail.com",
-				"test": [
-					{
-						"ok": "ok",
-						"then": [
-							1
-						]
-					}
-				]
-			},
-			{
-				"id": 2,
-				"name": "Vedadiyan"
-			}
-		]
+		"$": {
+			"numbers": [{
+					"value": 1,
+					"ok": true
+				},
+				{
+					"value": 2,
+					"ok": true
+				},
+				{
+					"value": 3,
+					"ok": true
+				},
+				{
+					"value": 4,
+					"ok": true
+				},
+				{
+					"value": 500,
+					"ok": true
+				},
+				{
+					"value": 600,
+					"ok": true
+				},
+				{
+					"value": 700,
+					"ok": true
+				},
+				{
+					"value": 800,
+					"ok": true
+				},
+				{
+					"value": 9,
+					"ok": true
+				},
+				{
+					"value": 10,
+					"ok": true
+				}
+			],
+			"factors": [{
+					"value": 1,
+					"ok": false
+				},
+				{
+					"value": 2,
+					"ok": true
+				},
+				{
+					"value": 3,
+					"ok": false
+				},
+				{
+					"value": 4,
+					"ok": true
+				},
+				{
+					"value": 5,
+					"ok": true
+				},
+				{
+					"value": 6,
+					"ok": true
+				},
+				{
+					"value": 7,
+					"ok": true
+				},
+				{
+					"value": 8,
+					"ok": true
+				},
+				{
+					"value": 9,
+					"ok": true
+				},
+				{
+					"value": 10,
+					"ok": true
+				}
+			]
+		}
 	}
 	`
 	val := make(map[string]any)
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("SELECT hello FROM `numbers.{?}.test.{?}` WHERE ok = 'ok'")
-	sql.Exec()
+	sql.Prepare("SELECT * FROM `$.numbers` as A FULL JOIN `$.factors` as B on 1 = 1")
+	rs, err := sql.Exec()
+	if err != nil {
+		t.FailNow()
+	}
 	now := time.Now()
-	fmt.Println(now.Sub(then).Microseconds())
+	fmt.Println(now.Sub(then).Milliseconds())
+	json, _ := json.MarshalIndent(rs, "", "\t")
+	os.WriteFile("output.json", json, os.ModePerm)
 }
 
 func TestHeavyZero(t *testing.T) {
@@ -60,7 +130,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("SELECT (SELECT `daily_prices`, `allotment` FROM `Q.Rate`) FROM (SELECT `rates` Rate FROM `$.data.hotels`) Q --GROUP BY `Q.Rate.meal`, `Q.Rate.any_residency` --LIMIT 2 OFFSET 10 --WHERE `rates.{?}.payment_options.payment_types.{?}.show_amount` = '2003.00' --not like '%als' and `ref` = CASE WHEN `test` BETWEEN 0 AND 2 THEN 'small' WHEN `test` BETWEEN 100 AND 500 THEN 'medium' ELSE 'large' END")
+	sql.Prepare("SELECT `Q1.rates.{0}` as first, `Q2.id` as second FROM `$.data.hotels` AS Q1 JOIN `$.data.hotels` AS Q2 ON `Q1.id` = `Q2.id` WHERE `Q1.id` = 'the_strand_palace'")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()
@@ -86,7 +156,7 @@ func TestHeavyProtobuf(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("select id, (select `match_hash`,`daily_prices` as rates, `meal`, (select (select `show_amount`, `currency_code`) as Amount from `payment_options.payment_types`) as payment_types from `rates`) as rates from `$.data.hotels`")
+	sql.Prepare("select id, (select `match_hash`,`daily_prices` as rates, `meal`, (select (select `show_amount`, `currency_code`) as Amount from `payment_options.payment_types`) as payment_types from `rates` limit 1) as rates from `$.data.hotels` limit 1")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()

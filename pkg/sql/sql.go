@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
+	"strings"
 	"time"
 
-	"github.com/xwb1989/sqlparser"
+	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
 type GroupBy map[string]bool
@@ -31,8 +32,45 @@ func New(document map[string]any) *Context {
 	return &ctx
 }
 
+func removeComments(query string) string {
+	buffer := bytes.NewBufferString("")
+	hold := false
+	jump := false
+	count := 0
+	data := strings.FieldsFunc(query, func(r rune) bool {
+		return r == '\r' || r == '\n'
+	})
+	for _, line := range data {
+		for _, c := range line {
+			if jump {
+				jump = !jump
+			} else if hold {
+				if c == '\\' {
+					jump = true
+				}
+				if c == '\'' {
+					hold = false
+				}
+			} else if c == '\'' {
+				hold = true
+			} else if c == '-' {
+				count++
+				if count == 2 {
+					break
+				}
+				continue
+			} else {
+				count = 0
+			}
+			buffer.WriteRune(c)
+		}
+		buffer.WriteString("\r\n")
+	}
+	return buffer.String()
+}
+
 func (c *Context) Prepare(query string) error {
-	sqlStatement, err := sqlparser.Parse(query)
+	sqlStatement, err := sqlparser.Parse(removeComments(query))
 	if err != nil {
 		return err
 	}
@@ -123,22 +161,38 @@ func (c *Context) Exec() (any, error) {
 	return collect, nil
 }
 
-func (c *Context) setFrom(expr sqlparser.TableExpr) error {
+// func getTableName(expr *sqlparser.AliasedTableExpr) (string, string) {
+// 	return expr.As.String(), expr.Expr.(sqlparser.TableName).Name.String()
+// }
+
+func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, error) {
 	switch fromExprType := expr.(type) {
 	case *sqlparser.AliasedTableExpr:
 		{
-			result, err := readAliasedTableExpr(c.document, fromExprType)
+			result, err := readAliasedTableExpr(document, fromExprType)
 			if err != nil {
-				return err
+				return nil, err
 			}
-			c.from = result
-			return nil
+			return result, nil
+		}
+	case *sqlparser.JoinTableExpr:
+		{
+			return readJoinExpr(document, fromExprType)
 		}
 	default:
 		{
-			return UNSUPPORTED_CASE.Extend("invalid from")
+			return nil, UNSUPPORTED_CASE.Extend("invalid from")
 		}
 	}
+}
+
+func (c *Context) setFrom(expr sqlparser.TableExpr) error {
+	result, err := readTableExpr(c.document, expr)
+	if err != nil {
+		return err
+	}
+	c.from = result
+	return nil
 }
 
 func (c *Context) setLimit(expr *sqlparser.Limit) error {
@@ -171,10 +225,70 @@ func (c *Context) setGroupBy(expr sqlparser.GroupBy) error {
 	return nil
 }
 
-func (c *Context) prepare(statement sqlparser.Statement) error {
-	slct, ok := statement.(*sqlparser.Select)
-	if !ok {
-		return fmt.Errorf("invalid statement")
+func Copy(array []any) any {
+	cp := make([]any, len(array))
+	for index, item := range array {
+		switch itemType := item.(type) {
+		case *[]any:
+			{
+				cp[index] = Copy(*itemType)
+			}
+		case map[string]any:
+			{
+				mapper := make(map[string]any, len(itemType))
+				for key, value := range itemType {
+					switch valueType := value.(type) {
+					case []any:
+						{
+							mapper[key] = Copy(valueType)
+						}
+					case *[]any:
+						{
+							mapper[key] = Copy(*valueType)
+						}
+					default:
+						{
+							mapper[key] = valueType
+						}
+					}
+				}
+				cp[index] = mapper
+			}
+		default:
+			{
+				cp[index] = itemType
+			}
+		}
+	}
+	return cp
+}
+
+func (c *Context) execSelect(slct *sqlparser.Select) error {
+	if slct.With != nil {
+		data := make(map[string]any)
+		for _, cte := range slct.With.Ctes {
+			document := make(map[string]any)
+			for key, value := range c.document {
+				document[key] = value
+			}
+			for key, value := range data {
+				document[key] = value
+			}
+			sql := New(document)
+			err := sql.prepare(cte.Subquery.Select)
+			if err != nil {
+				return err
+			}
+			rs, err := sql.Exec()
+			if err != nil {
+				return err
+			}
+			data[cte.ID.String()] = rs
+		}
+		c.document = data
+	}
+	if len(slct.From) > 1 {
+		return fmt.Errorf("multiple tables are not supported")
 	}
 	err := c.setFrom(slct.From[0])
 	if err != nil {
@@ -190,6 +304,48 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 	}
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
+	return nil
+}
+
+func (c *Context) prepare(statement sqlparser.Statement) error {
+	switch statementType := statement.(type) {
+	case *sqlparser.Select:
+		{
+			return c.execSelect(statementType)
+		}
+	case *sqlparser.Union:
+		{
+			left := New(c.document)
+			err := left.prepare(statementType.Left)
+			if err != nil {
+				return err
+			}
+			leftRs, err := left.Exec()
+			if err != nil {
+				return err
+			}
+			right := New(c.document)
+			err = right.prepare(statementType.Right)
+			if err != nil {
+				return err
+			}
+			rightRs, err := right.Exec()
+			if err != nil {
+				return err
+			}
+			leftList := leftRs.([]any)
+			rightList := rightRs.([]any)
+			leftList = append(leftList, rightList...)
+			c.from = leftList
+			c.selectStmt = sqlparser.SelectExprs{
+				&sqlparser.StarExpr{},
+			}
+			err = c.setLimit(statementType.Limit)
+			if err != nil {
+				return err
+			}
+		}
+	}
 	return nil
 }
 
@@ -223,7 +379,7 @@ func readAliasedTableExpr(document map[string]any, expr *sqlparser.AliasedTableE
 
 			return readFrom(expr, from)
 		}
-	case *sqlparser.Subquery:
+	case *sqlparser.DerivedTable:
 		{
 			innerCtx := New(document)
 			innerCtx.prepare(exprType.Select)
@@ -284,7 +440,9 @@ func execSelect(from *[]any, row any, id int64, key *string, exprs sqlparser.Sel
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
-				output = readStarExpr(row, key, index)
+				for key, value := range readStarExpr(row, key, index) {
+					output[key] = value
+				}
 			}
 		case *sqlparser.AliasedExpr:
 			{

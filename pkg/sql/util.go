@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/xwb1989/sqlparser"
+	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
 func wrap(val any, err error) any {
