@@ -10,7 +10,7 @@ import (
 )
 
 type GroupBy map[string]bool
-type Document map[string]any
+type Document = map[string]any
 
 type Context struct {
 	doc        map[string]any
