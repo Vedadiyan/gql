@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+
+	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
-func From(jo map[string]any, key string) ([]any, error) {
-	ref := any(jo)
+func From(doc Document, key string) ([]any, error) {
+	ref := any(doc)
 	sgmnts := strings.Split(key, ".")
 	for i := 0; i < len(sgmnts); i++ {
 		item := sgmnts[i]
@@ -38,4 +40,22 @@ func From(jo map[string]any, key string) ([]any, error) {
 		return []any{ref}, nil
 	}
 	return array, nil
+}
+
+func readFrom(expr *sqlparser.AliasedTableExpr, from any) ([]any, error) {
+	rows, ok := from.([]any)
+	if !ok {
+		return nil, INVALID_CAST
+	}
+	name := expr.As.String()
+	if name != "" {
+		list := make([]any, len(rows))
+		for index, item := range rows {
+			list[index] = map[string]any{
+				name: item,
+			}
+		}
+		return list, nil
+	}
+	return rows, nil
 }

@@ -8,7 +8,7 @@ const (
 	_ONLY_VALUE_TYPES_ALLOWED = "only value types are valid on join conditions"
 )
 
-type JoinFunc func(objType any, rightIdx int, list *JoinRawResult) error
+type JoinFunc func(v any, idx int, list *JoinRawResult) error
 type LookupTable map[any][]int
 type IndexedLookup map[int][]int
 type Right = []any
@@ -34,7 +34,7 @@ func (a Association) Get(left bool) int {
 	}
 	return a.right
 }
-func (j *Join) ReadCondition(document map[string]any, expr sqlparser.Expr) (JoinRawResult, error) {
+func (j *Join) ReadCondition(doc map[string]any, expr sqlparser.Expr) (JoinRawResult, error) {
 	switch joinCondition := expr.(type) {
 	case *sqlparser.ComparisonExpr:
 		{
@@ -42,11 +42,11 @@ func (j *Join) ReadCondition(document map[string]any, expr sqlparser.Expr) (Join
 		}
 	case *sqlparser.AndExpr:
 		{
-			return j.And(document, joinCondition)
+			return j.And(doc, joinCondition)
 		}
 	case *sqlparser.OrExpr:
 		{
-			return j.Or(document, joinCondition)
+			return j.Or(doc, joinCondition)
 		}
 	}
 	return nil, nil
@@ -59,24 +59,24 @@ func (j *Join) Compare(expr *sqlparser.ComparisonExpr) (JoinRawResult, error) {
 		return nil, err
 	}
 	j.lookup = lookup
-	comparer := func(obj any, rightIdx int, list *JoinRawResult) error {
-		switch t := obj.(type) {
+	comparer := func(v any, idx int, list *JoinRawResult) error {
+		switch t := v.(type) {
 		case float64:
 			{
-				result := JoinComparer(j.lookup, t, rightIdx, expr.Operator)
+				result := JoinComparer(j.lookup, t, idx, expr.Operator)
 				*list = append(*list, result...)
 				return nil
 			}
 		case string:
 			{
-				result := JoinComparer(j.lookup, t, rightIdx, expr.Operator)
+				result := JoinComparer(j.lookup, t, idx, expr.Operator)
 				*list = append(*list, result...)
 				return nil
 			}
 		case bool:
 			{
 				b := BoolToFloat64(t)
-				result := JoinComparer(j.lookup, b, rightIdx, expr.Operator)
+				result := JoinComparer(j.lookup, b, idx, expr.Operator)
 				*list = append(*list, result...)
 				return nil
 			}
@@ -88,12 +88,12 @@ func (j *Join) Compare(expr *sqlparser.ComparisonExpr) (JoinRawResult, error) {
 	}
 	return JoinComparerFunc(j.right, j.rightExpr, comparer)
 }
-func (j *Join) And(document map[string]any, expr *sqlparser.AndExpr) (JoinRawResult, error) {
-	leftAscns, err := j.ReadCondition(document, expr.Left)
+func (j *Join) And(doc map[string]any, expr *sqlparser.AndExpr) (JoinRawResult, error) {
+	leftAscns, err := j.ReadCondition(doc, expr.Left)
 	if err != nil {
 		return nil, err
 	}
-	rightAscns, err := j.ReadCondition(document, expr.Right)
+	rightAscns, err := j.ReadCondition(doc, expr.Right)
 	if err != nil {
 		return nil, err
 	}
@@ -110,12 +110,12 @@ func (j *Join) And(document map[string]any, expr *sqlparser.AndExpr) (JoinRawRes
 	}
 	return jrr, nil
 }
-func (j *Join) Or(document map[string]any, expr *sqlparser.OrExpr) (JoinRawResult, error) {
-	leftAscns, err := j.ReadCondition(document, expr.Left)
+func (j *Join) Or(doc map[string]any, expr *sqlparser.OrExpr) (JoinRawResult, error) {
+	leftAscns, err := j.ReadCondition(doc, expr.Left)
 	if err != nil {
 		return nil, err
 	}
-	rightAscns, err := j.ReadCondition(document, expr.Right)
+	rightAscns, err := j.ReadCondition(doc, expr.Right)
 	if err != nil {
 		return nil, err
 	}
@@ -155,10 +155,10 @@ func JoinComparerFunc(right Right, rExpr sqlparser.Expr, jFn JoinFunc) (JoinRawR
 	}
 	return jrr, nil
 }
-func JoinComparer[T float64 | string](lt LookupTable, obj T, rightIdx int, op Operator) JoinRawResult {
+func JoinComparer[T float64 | string](lt LookupTable, v T, idx int, op Operator) JoinRawResult {
 	jrr := make(JoinRawResult, 0)
 	for key, value := range lt {
-		ok, err := SimpleGenericComparison(obj, key, op)
+		ok, err := SimpleGenericComparison(v, key, op)
 		if err != nil {
 			continue
 		}
@@ -166,7 +166,7 @@ func JoinComparer[T float64 | string](lt LookupTable, obj T, rightIdx int, op Op
 			for _, index := range value {
 				jrr = append(jrr, Association{
 					left:  index,
-					right: rightIdx,
+					right: idx,
 				})
 			}
 		}
@@ -224,86 +224,4 @@ func CreateIndexedLookup(jrr JoinRawResult, list []any, left bool) IndexedLookup
 		}
 	}
 	return il
-}
-func JoinNormalExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
-	collect := make([]any, 0)
-	for _, value := range jrr {
-		out := make(map[string]any)
-		for key, value := range l[value.left].(map[string]any) {
-			out[key] = value
-		}
-		for key, value := range r[value.right].(map[string]any) {
-			out[key] = value
-		}
-		collect = append(collect, out)
-	}
-	return collect, nil
-}
-func JoinLeftExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
-	lookup := CreateIndexedLookup(jrr, l, true)
-	return JoinExec(lookup, l, r), nil
-}
-func JoinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
-	lookup := CreateIndexedLookup(jrr, r, false)
-	return JoinExec(lookup, r, l), nil
-}
-func JoinExec(fl IndexedLookup, l Left, r Right) []any {
-	result := make([]any, 0)
-	for index, value := range fl {
-		if len(value) > 0 {
-			for _, v := range value {
-				out := make(map[string]any)
-				for key, value := range r[index].(map[string]any) {
-					out[key] = value
-				}
-				for key, value := range l[v].(map[string]any) {
-					out[key] = value
-				}
-				result = append(result, out)
-			}
-			continue
-		}
-		out := make(map[string]any)
-		for key, value := range r[index].(map[string]any) {
-			out[key] = value
-		}
-		for key := range l[0].(map[string]any) {
-			out[key] = nil
-		}
-		result = append(result, out)
-	}
-	return result
-}
-func ReadJoinExpr(document map[string]any, expr *sqlparser.JoinTableExpr) ([]any, error) {
-	left, err := readTableExpr(document, expr.LeftExpr)
-	if err != nil {
-		return nil, err
-	}
-	right, err := readTableExpr(document, expr.RightExpr)
-	if err != nil {
-		return nil, err
-	}
-	join := Join{
-		left:  left,
-		right: right,
-	}
-	rs, err := join.ReadCondition(document, expr.Condition.On)
-	if err != nil {
-		return nil, err
-	}
-	switch expr.Join {
-	case sqlparser.NormalJoinType:
-		{
-			return JoinNormalExpr(rs, left, right)
-		}
-	case sqlparser.LeftJoinType:
-		{
-			return JoinLeftExpr(rs, left, right)
-		}
-	case sqlparser.RightJoinType:
-		{
-			return JoinRightExpr(rs, left, right)
-		}
-	}
-	return nil, UNSUPPORTED_CASE
 }

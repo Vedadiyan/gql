@@ -2,6 +2,7 @@ package sql
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -9,33 +10,184 @@ import (
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
-func andExpr(jo *[]any, row any, expr *sqlparser.AndExpr) (any, error) {
-	l, err := unwrap[bool](ExprReader(jo, row, expr.Left))
+type Bucket *[]any
+
+func tableExpr(doc Document, expr sqlparser.TableExpr) ([]any, error) {
+	switch fromExprType := expr.(type) {
+	case *sqlparser.AliasedTableExpr:
+		{
+			result, err := aliasedTableExpr(doc, fromExprType)
+			if err != nil {
+				return nil, err
+			}
+			return result, nil
+		}
+	case *sqlparser.JoinTableExpr:
+		{
+			return joinExpr(doc, fromExprType)
+		}
+	default:
+		{
+			return nil, UNSUPPORTED_CASE.Extend("invalid from")
+		}
+	}
+}
+func aliasedTableExpr(doc map[string]any, expr *sqlparser.AliasedTableExpr) ([]any, error) {
+	switch exprType := expr.Expr.(type) {
+	case sqlparser.TableName:
+		{
+			objName := exprType.Name
+			from, err := From(doc, objName.String())
+			if err != nil {
+				return nil, err
+			}
+
+			return readFrom(expr, from)
+		}
+	case *sqlparser.DerivedTable:
+		{
+			innerCtx := New(doc)
+			innerCtx.prepare(exprType.Select)
+			from, err := innerCtx.Exec()
+			if err != nil {
+				return nil, err
+			}
+			return readFrom(expr, from)
+		}
+	default:
+		{
+			return nil, UNSUPPORTED_CASE.Extend("invalid from")
+		}
+	}
+}
+func aliasedExpr(expr *sqlparser.AliasedExpr) (string, error) {
+	if expr.As.String() != "" {
+		return expr.As.String(), nil
+	}
+	return unwrap[string](ExprReader(nil, nil, expr.Expr, true))
+}
+func starExpr(row any, key *string, index int) map[string]any {
+	switch rowType := row.(type) {
+	case map[string]any:
+		{
+			return rowType
+		}
+	default:
+		{
+			if key == nil {
+				return map[string]any{
+					fmt.Sprintf("col_%d", index): row,
+				}
+			}
+			return map[string]any{
+				*key: row,
+			}
+		}
+	}
+}
+func joinExpr(doc map[string]any, expr *sqlparser.JoinTableExpr) ([]any, error) {
+	left, err := tableExpr(doc, expr.LeftExpr)
+	if err != nil {
+		return nil, err
+	}
+	right, err := tableExpr(doc, expr.RightExpr)
+	if err != nil {
+		return nil, err
+	}
+	join := Join{
+		left:  left,
+		right: right,
+	}
+	rs, err := join.ReadCondition(doc, expr.Condition.On)
+	if err != nil {
+		return nil, err
+	}
+	switch expr.Join {
+	case sqlparser.NormalJoinType:
+		{
+			return joinNormalExpr(rs, left, right)
+		}
+	case sqlparser.LeftJoinType:
+		{
+			return joinLeftExpr(rs, left, right)
+		}
+	case sqlparser.RightJoinType:
+		{
+			return joinRightExpr(rs, left, right)
+		}
+	}
+	return nil, UNSUPPORTED_CASE
+}
+func joinNormalExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
+	collect := make([]any, 0)
+	for _, value := range jrr {
+		out := make(map[string]any)
+		for key, value := range l[value.left].(map[string]any) {
+			out[key] = value
+		}
+		for key, value := range r[value.right].(map[string]any) {
+			out[key] = value
+		}
+		collect = append(collect, out)
+	}
+	return collect, nil
+}
+func joinLeftExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
+	lookup := CreateIndexedLookup(jrr, l, true)
+	return joinExec(lookup, l, r), nil
+}
+func joinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
+	lookup := CreateIndexedLookup(jrr, r, false)
+	return joinExec(lookup, r, l), nil
+}
+func cteExpr(doc Document, expr *sqlparser.With) (Document, error) {
+	data := make(map[string]any)
+	for _, cte := range expr.Ctes {
+		doc := make(Document)
+		for key, value := range doc {
+			doc[key] = value
+		}
+		for key, value := range data {
+			doc[key] = value
+		}
+		sql := New(doc)
+		err := sql.prepare(cte.Subquery.Select)
+		if err != nil {
+			return nil, err
+		}
+		rs, err := sql.Exec()
+		if err != nil {
+			return nil, err
+		}
+		data[cte.ID.String()] = rs
+	}
+	return data, nil
+}
+func andExpr(b Bucket, row any, expr *sqlparser.AndExpr) (any, error) {
+	l, err := unwrap[bool](ExprReader(b, row, expr.Left))
 	if err != nil {
 		return false, err
 	}
-	r, err := unwrap[bool](ExprReader(jo, row, expr.Right))
+	r, err := unwrap[bool](ExprReader(b, row, expr.Right))
 	if err != nil {
 		return false, err
 	}
 	return l && r, nil
 }
-
-func orExpr(jo *[]any, row any, expr *sqlparser.OrExpr) (any, error) {
-	l, err := unwrap[bool](ExprReader(jo, row, expr.Left))
+func orExpr(b Bucket, row any, expr *sqlparser.OrExpr) (any, error) {
+	l, err := unwrap[bool](ExprReader(b, row, expr.Left))
 	if err != nil {
 		return false, err
 	}
-	r, err := unwrap[bool](ExprReader(jo, row, expr.Right))
+	r, err := unwrap[bool](ExprReader(b, row, expr.Right))
 	if err != nil {
 		return false, err
 	}
 	return l || r, nil
 }
-
-func comparisonExpr(jo *[]any, row any, expr *sqlparser.ComparisonExpr) (bool, error) {
-	l := ExprReader(jo, row, expr.Left)
-	r := ExprReader(jo, row, expr.Right)
+func comparisonExpr(b Bucket, row any, expr *sqlparser.ComparisonExpr) (bool, error) {
+	l := ExprReader(b, row, expr.Left)
+	r := ExprReader(b, row, expr.Right)
 	switch expr.Operator {
 	case sqlparser.EqualOp, sqlparser.NotEqualOp:
 		{
@@ -65,16 +217,16 @@ func comparisonExpr(jo *[]any, row any, expr *sqlparser.ComparisonExpr) (bool, e
 	return false, UNDEFINED_OPERATOR.Extend(expr.Operator.ToString())
 }
 
-func rangeExpr(jo *[]any, row any, expr *sqlparser.BetweenExpr) (bool, error) {
-	value, err := unwrap[float64](ExprReader(jo, row, expr.Left))
+func rangeExpr(b Bucket, row any, expr *sqlparser.BetweenExpr) (bool, error) {
+	value, err := unwrap[float64](ExprReader(b, row, expr.Left))
 	if err != nil {
 		return false, err
 	}
-	from, err := unwrap[float64](ExprReader(jo, row, expr.From))
+	from, err := unwrap[float64](ExprReader(b, row, expr.From))
 	if err != nil {
 		return false, err
 	}
-	to, err := unwrap[float64](ExprReader(jo, row, expr.To))
+	to, err := unwrap[float64](ExprReader(b, row, expr.To))
 	if err != nil {
 		return false, err
 	}
@@ -91,12 +243,12 @@ func rangeExpr(jo *[]any, row any, expr *sqlparser.BetweenExpr) (bool, error) {
 	return false, UNDEFINED_OPERATOR
 }
 
-func binaryExpr(jo *[]any, row any, expr *sqlparser.BinaryExpr) (float64, error) {
-	left, err := unwrap[float64](ExprReader(jo, row, expr.Left))
+func binaryExpr(b Bucket, row any, expr *sqlparser.BinaryExpr) (float64, error) {
+	left, err := unwrap[float64](ExprReader(b, row, expr.Left))
 	if err != nil {
 		return 0, err
 	}
-	right, err := unwrap[float64](ExprReader(jo, row, expr.Right))
+	right, err := unwrap[float64](ExprReader(b, row, expr.Right))
 	if err != nil {
 		return 0, err
 	}
@@ -162,8 +314,8 @@ func sqlValExpr(expr *sqlparser.Literal) (any, error) {
 	}
 }
 
-func isExpr(jo *[]any, row any, expr *sqlparser.IsExpr) (any, error) {
-	left, err := unwrapAny(ExprReader(jo, row, expr.Left))
+func isExpr(b Bucket, row any, expr *sqlparser.IsExpr) (any, error) {
+	left, err := unwrapAny(ExprReader(b, row, expr.Left))
 	if err != nil {
 		return nil, err
 	}
@@ -180,24 +332,24 @@ func isExpr(jo *[]any, row any, expr *sqlparser.IsExpr) (any, error) {
 	return false, UNDEFINED_OPERATOR.Extend(expr.Right.ToString())
 }
 
-func notExpr(jo *[]any, row any, expr *sqlparser.NotExpr) (bool, error) {
-	value, err := unwrap[bool](ExprReader(jo, row, expr))
+func notExpr(b Bucket, row any, expr *sqlparser.NotExpr) (bool, error) {
+	value, err := unwrap[bool](ExprReader(b, row, expr))
 	if err != nil {
 		return false, err
 	}
 	return !value, nil
 }
 
-func subStrExpr(jo *[]any, row any, expr *sqlparser.SubstrExpr) (string, error) {
-	val, err := unwrap[string](ExprReader(jo, row, expr.Name))
+func subStrExpr(b Bucket, row any, expr *sqlparser.SubstrExpr) (string, error) {
+	val, err := unwrap[string](ExprReader(b, row, expr.Name))
 	if err != nil {
 		return "", err
 	}
-	from, err := unwrap[float64](ExprReader(jo, row, expr.From))
+	from, err := unwrap[float64](ExprReader(b, row, expr.From))
 	if err != nil {
 		return "", err
 	}
-	to, err := unwrap[float64](ExprReader(jo, row, expr.To))
+	to, err := unwrap[float64](ExprReader(b, row, expr.To))
 	if err != nil {
 		return "", err
 	}
@@ -222,10 +374,10 @@ func unaryExpr(expr *sqlparser.UnaryExpr) (float64, error) {
 	return 0, UNDEFINED_OPERATOR.Extend(expr.Operator.ToString())
 }
 
-func valueTupleExpr(jo *[]any, row any, expr sqlparser.ValTuple) ([]any, error) {
+func valueTupleExpr(b Bucket, row any, expr sqlparser.ValTuple) ([]any, error) {
 	values := make([]any, 0)
 	for _, value := range expr {
-		val, err := unwrapAny(ExprReader(jo, row, value))
+		val, err := unwrapAny(ExprReader(b, row, value))
 		if err != nil {
 			return nil, err
 		}
@@ -234,7 +386,7 @@ func valueTupleExpr(jo *[]any, row any, expr sqlparser.ValTuple) ([]any, error) 
 	return values, nil
 }
 
-func funcExpr(jo *[]any, row any, expr *sqlparser.FuncExpr) (any, error) {
+func funcExpr(b Bucket, row any, expr *sqlparser.FuncExpr) (any, error) {
 	fn := expr.Name.String()
 	args := make([]any, 0)
 	for _, expr := range expr.Exprs {
@@ -244,7 +396,7 @@ func funcExpr(jo *[]any, row any, expr *sqlparser.FuncExpr) (any, error) {
 		}
 		boolVal, ok := aliasExpr.Expr.(sqlparser.BoolVal)
 		if !ok {
-			val := ExprReader(jo, row, aliasExpr.Expr, true)
+			val := ExprReader(b, row, aliasExpr.Expr, true)
 			args = append(args, val)
 			continue
 		}
@@ -254,7 +406,7 @@ func funcExpr(jo *[]any, row any, expr *sqlparser.FuncExpr) (any, error) {
 	if !ok {
 		return nil, INVALID_FUNCTION.Extend(fn)
 	}
-	return function(jo, row, args), nil
+	return function(b, row, args), nil
 }
 
 func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
@@ -306,27 +458,27 @@ func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
 	return nil, nil
 }
 
-func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
+func ExprReader(b Bucket, row any, expr sqlparser.Expr, opt ...any) any {
 	switch t := expr.(type) {
 	case *sqlparser.AndExpr:
 		{
-			return wrap(andExpr(jo, row, t))
+			return wrap(andExpr(b, row, t))
 		}
 	case *sqlparser.OrExpr:
 		{
-			return wrap(orExpr(jo, row, t))
+			return wrap(orExpr(b, row, t))
 		}
 	case *sqlparser.ComparisonExpr:
 		{
-			return wrap(comparisonExpr(jo, row, t))
+			return wrap(comparisonExpr(b, row, t))
 		}
 	case *sqlparser.BetweenExpr:
 		{
-			return wrap(rangeExpr(jo, row, t))
+			return wrap(rangeExpr(b, row, t))
 		}
 	case *sqlparser.BinaryExpr:
 		{
-			return wrap(binaryExpr(jo, row, t))
+			return wrap(binaryExpr(b, row, t))
 		}
 	case *sqlparser.Literal:
 		{
@@ -338,11 +490,11 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 		}
 	case *sqlparser.IsExpr:
 		{
-			return wrap(isExpr(jo, row, t))
+			return wrap(isExpr(b, row, t))
 		}
 	case *sqlparser.NotExpr:
 		{
-			return wrap(notExpr(jo, row, t))
+			return wrap(notExpr(b, row, t))
 		}
 	// case *sqlparser.ParenExpr:
 	// 	{
@@ -350,7 +502,7 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 	// 	}
 	case *sqlparser.SubstrExpr:
 		{
-			return wrap(subStrExpr(jo, row, t))
+			return wrap(subStrExpr(b, row, t))
 		}
 	case *sqlparser.UnaryExpr:
 		{
@@ -358,7 +510,7 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 		}
 	case sqlparser.ValTuple:
 		{
-			return wrap(valueTupleExpr(jo, row, t))
+			return wrap(valueTupleExpr(b, row, t))
 		}
 	case *sqlparser.FuncExpr:
 		{
@@ -371,7 +523,7 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 					}
 					return wrap(value, nil)
 				}
-				value, err := funcExpr(jo, row, t)
+				value, err := funcExpr(b, row, t)
 				if err != nil {
 					_cache.Store(id, err)
 					return wrap(nil, err)
@@ -379,7 +531,7 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 				_cache.Store(id, value)
 				return wrap(value, nil)
 			}
-			return wrap(funcExpr(jo, row, t))
+			return wrap(funcExpr(b, row, t))
 		}
 	case *sqlparser.ColName:
 		{
@@ -405,15 +557,15 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 	case *sqlparser.CaseExpr:
 		{
 			for _, i := range t.Whens {
-				cond, err := unwrap[bool](ExprReader(jo, row, i.Cond, opt...))
+				cond, err := unwrap[bool](ExprReader(b, row, i.Cond, opt...))
 				if err != nil {
 					return wrap(nil, err)
 				}
 				if cond {
-					return ExprReader(jo, row, i.Val, opt...)
+					return ExprReader(b, row, i.Val, opt...)
 				}
 			}
-			return ExprReader(jo, row, t.Else, opt...)
+			return ExprReader(b, row, t.Else, opt...)
 		}
 	case *sqlparser.Subquery:
 		{
@@ -431,7 +583,7 @@ func ExprReader(jo *[]any, row any, expr sqlparser.Expr, opt ...any) any {
 				{
 					output := make([]any, 0)
 					for _, item := range rowType {
-						value := ExprReader(jo, item, expr, opt...)
+						value := ExprReader(b, item, expr, opt...)
 						if err, ok := value.(error); ok {
 							return wrap(nil, err)
 						}

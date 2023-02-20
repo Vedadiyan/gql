@@ -5,8 +5,8 @@ import (
 	"strings"
 )
 
-func Select(jo map[string]any, key string) (any, error) {
-	ref := any(jo)
+func Select(doc Document, key string) (any, error) {
+	ref := any(doc)
 	sgmnts := strings.Split(key, ".")
 	for i := 0; i < len(sgmnts); i++ {
 		item := sgmnts[i]

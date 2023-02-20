@@ -45,7 +45,7 @@ func SimpleGenericComparison[T float64 | string](a T, b2 any, op sqlparser.Compa
 	}
 }
 
-func equalityCompare(left any, right any, operator string) (bool, error) {
+func equalityCompare(left any, right any, op string) (bool, error) {
 	lv, err := unwrapAny(left)
 	if err != nil {
 		return false, err
@@ -54,7 +54,7 @@ func equalityCompare(left any, right any, operator string) (bool, error) {
 	if err != nil {
 		return false, err
 	}
-	switch operator {
+	switch op {
 	case "=":
 		{
 			if array, ok := lv.([]any); ok {
@@ -82,7 +82,7 @@ func equalityCompare(left any, right any, operator string) (bool, error) {
 			return fmt.Sprintf("%v", lv) != fmt.Sprintf("%v", rv), nil
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(operator)
+	return false, UNDEFINED_OPERATOR.Extend(op)
 }
 
 func numericCompare(left any, right any, operator string) (bool, error) {
@@ -188,12 +188,12 @@ func boolComparison(left any, operator string) (bool, error) {
 }
 
 func regexComparison(left any, pattern string) (bool, error) {
-	_pattern := strings.ReplaceAll(pattern, "_", ".")
-	_pattern = strings.ReplaceAll(_pattern, "%", ".*")
-	_pattern = "^" + _pattern + "$"
+	regExpr := strings.ReplaceAll(pattern, "_", ".")
+	regExpr = strings.ReplaceAll(regExpr, "%", ".*")
+	regExpr = "^" + regExpr + "$"
 	if array, ok := left.([]any); ok {
 		for _, val := range array {
-			b, err := regexp.Match(_pattern, []byte(fmt.Sprintf("%v", val)))
+			b, err := regexp.Match(regExpr, []byte(fmt.Sprintf("%v", val)))
 			if err != nil {
 				return false, err
 			}
@@ -203,5 +203,5 @@ func regexComparison(left any, pattern string) (bool, error) {
 		}
 		return false, nil
 	}
-	return regexp.Match(_pattern, []byte(fmt.Sprintf("%v", left)))
+	return regexp.Match(regExpr, []byte(fmt.Sprintf("%v", left)))
 }
