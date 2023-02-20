@@ -140,7 +140,7 @@ func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, er
 		}
 	case *sqlparser.JoinTableExpr:
 		{
-			return readJoinExpr(document, fromExprType)
+			return ReadJoinExpr(document, fromExprType)
 		}
 	default:
 		{

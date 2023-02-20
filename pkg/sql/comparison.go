@@ -4,7 +4,46 @@ import (
 	"fmt"
 	"regexp"
 	"strings"
+
+	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
+
+func SimpleGenericComparison[T float64 | string](a T, b2 any, op sqlparser.ComparisonExprOperator) (bool, error) {
+	b, ok := b2.(T)
+	if !ok {
+		return false, INVALID_CAST
+	}
+	switch op {
+	case sqlparser.EqualOp:
+		{
+			return a == b, nil
+		}
+	case sqlparser.NotEqualOp:
+		{
+			return a != b, nil
+		}
+	case sqlparser.GreaterThanOp:
+		{
+			return a > b, nil
+		}
+	case sqlparser.LessThanOp:
+		{
+			return a < b, nil
+		}
+	case sqlparser.GreaterEqualOp:
+		{
+			return a >= b, nil
+		}
+	case sqlparser.LessEqualOp:
+		{
+			return a <= b, nil
+		}
+	default:
+		{
+			return false, UNSUPPORTED_CASE
+		}
+	}
+}
 
 func equalityCompare(left any, right any, operator string) (bool, error) {
 	lv, err := unwrapAny(left)

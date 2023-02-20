@@ -110,3 +110,18 @@ func removeComments(query string) string {
 	}
 	return buffer.String()
 }
+
+func BoolToFloat64(b bool) float64 {
+	if b {
+		return 1
+	}
+	return 0
+}
+
+func To[T any](obj any) (T, error) {
+	val, ok := obj.(T)
+	if !ok {
+		return *new(T), INVALID_CAST
+	}
+	return val, nil
+}
