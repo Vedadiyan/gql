@@ -130,7 +130,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("SELECT * FROM `$.data.hotels` AS Q1 JOIN `$.data.hotels` AS Q2 ON `Q1.id` = `Q2.id` AND `Q1.id` = `Q2.id` AND `Q1.id` = `Q2.id`  AND 1 = 1 AND `Q1.id` = `Q2.id`  AND 1 = 1 AND `Q1.id` = `Q2.id`  AND 1 = 1 AND `Q1.id` = `Q2.id` AND 1 = 1 --WHERE `Q1.id` = 'the_strand_palace'")
+	sql.Prepare("SELECT * FROM `$.data.hotels` WHERE `id` = 'the_strand_palace'")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()

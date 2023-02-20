@@ -6,9 +6,9 @@ import (
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
-func joinExec(fl IndexedLookup, l Left, r Right) []any {
+func joinExec(il IndexedLookup, l Left, r Right) []any {
 	result := make([]any, 0)
-	for index, value := range fl {
+	for index, value := range il {
 		if len(value) > 0 {
 			for _, v := range value {
 				out := make(map[string]any)
