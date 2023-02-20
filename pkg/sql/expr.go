@@ -10,7 +10,7 @@ import (
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
-type Bucket *[]any
+type Bucket = *[]any
 
 func tableExpr(doc Document, expr sqlparser.TableExpr) ([]any, error) {
 	switch fromExprType := expr.(type) {
@@ -32,7 +32,7 @@ func tableExpr(doc Document, expr sqlparser.TableExpr) ([]any, error) {
 		}
 	}
 }
-func aliasedTableExpr(doc map[string]any, expr *sqlparser.AliasedTableExpr) ([]any, error) {
+func aliasedTableExpr(doc Document, expr *sqlparser.AliasedTableExpr) ([]any, error) {
 	switch exprType := expr.Expr.(type) {
 	case sqlparser.TableName:
 		{
@@ -85,7 +85,7 @@ func starExpr(row any, key *string, index int) map[string]any {
 		}
 	}
 }
-func joinExpr(doc map[string]any, expr *sqlparser.JoinTableExpr) ([]any, error) {
+func joinExpr(doc Document, expr *sqlparser.JoinTableExpr) ([]any, error) {
 	left, err := tableExpr(doc, expr.LeftExpr)
 	if err != nil {
 		return nil, err
