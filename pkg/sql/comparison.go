@@ -57,29 +57,32 @@ func equalityCompare(left any, right any, op string) (bool, error) {
 	switch op {
 	case "=":
 		{
-			if array, ok := lv.([]any); ok {
-				for _, val := range array {
-					if fmt.Sprintf("%v", val) == fmt.Sprintf("%v", rv) {
-						return true, nil
-					}
-				}
-				return false, nil
+			array, ok := lv.([]any)
+			if !ok {
+				return fmt.Sprintf("%v", lv) == fmt.Sprintf("%v", rv), nil
 			}
-			return fmt.Sprintf("%v", lv) == fmt.Sprintf("%v", rv), nil
+			for _, val := range array {
+				if fmt.Sprintf("%v", val) == fmt.Sprintf("%v", rv) {
+					return true, nil
+				}
+			}
+			return false, nil
 		}
 	case "<>":
 		fallthrough
 	case "!=":
 		{
-			if array, ok := lv.([]any); ok {
-				for _, val := range array {
-					if fmt.Sprintf("%v", val) != fmt.Sprintf("%v", rv) {
-						return true, nil
-					}
-				}
-				return false, nil
+			array, ok := lv.([]any)
+			if !ok {
+				return fmt.Sprintf("%v", lv) != fmt.Sprintf("%v", rv), nil
 			}
-			return fmt.Sprintf("%v", lv) != fmt.Sprintf("%v", rv), nil
+			for _, val := range array {
+				if fmt.Sprintf("%v", val) != fmt.Sprintf("%v", rv) {
+					return true, nil
+				}
+			}
+			return false, nil
+
 		}
 	}
 	return false, UNDEFINED_OPERATOR.Extend(op)
