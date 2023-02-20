@@ -1,6 +1,7 @@
 package sql
 
 import (
+	"bytes"
 	"fmt"
 	"strconv"
 	"strings"
@@ -71,4 +72,41 @@ func index(key string) (int, error) {
 
 func isSpecialFunction(expr *sqlparser.FuncExpr) bool {
 	return expr.Name.String() == "ONCE"
+}
+
+func removeComments(query string) string {
+	buffer := bytes.NewBufferString("")
+	hold := false
+	jump := false
+	count := 0
+	data := strings.FieldsFunc(query, func(r rune) bool {
+		return r == '\r' || r == '\n'
+	})
+	for _, line := range data {
+		for _, c := range line {
+			if jump {
+				jump = !jump
+			} else if hold {
+				if c == '\\' {
+					jump = true
+				}
+				if c == '\'' {
+					hold = false
+				}
+			} else if c == '\'' {
+				hold = true
+			} else if c == '-' {
+				count++
+				if count == 2 {
+					break
+				}
+				continue
+			} else {
+				count = 0
+			}
+			buffer.WriteRune(c)
+		}
+		buffer.WriteString("\r\n")
+	}
+	return buffer.String()
 }

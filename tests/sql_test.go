@@ -107,7 +107,7 @@ func TestSQL(t *testing.T) {
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("SELECT * FROM `$.numbers` as A RIGHT JOIN `$.factors` as B on `A.ok` != `B.ok` OR (`A.value` = `B.value` AND 1 = 1)")
+	sql.Prepare("SELECT * FROM `$.numbers` as A RIGHT JOIN `$.factors` as B on `A.value` != `B.value`")
 	rs, err := sql.Exec()
 	if err != nil {
 		t.FailNow()
@@ -130,7 +130,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("SELECT `Q1.rates.{0}` as first, `Q2.id` as second FROM `$.data.hotels` AS Q1 JOIN `$.data.hotels` AS Q2 ON `Q1.id` = `Q2.id` WHERE `Q1.id` = 'the_strand_palace'")
+	sql.Prepare("SELECT * FROM `$.data.hotels` AS Q1 JOIN `$.data.hotels` AS Q2 ON `Q1.id` = `Q2.id` AND `Q1.id` = `Q2.id` AND `Q1.id` = `Q2.id`  AND 1 = 1 AND `Q1.id` = `Q2.id`  AND 1 = 1 AND `Q1.id` = `Q2.id`  AND 1 = 1 AND `Q1.id` = `Q2.id` AND 1 = 1 --WHERE `Q1.id` = 'the_strand_palace'")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()

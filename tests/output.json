@@ -2,31 +2,81 @@
 	{
 		"A": {
 			"ok": true,
-			"value": 9
+			"value": 2
 		},
 		"B": {
-			"ok": false,
-			"value": 3
+			"ok": true,
+			"value": 5
 		}
 	},
 	{
 		"A": {
 			"ok": true,
+			"value": 2
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 2
+		},
+		"B": {
+			"ok": false,
 			"value": 1
-		},
-		"B": {
-			"ok": false,
-			"value": 3
 		}
 	},
 	{
 		"A": {
 			"ok": true,
-			"value": 800
+			"value": 2
 		},
 		"B": {
-			"ok": false,
-			"value": 3
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 2
+		},
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 2
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 2
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 2
+		},
+		"B": {
+			"ok": true,
+			"value": 10
 		}
 	},
 	{
@@ -37,6 +87,126 @@
 		"B": {
 			"ok": false,
 			"value": 3
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": false,
+			"value": 1
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 10
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 2
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 3
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 10
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 2
 		}
 	},
 	{
@@ -52,6 +222,66 @@
 	{
 		"A": {
 			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": false,
+			"value": 1
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 4
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 2
+		}
+	},
+	{
+		"A": {
+			"ok": true,
 			"value": 10
 		},
 		"B": {
@@ -62,7 +292,87 @@
 	{
 		"A": {
 			"ok": true,
-			"value": 700
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": false,
+			"value": 1
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 10
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 1
+		},
+		"B": {
+			"ok": true,
+			"value": 2
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 1
 		},
 		"B": {
 			"ok": false,
@@ -72,21 +382,111 @@
 	{
 		"A": {
 			"ok": true,
-			"value": 3
+			"value": 1
 		},
 		"B": {
-			"ok": false,
-			"value": 3
+			"ok": true,
+			"value": 6
 		}
 	},
 	{
 		"A": {
 			"ok": true,
-			"value": 600
+			"value": 1
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 1
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 1
+		},
+		"B": {
+			"ok": true,
+			"value": 10
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 1
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 1
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 1
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 500
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 500
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 500
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 500
 		},
 		"B": {
 			"ok": false,
-			"value": 3
+			"value": 1
 		}
 	},
 	{
@@ -102,32 +502,18 @@
 	{
 		"A": {
 			"ok": true,
-			"value": 9
+			"value": 500
 		},
 		"B": {
 			"ok": true,
-			"value": 9
+			"value": 6
 		}
 	},
 	{
 		"A": {
 			"ok": true,
-			"value": 2
+			"value": 500
 		},
-		"B": {
-			"ok": true,
-			"value": 2
-		}
-	},
-	{
-		"A": null,
-		"B": {
-			"ok": true,
-			"value": 7
-		}
-	},
-	{
-		"A": null,
 		"B": {
 			"ok": true,
 			"value": 8
@@ -139,78 +525,28 @@
 			"value": 500
 		},
 		"B": {
-			"ok": false,
-			"value": 1
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 700
-		},
-		"B": {
-			"ok": false,
-			"value": 1
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 3
-		},
-		"B": {
-			"ok": false,
-			"value": 1
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 2
-		},
-		"B": {
-			"ok": false,
-			"value": 1
-		}
-	},
-	{
-		"A": {
-			"ok": true,
-			"value": 10
-		},
-		"B": {
-			"ok": false,
-			"value": 1
-		}
-	},
-	{
-		"A": {
 			"ok": true,
 			"value": 9
-		},
-		"B": {
-			"ok": false,
-			"value": 1
 		}
 	},
 	{
 		"A": {
 			"ok": true,
-			"value": 1
+			"value": 500
 		},
 		"B": {
-			"ok": false,
-			"value": 1
+			"ok": true,
+			"value": 10
 		}
 	},
 	{
 		"A": {
 			"ok": true,
-			"value": 4
+			"value": 500
 		},
 		"B": {
-			"ok": false,
-			"value": 1
+			"ok": true,
+			"value": 2
 		}
 	},
 	{
@@ -226,6 +562,256 @@
 	{
 		"A": {
 			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 2
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": false,
+			"value": 3
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 600
+		},
+		"B": {
+			"ok": true,
+			"value": 10
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": false,
+			"value": 1
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": false,
+			"value": 3
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 10
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 700
+		},
+		"B": {
+			"ok": true,
+			"value": 2
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 800
+		},
+		"B": {
+			"ok": true,
+			"value": 2
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 800
+		},
+		"B": {
+			"ok": false,
+			"value": 3
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 800
+		},
+		"B": {
+			"ok": true,
+			"value": 6
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 800
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 800
+		},
+		"B": {
+			"ok": true,
+			"value": 9
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 800
+		},
+		"B": {
+			"ok": true,
+			"value": 10
+		}
+	},
+	{
+		"A": {
+			"ok": true,
 			"value": 800
 		},
 		"B": {
@@ -236,7 +822,7 @@
 	{
 		"A": {
 			"ok": true,
-			"value": 4
+			"value": 800
 		},
 		"B": {
 			"ok": true,
@@ -246,7 +832,77 @@
 	{
 		"A": {
 			"ok": true,
-			"value": 10
+			"value": 800
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 800
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 9
+		},
+		"B": {
+			"ok": true,
+			"value": 7
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 9
+		},
+		"B": {
+			"ok": false,
+			"value": 1
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 9
+		},
+		"B": {
+			"ok": true,
+			"value": 4
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 9
+		},
+		"B": {
+			"ok": true,
+			"value": 5
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 9
+		},
+		"B": {
+			"ok": true,
+			"value": 8
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 9
 		},
 		"B": {
 			"ok": true,
@@ -254,14 +910,30 @@
 		}
 	},
 	{
-		"A": null,
+		"A": {
+			"ok": true,
+			"value": 9
+		},
 		"B": {
 			"ok": true,
-			"value": 5
+			"value": 2
 		}
 	},
 	{
-		"A": null,
+		"A": {
+			"ok": true,
+			"value": 9
+		},
+		"B": {
+			"ok": false,
+			"value": 3
+		}
+	},
+	{
+		"A": {
+			"ok": true,
+			"value": 9
+		},
 		"B": {
 			"ok": true,
 			"value": 6

@@ -162,44 +162,45 @@ func referenceDimension(ref *any, row any, key string) {
 
 func referenceObjectDimension(list map[any]map[int]bool, row *map[string]any, key string) {
 	for rowKey, rowValue := range *row {
-		if rowKey == key {
-			switch rowValueType := rowValue.(type) {
-			case []any:
-				{
-					for index, item := range rowValueType {
-						switch itemType := item.(type) {
-						case map[string]any:
-							{
-								_, ok := list[&itemType]
-								if !ok {
-									list[&itemType] = make(map[int]bool)
-								}
-								list[&itemType][index] = true
+		if rowKey != key {
+			continue
+		}
+		switch rowValueType := rowValue.(type) {
+		case []any:
+			{
+				for index, item := range rowValueType {
+					switch itemType := item.(type) {
+					case map[string]any:
+						{
+							_, ok := list[&itemType]
+							if !ok {
+								list[&itemType] = make(map[int]bool)
 							}
-						default:
-							{
-								_, ok := list[itemType]
-								if !ok {
-									list[itemType] = make(map[int]bool)
-								}
-								list[itemType][index] = true
+							list[&itemType][index] = true
+						}
+					default:
+						{
+							_, ok := list[itemType]
+							if !ok {
+								list[itemType] = make(map[int]bool)
 							}
+							list[itemType][index] = true
 						}
 					}
 				}
-			case map[string]any:
-				{
-					_, ok := list[&rowValueType]
-					if !ok {
-						list[&rowValueType] = make(map[int]bool)
-					}
-					list[&rowValueType][0] = true
+			}
+		case map[string]any:
+			{
+				_, ok := list[&rowValueType]
+				if !ok {
+					list[&rowValueType] = make(map[int]bool)
 				}
-			default:
-				{
-					list[rowValueType] = make(map[int]bool)
-					list[rowValueType][0] = true
-				}
+				list[&rowValueType][0] = true
+			}
+		default:
+			{
+				list[rowValueType] = make(map[int]bool)
+				list[rowValueType][0] = true
 			}
 		}
 	}
@@ -264,8 +265,6 @@ func toResult(ref any) any {
 		}
 	default:
 		{
-			// array := make([]any, 0)
-			// array = append(array, ref)
 			return ref
 		}
 	}

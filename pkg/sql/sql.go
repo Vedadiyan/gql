@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"strings"
 	"time"
 
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
@@ -33,44 +32,6 @@ func New(document map[string]any) *Context {
 	}
 	return &ctx
 }
-
-func removeComments(query string) string {
-	buffer := bytes.NewBufferString("")
-	hold := false
-	jump := false
-	count := 0
-	data := strings.FieldsFunc(query, func(r rune) bool {
-		return r == '\r' || r == '\n'
-	})
-	for _, line := range data {
-		for _, c := range line {
-			if jump {
-				jump = !jump
-			} else if hold {
-				if c == '\\' {
-					jump = true
-				}
-				if c == '\'' {
-					hold = false
-				}
-			} else if c == '\'' {
-				hold = true
-			} else if c == '-' {
-				count++
-				if count == 2 {
-					break
-				}
-				continue
-			} else {
-				count = 0
-			}
-			buffer.WriteRune(c)
-		}
-		buffer.WriteString("\r\n")
-	}
-	return buffer.String()
-}
-
 func (c *Context) Prepare(query string) error {
 	sqlStatement, err := sqlparser.Parse(removeComments(query))
 	if err != nil {
@@ -156,83 +117,9 @@ func (c *Context) Exec() (any, error) {
 			}
 		}
 	}
-	rowValue := func(index int, key string) (any, error) {
-		switch rowType := collect[index].(type) {
-		case map[string]any:
-			{
-				return Select(rowType, key)
-			}
-		case []any:
-			{
-				return nil, UNSUPPORTED_CASE
-			}
-		default:
-			{
-				return rowType, nil
-			}
-		}
-	}
-	if len(c.orderBy) > 0 {
-		sort.Slice(collect, func(i, j int) bool {
-			for key, value := range c.orderBy {
-				first, err := rowValue(i, key)
-				if err != nil {
-					panic(err)
-				}
-				second, err := rowValue(j, key)
-				if err != nil {
-					panic(err)
-				}
-				if fmt.Sprintf("%T", first) != fmt.Sprintf("%T", second) {
-					panic("type mismatch")
-				}
-				switch t := first.(type) {
-				case string:
-					{
-						if t != second {
-							second := second.(string)
-							if value {
-								return t < second
-							}
-							return t > second
-						}
-					}
-				case float64:
-					{
-						if t != second {
-							second := second.(float64)
-							if value {
-								return t < second
-							}
-							return t > second
-						}
-					}
-				case bool:
-					{
-						if t != second {
-							second := second.(bool)
-							_p := 0
-							if t {
-								_p = 1
-							}
-							p := 0
-							if second {
-								p = 1
-							}
-							if value {
-								return _p < p
-							}
-							return _p > p
-						}
-					}
-				default:
-					{
-						panic(UNSUPPORTED_CASE)
-					}
-				}
-			}
-			panic(UNSUPPORTED_CASE)
-		})
+	err := orderBy(c.orderBy, collect)
+	if err != nil {
+		return nil, err
 	}
 	for index := range c.selectStmt {
 		id := fmt.Sprintf("%d_%d", id, index)
@@ -240,10 +127,6 @@ func (c *Context) Exec() (any, error) {
 	}
 	return collect, nil
 }
-
-// func getTableName(expr *sqlparser.AliasedTableExpr) (string, string) {
-// 	return expr.As.String(), expr.Expr.(sqlparser.TableName).Name.String()
-// }
 
 func readTableExpr(document map[string]any, expr sqlparser.TableExpr) ([]any, error) {
 	switch fromExprType := expr.(type) {
@@ -303,44 +186,6 @@ func (c *Context) setGroupBy(expr sqlparser.GroupBy) error {
 		c.groupBy[result] = true
 	}
 	return nil
-}
-
-func Copy(array []any) any {
-	cp := make([]any, len(array))
-	for index, item := range array {
-		switch itemType := item.(type) {
-		case *[]any:
-			{
-				cp[index] = Copy(*itemType)
-			}
-		case map[string]any:
-			{
-				mapper := make(map[string]any, len(itemType))
-				for key, value := range itemType {
-					switch valueType := value.(type) {
-					case []any:
-						{
-							mapper[key] = Copy(valueType)
-						}
-					case *[]any:
-						{
-							mapper[key] = Copy(*valueType)
-						}
-					default:
-						{
-							mapper[key] = valueType
-						}
-					}
-				}
-				cp[index] = mapper
-			}
-		default:
-			{
-				cp[index] = itemType
-			}
-		}
-	}
-	return cp
 }
 
 func (c *Context) execSelect(slct *sqlparser.Select) error {
