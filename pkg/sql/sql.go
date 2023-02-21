@@ -244,7 +244,7 @@ func (c *Context) Exec() (any, error) {
 	}
 	for index := range c.selectStmt {
 		id := fmt.Sprintf("%d_%d", id, index)
-		_cache.Delete(id)
+		cmn.Cache.Delete(id)
 	}
 	return collect, nil
 }

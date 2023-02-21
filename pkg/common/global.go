@@ -1,18 +1,18 @@
-package sql
+package common
 
 import "sync"
 
 type Function func(jo *[]any, row any, args []any) any
 
 var (
-	_functions map[string]Function
-	_cache     sync.Map
+	Functions map[string]Function
+	Cache     sync.Map
 )
 
 func init() {
-	_functions = make(map[string]Function)
+	Functions = make(map[string]Function)
 }
 
 func RegisterFunction(name string, fn Function) {
-	_functions[name] = fn
+	Functions[name] = fn
 }

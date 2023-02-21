@@ -1,41 +1,40 @@
-package sql
+package common
 
 import (
 	"fmt"
 	"strconv"
 	"strings"
 
-	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
-func From(doc cmn.Document, key string) ([]any, error) {
+func From(doc Document, key string) ([]any, error) {
 	ref := any(doc)
 	sgmnts := strings.Split(key, ".")
 	for i := 0; i < len(sgmnts); i++ {
 		item := sgmnts[i]
-		if !strings.HasPrefix(item, "{") && !strings.HasSuffix(item, "}") {
+		if !IsIndex(item) {
 			ref = ref.(map[string]any)[item]
 			continue
 		}
-		str := strings.TrimPrefix(item, "{")
-		str = strings.TrimSuffix(str, "}")
-		if str == "?" {
-			if i < len(sgmnts)-1 {
-				return nil, fmt.Errorf("invalid selector")
+		str := GetIndex(item)
+		if IsWildCard(str) {
+			index, err := strconv.ParseInt(str, 10, 32)
+			if err != nil {
+				return nil, err
 			}
-			array, ok := ref.([]any)
-			if !ok {
-				return []any{ref}, nil
-			}
-			return array, nil
+			ref = ref.([]any)[index]
+			continue
 		}
-		index, err := strconv.ParseInt(str, 10, 32)
-		if err != nil {
-			return nil, err
+		if IsEOA(i, len(sgmnts)) {
+			return nil, fmt.Errorf("invalid selector")
 		}
-		ref = ref.([]any)[index]
+		array, ok := ref.([]any)
+		if !ok {
+			return []any{ref}, nil
+		}
+		return array, nil
 	}
 	array, ok := ref.([]any)
 	if !ok {
@@ -44,7 +43,7 @@ func From(doc cmn.Document, key string) ([]any, error) {
 	return array, nil
 }
 
-func readFrom(expr *sqlparser.AliasedTableExpr, from any) ([]any, error) {
+func ReadFrom(expr *sqlparser.AliasedTableExpr, from any) ([]any, error) {
 	rows, ok := from.([]any)
 	if !ok {
 		return nil, sentinel.INVALID_CAST

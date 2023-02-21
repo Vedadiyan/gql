@@ -5,7 +5,6 @@ import (
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
-	"github.com/vedadiyan/gql/pkg/sql"
 )
 
 func Unwind(jo *[]any, row any, args []any) any {
@@ -64,5 +63,5 @@ func readArgs(args []any, row any, jo *[]any) (any, error) {
 }
 
 func init() {
-	sql.RegisterFunction("unwind", Unwind)
+	cmn.RegisterFunction("unwind", Unwind)
 }

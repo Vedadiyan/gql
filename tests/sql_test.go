@@ -222,22 +222,22 @@ func TestCaseWhenHeavy(t *testing.T) {
 	fmt.Println(now.Sub(then).Milliseconds())
 }
 
-func TestHeavyFrom(t *testing.T) {
-	data, err := os.ReadFile("large-file.json")
-	if err != nil {
-		t.FailNow()
-	}
-	topLevel := make(map[string]any)
-	err = json.Unmarshal([]byte(fmt.Sprintf(`{"$": %s}`, data)), &topLevel)
-	if err != nil {
-		t.FailNow()
-	}
-	then := time.Now()
-	flatten, err := sql.From(topLevel, "$.abc")
-	if err != nil {
-		t.FailNow()
-	}
-	_ = flatten
-	now := time.Now()
-	fmt.Println("flattened", now.Sub(then).Milliseconds())
-}
+// func TestHeavyFrom(t *testing.T) {
+// 	data, err := os.ReadFile("large-file.json")
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	topLevel := make(map[string]any)
+// 	err = json.Unmarshal([]byte(fmt.Sprintf(`{"$": %s}`, data)), &topLevel)
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	then := time.Now()
+// 	flatten, err := sql.From(topLevel, "$.abc")
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	_ = flatten
+// 	now := time.Now()
+// 	fmt.Println("flattened", now.Sub(then).Milliseconds())
+// }

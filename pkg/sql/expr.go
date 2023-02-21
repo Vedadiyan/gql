@@ -38,12 +38,12 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 	case sqlparser.TableName:
 		{
 			objName := t.Name
-			from, err := From(doc, objName.String())
+			from, err := cmn.From(doc, objName.String())
 			if err != nil {
 				return nil, err
 			}
 
-			return readFrom(expr, from)
+			return cmn.ReadFrom(expr, from)
 		}
 	case *sqlparser.DerivedTable:
 		{
@@ -53,7 +53,7 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 			if err != nil {
 				return nil, err
 			}
-			return readFrom(expr, from)
+			return cmn.ReadFrom(expr, from)
 		}
 	default:
 		{
@@ -403,7 +403,7 @@ func funcExpr(b cmn.Bucket, row any, expr *sqlparser.FuncExpr) (any, error) {
 		}
 		args = append(args, bool(boolVal))
 	}
-	function, ok := _functions[strings.ToLower(fn)]
+	function, ok := cmn.Functions[strings.ToLower(fn)]
 	if !ok {
 		return nil, sentinel.INVALID_FUNCTION.Extend(fn)
 	}
@@ -517,7 +517,7 @@ func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
 		{
 			if cmn.IsSpecialFunction(t) && len(opt) > 0 {
 				id := opt[0].(string)
-				value, ok := _cache.Load(id)
+				value, ok := cmn.Cache.Load(id)
 				if ok {
 					if err, ok := value.(error); ok {
 						return cmn.Wrap(nil, err)
@@ -526,10 +526,10 @@ func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
 				}
 				value, err := funcExpr(b, row, t)
 				if err != nil {
-					_cache.Store(id, err)
+					cmn.Cache.Store(id, err)
 					return cmn.Wrap(nil, err)
 				}
-				_cache.Store(id, value)
+				cmn.Cache.Store(id, value)
 				return cmn.Wrap(value, nil)
 			}
 			return cmn.Wrap(funcExpr(b, row, t))
