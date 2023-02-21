@@ -5,13 +5,15 @@ import (
 	"regexp"
 	"strings"
 
+	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
 func SimpleGenericComparison[T float64 | string](a T, b2 any, op sqlparser.ComparisonExprOperator) (bool, error) {
 	b, ok := b2.(T)
 	if !ok {
-		return false, INVALID_CAST
+		return false, sentinel.INVALID_CAST
 	}
 	switch op {
 	case sqlparser.EqualOp:
@@ -40,17 +42,19 @@ func SimpleGenericComparison[T float64 | string](a T, b2 any, op sqlparser.Compa
 		}
 	default:
 		{
-			return false, UNSUPPORTED_CASE
+			return false, sentinel.UNSUPPORTED_CASE
 		}
 	}
 }
 
+// TODO
+// function needs revision
 func equalityCompare(left any, right any, op string) (bool, error) {
-	lv, err := unwrapAny(left)
+	lv, err := cmn.UnWrapAny(left)
 	if err != nil {
 		return false, err
 	}
-	rv, err := unwrapAny(right)
+	rv, err := cmn.UnWrapAny(right)
 	if err != nil {
 		return false, err
 	}
@@ -85,15 +89,15 @@ func equalityCompare(left any, right any, op string) (bool, error) {
 
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(op)
+	return false, sentinel.UNDEFINED_OPERATOR.Extend(op)
 }
 
 func numericCompare(left any, right any, operator string) (bool, error) {
-	lv, err := unwrap[float64](left)
+	lv, err := cmn.UnWrap[float64](left)
 	if err != nil {
 		return false, err
 	}
-	rv, err := unwrap[float64](right)
+	rv, err := cmn.UnWrap[float64](right)
 	if err != nil {
 		return false, err
 	}
@@ -115,15 +119,15 @@ func numericCompare(left any, right any, operator string) (bool, error) {
 			return lv >= rv, nil
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(operator)
+	return false, sentinel.UNDEFINED_OPERATOR.Extend(operator)
 }
 
 func inComparison(left any, right any, operator string) (bool, error) {
-	lv, err := unwrapAny(left)
+	lv, err := cmn.UnWrapAny(left)
 	if err != nil {
 		return false, err
 	}
-	rv, err := unwrap[[]any](right)
+	rv, err := cmn.UnWrap[[]any](right)
 	if err != nil {
 		return false, err
 	}
@@ -147,7 +151,7 @@ func inComparison(left any, right any, operator string) (bool, error) {
 			return true, nil
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(operator)
+	return false, sentinel.UNDEFINED_OPERATOR.Extend(operator)
 }
 
 func isNull(left any, operator string) (bool, error) {
@@ -161,11 +165,11 @@ func isNull(left any, operator string) (bool, error) {
 			return left != nil, nil
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(operator)
+	return false, sentinel.UNDEFINED_OPERATOR.Extend(operator)
 }
 
 func boolComparison(left any, operator string) (bool, error) {
-	value, err := unwrap[bool](left)
+	value, err := cmn.UnWrap[bool](left)
 	if err != nil {
 		return false, err
 	}
@@ -187,7 +191,7 @@ func boolComparison(left any, operator string) (bool, error) {
 			return value, nil
 		}
 	}
-	return false, UNDEFINED_OPERATOR.Extend(operator)
+	return false, sentinel.UNDEFINED_OPERATOR.Extend(operator)
 }
 
 func regexComparison(left any, pattern string) (bool, error) {

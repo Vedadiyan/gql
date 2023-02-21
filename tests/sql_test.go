@@ -130,7 +130,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("SELECT * FROM `$.data.hotels` WHERE `id` = 'the_strand_palace'")
+	sql.Prepare("SELECT `rates.{?}.payment_options.payment_types.{?}.show_amount` as Rates FROM `$.data.hotels` WHERE `rates.{?}.payment_options.payment_types.{?}.show_amount` = '2003.00'")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()

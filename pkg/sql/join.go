@@ -1,6 +1,8 @@
 package sql
 
 import (
+	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
@@ -75,14 +77,14 @@ func (j *Join) Compare(expr *sqlparser.ComparisonExpr) (JoinRawResult, error) {
 			}
 		case bool:
 			{
-				b := BoolToFloat64(t)
+				b := cmn.BoolToFloat64(t)
 				result := JoinComparer(j.lookup, b, idx, expr.Operator)
 				*list = append(*list, result...)
 				return nil
 			}
 		default:
 			{
-				return UNSUPPORTED_CASE
+				return sentinel.UNSUPPORTED_CASE
 			}
 		}
 	}
@@ -135,7 +137,7 @@ func (j *Join) Or(doc map[string]any, expr *sqlparser.OrExpr) (JoinRawResult, er
 func JoinComparerFunc(right Right, rExpr sqlparser.Expr, jFn JoinFunc) (JoinRawResult, error) {
 	jrr := make(JoinRawResult, 0)
 	for rid, row := range right {
-		obj, err := unwrap[any](ExprReader(nil, row, rExpr))
+		obj, err := cmn.UnWrap[any](ExprReader(nil, row, rExpr))
 		if err != nil {
 			return nil, err
 		}
@@ -149,7 +151,7 @@ func JoinComparerFunc(right Right, rExpr sqlparser.Expr, jFn JoinFunc) (JoinRawR
 			}
 		default:
 			{
-				return nil, UNSUPPORTED_CASE.Extend(_ONLY_VALUE_TYPES_ALLOWED)
+				return nil, sentinel.UNSUPPORTED_CASE.Extend(_ONLY_VALUE_TYPES_ALLOWED)
 			}
 		}
 	}
@@ -176,7 +178,7 @@ func JoinComparer[T float64 | string](lt LookupTable, v T, idx int, op Operator)
 func CreateLookupTable(left Left, leftExpr sqlparser.Expr) (LookupTable, error) {
 	lt := make(LookupTable)
 	for index, row := range left {
-		obj, err := unwrap[any](ExprReader(nil, row, leftExpr))
+		obj, err := cmn.UnWrap[any](ExprReader(nil, row, leftExpr))
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +193,7 @@ func CreateLookupTable(left Left, leftExpr sqlparser.Expr) (LookupTable, error) 
 			}
 		case bool:
 			{
-				objType := BoolToFloat64(objType)
+				objType := cmn.BoolToFloat64(objType)
 				_, ok := lt[objType]
 				if !ok {
 					lt[objType] = make([]int, 0)
@@ -200,7 +202,7 @@ func CreateLookupTable(left Left, leftExpr sqlparser.Expr) (LookupTable, error) 
 			}
 		default:
 			{
-				return nil, UNSUPPORTED_CASE.Extend(_ONLY_VALUE_TYPES_ALLOWED)
+				return nil, sentinel.UNSUPPORTED_CASE.Extend(_ONLY_VALUE_TYPES_ALLOWED)
 			}
 		}
 	}

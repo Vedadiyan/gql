@@ -1,4 +1,4 @@
-package sql
+package common
 
 import (
 	"strconv"
@@ -7,51 +7,43 @@ import (
 
 func Select(doc Document, key string) (any, error) {
 	ref := any(doc)
-	sgmnts := strings.Split(key, ".")
-	for i := 0; i < len(sgmnts); i++ {
-		item := sgmnts[i]
-		if strings.HasPrefix(item, "{") && strings.HasSuffix(item, "}") {
-			str := strings.TrimPrefix(item, "{")
-			str = strings.TrimSuffix(str, "}")
-			if str == "?" {
-				if i < len(sgmnts)-1 {
-					continue
-				}
-				array, ok := ref.([]any)
-				if !ok {
-					return []any{ref}, nil
-				}
-				return array, nil
-			}
-			index, err := strconv.ParseInt(str, 10, 32)
+	keys := strings.Split(key, ".")
+	for i := 0; i < len(keys); i++ {
+		item := keys[i]
+		if !IsIndex(item) {
+			ref = load(ref, item)
+			continue
+		}
+		str := GetIndex(item)
+		if !IsWildCard(str) {
+			index, err := strconv.Atoi(str)
 			if err != nil {
 				return nil, err
 			}
-			ref = indexer(ref, int(index))
+			ref = referenceIndex(ref, int(index))
 			continue
 		}
-		ref = load(ref, item)
+		if IsEOA(i, len(keys)) {
+			continue
+		}
+		return ToArray(ref), nil
 	}
-	array, ok := ref.([]any)
-	if !ok {
-		return ref, nil
-	}
-	return array, nil
+	return ToArray(ref), nil
 }
 
-func indexer(ref any, index int) any {
-	_ref, ok := (ref).([]any)
+func referenceIndex(obj any, index int) any {
+	ref, ok := (obj).([]any)
 	if !ok {
 		return nil
 	}
 	isArray := false
 	list := make([]any, 0)
-	for i, item := range _ref {
+	for i, item := range ref {
 		switch itemType := item.(type) {
 		case []any:
 			{
 				isArray = true
-				x := indexer(itemType, index)
+				x := referenceIndex(itemType, index)
 				if x != nil {
 					list = append(list, x)
 				}

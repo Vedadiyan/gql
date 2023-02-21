@@ -6,11 +6,10 @@ import (
 	"sort"
 	"time"
 
+	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
-
-type GroupBy map[string]bool
-type Document = map[string]any
 
 type Context struct {
 	doc        map[string]any
@@ -23,7 +22,7 @@ type Context struct {
 	orderBy    map[string]bool
 }
 
-func New(doc Document) *Context {
+func New(doc cmn.Document) *Context {
 	ctx := Context{
 		doc:     doc,
 		offset:  -1,
@@ -59,7 +58,7 @@ func (c *Context) setSelect(slct *sqlparser.Select) error {
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
 	for _, order := range slct.OrderBy {
-		name, err := unwrap[string](ExprReader(nil, nil, order.Expr, true))
+		name, err := cmn.UnWrap[string](ExprReader(nil, nil, order.Expr, true))
 		if err != nil {
 			return err
 		}
@@ -90,13 +89,13 @@ func (c *Context) setLimit(expr *sqlparser.Limit) error {
 		return nil
 	}
 	if expr.Offset != nil {
-		offset, err := unwrap[float64](ExprReader(nil, nil, expr.Offset))
+		offset, err := cmn.UnWrap[float64](ExprReader(nil, nil, expr.Offset))
 		if err != nil {
 			return err
 		}
 		c.offset = int(offset)
 	}
-	limit, err := unwrap[float64](ExprReader(nil, nil, expr.Rowcount))
+	limit, err := cmn.UnWrap[float64](ExprReader(nil, nil, expr.Rowcount))
 	if err != nil {
 		return err
 	}
@@ -105,7 +104,7 @@ func (c *Context) setLimit(expr *sqlparser.Limit) error {
 }
 func (c *Context) setGroupBy(expr sqlparser.GroupBy) error {
 	for _, groupBy := range expr {
-		result, err := unwrap[string](ExprReader(nil, nil, groupBy, true))
+		result, err := cmn.UnWrap[string](ExprReader(nil, nil, groupBy, true))
 		if err != nil {
 			return err
 		}
@@ -155,7 +154,7 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 	return nil
 }
 func (c *Context) Prepare(query string) error {
-	sqlStatement, err := sqlparser.Parse(removeComments(query))
+	sqlStatement, err := sqlparser.Parse(cmn.RemoveComments(query))
 	if err != nil {
 		return err
 	}
@@ -187,14 +186,14 @@ func (c *Context) Exec() (any, error) {
 			var buffer bytes.Buffer
 			keys := make([]string, 0)
 			for groupBy := range c.groupBy {
-				value, err := Select(row.(map[string]any), groupBy)
+				value, err := cmn.Select(row.(map[string]any), groupBy)
 				if err != nil {
 					return nil, err
 				}
 				switch value.(type) {
 				case map[string]any, []any:
 					{
-						return nil, UNSUPPORTED_CASE.Extend("only value types can be used in group by")
+						return nil, sentinel.UNSUPPORTED_CASE.Extend("only value types can be used in group by")
 					}
 				default:
 					{
@@ -216,7 +215,7 @@ func (c *Context) Exec() (any, error) {
 		}
 		collect = make([]any, 0)
 		for key, group := range groupped {
-			result, err := selectExec(&c.from, group, id, &key, c.selectStmt, GroupBy(c.groupBy))
+			result, err := selectExec(&c.from, group, id, &key, c.selectStmt, c.groupBy)
 			if err != nil {
 				return nil, err
 			}

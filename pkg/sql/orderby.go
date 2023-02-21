@@ -3,6 +3,9 @@ package sql
 import (
 	"fmt"
 	"sort"
+
+	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
 func orderBy(order map[string]bool, list []any) (err error) {
@@ -66,11 +69,11 @@ func orderBy(order map[string]bool, list []any) (err error) {
 					}
 				default:
 					{
-						panic(UNSUPPORTED_CASE)
+						panic(sentinel.UNSUPPORTED_CASE)
 					}
 				}
 			}
-			panic(UNSUPPORTED_CASE)
+			panic(sentinel.UNSUPPORTED_CASE)
 		})
 	}
 	return nil
@@ -80,11 +83,11 @@ func rowValue(list []any, index int, key string) (any, error) {
 	switch rowType := list[index].(type) {
 	case map[string]any:
 		{
-			return Select(rowType, key)
+			return cmn.Select(rowType, key)
 		}
 	case []any:
 		{
-			return nil, UNSUPPORTED_CASE
+			return nil, sentinel.UNSUPPORTED_CASE
 		}
 	default:
 		{

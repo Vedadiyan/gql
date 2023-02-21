@@ -5,10 +5,12 @@ import (
 	"strconv"
 	"strings"
 
+	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
-func From(doc Document, key string) ([]any, error) {
+func From(doc cmn.Document, key string) ([]any, error) {
 	ref := any(doc)
 	sgmnts := strings.Split(key, ".")
 	for i := 0; i < len(sgmnts); i++ {
@@ -45,7 +47,7 @@ func From(doc Document, key string) ([]any, error) {
 func readFrom(expr *sqlparser.AliasedTableExpr, from any) ([]any, error) {
 	rows, ok := from.([]any)
 	if !ok {
-		return nil, INVALID_CAST
+		return nil, sentinel.INVALID_CAST
 	}
 	name := expr.As.String()
 	if name != "" {

@@ -1,4 +1,4 @@
-package sql
+package common
 
 import (
 	"bytes"
@@ -6,17 +6,18 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
-func wrap(val any, err error) any {
+func Wrap(val any, err error) any {
 	if err != nil {
 		return err
 	}
 	return val
 }
 
-func unwrap[T any](val any) (output T, err error) {
+func UnWrap[T any](val any) (output T, err error) {
 	if val == nil {
 		return *new(T), nil
 	}
@@ -27,28 +28,28 @@ func unwrap[T any](val any) (output T, err error) {
 	}()
 	err, ok := val.(error)
 	if ok {
-		return *new(T), SQLError(err.Error())
+		return *new(T), sentinel.SQLError(err.Error())
 	}
 	rs, ok := val.(T)
 	if !ok {
 		r := new(T)
-		return *new(T), INVALID_CAST.Extend(fmt.Sprintf("%T cannot be cast to %T", val, r))
+		return *new(T), sentinel.INVALID_CAST.Extend(fmt.Sprintf("%T cannot be cast to %T", val, r))
 	}
 	return rs, nil
 }
-func unwrapAny(val any) (any, error) {
+func UnWrapAny(val any) (any, error) {
 	err, ok := val.(error)
 	if ok {
-		return nil, SQLError(err.Error())
+		return nil, sentinel.SQLError(err.Error())
 	}
 	return val, nil
 }
 
-func isColumnName(opt ...any) bool {
+func IsColumnName(opt ...any) bool {
 	return len(opt) > 0 && opt[0] == true
 }
 
-func hasGroupBy(opt ...any) (GroupBy, bool) {
+func HasGroupBy(opt ...any) (GroupBy, bool) {
 	for _, value := range opt {
 		if groupBy, ok := value.(GroupBy); ok {
 			return groupBy, true
@@ -57,24 +58,44 @@ func hasGroupBy(opt ...any) (GroupBy, bool) {
 	return nil, false
 }
 
-func isIndex(key string) bool {
+func IsIndex(key string) bool {
 	return strings.HasPrefix(key, "{") && strings.HasSuffix(key, "}")
 }
-
-func index(key string) (int, error) {
-	str := strings.TrimSuffix(strings.TrimPrefix(key, "{"), "}")
-	if str == "?" {
+func GetIndex(str string) string {
+	str = strings.TrimPrefix(str, "{")
+	str = strings.TrimSuffix(str, "}")
+	return str
+}
+func IsWildCard(str string) bool {
+	return str == "?"
+}
+func IsWildCardIndex(index int) bool {
+	return index == -1
+}
+func IsEOA(i int, len int) bool {
+	return i < len-1
+}
+func ToArray(v any) []any {
+	array, ok := v.([]any)
+	if !ok {
+		return []any{v}
+	}
+	return array
+}
+func Index(key string) (int, error) {
+	str := GetIndex(key)
+	if IsWildCard(str) {
 		return -1, nil
 	}
-	index, err := strconv.ParseInt(str, 10, 32)
-	return int(index), err
+	index, err := strconv.Atoi(str)
+	return index, err
 }
 
-func isSpecialFunction(expr *sqlparser.FuncExpr) bool {
+func IsSpecialFunction(expr *sqlparser.FuncExpr) bool {
 	return expr.Name.String() == "ONCE"
 }
 
-func removeComments(query string) string {
+func RemoveComments(query string) string {
 	buffer := bytes.NewBufferString("")
 	hold := false
 	jump := false
@@ -121,7 +142,7 @@ func BoolToFloat64(b bool) float64 {
 func To[T any](obj any) (T, error) {
 	val, ok := obj.(T)
 	if !ok {
-		return *new(T), INVALID_CAST
+		return *new(T), sentinel.INVALID_CAST
 	}
 	return val, nil
 }
