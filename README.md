@@ -43,7 +43,7 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
  - ✅ Unions
  - ✅ CTEs
  - ⏳ Having Expression (in development)
- - ⏳ Order By (in development)
+ - ✅ Order By (in development)
 
 # Examples
 

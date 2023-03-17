@@ -3,8 +3,8 @@ package unwind
 import (
 	"strings"
 
+	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
-	"github.com/vedadiyan/gql/pkg/sql"
 )
 
 func Unwind(jo *[]any, row any, args []any) any {
@@ -34,14 +34,14 @@ func readArgs(args []any, row any, jo *[]any) (any, error) {
 		case string:
 			{
 				if strings.HasPrefix(argType, "$.") {
-					result, err := sql.Select(map[string]any{"$": *jo}, argType)
+					result, err := cmn.Select(map[string]any{"$": *jo}, argType)
 					if err != nil {
 						return err
 					}
 					obj = result
 					return nil
 				}
-				result, err := sql.Select(row.(map[string]any), argType)
+				result, err := cmn.Select(row.(map[string]any), argType)
 				if err != nil {
 					return err
 				}
@@ -63,5 +63,5 @@ func readArgs(args []any, row any, jo *[]any) (any, error) {
 }
 
 func init() {
-	sql.RegisterFunction("unwind", Unwind)
+	cmn.RegisterFunction("unwind", Unwind)
 }

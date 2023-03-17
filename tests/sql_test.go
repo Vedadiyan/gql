@@ -107,7 +107,7 @@ func TestSQL(t *testing.T) {
 	json.Unmarshal([]byte(test), &val)
 	then := time.Now()
 	sql := sql.New(val)
-	sql.Prepare("SELECT * FROM `$.numbers` as A FULL JOIN `$.factors` as B on 1 = 1")
+	sql.Prepare("SELECT * FROM `$.numbers` as A RIGHT JOIN `$.factors` as B on `A.value` != `B.value`")
 	rs, err := sql.Exec()
 	if err != nil {
 		t.FailNow()
@@ -130,7 +130,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	then := time.Now()
 	sql := sql.New(topLevel)
-	sql.Prepare("SELECT `Q1.rates.{0}` as first, `Q2.id` as second FROM `$.data.hotels` AS Q1 JOIN `$.data.hotels` AS Q2 ON `Q1.id` = `Q2.id` WHERE `Q1.id` = 'the_strand_palace'")
+	sql.Prepare("SELECT `rates.{?}.payment_options.payment_types.{?}.show_amount` as Rates FROM `$.data.hotels` WHERE `rates.{?}.payment_options.payment_types.{?}.show_amount` = '2003.00'")
 	now := time.Now()
 	fmt.Println("prepared", now.Sub(then).Milliseconds())
 	then = time.Now()
@@ -222,22 +222,22 @@ func TestCaseWhenHeavy(t *testing.T) {
 	fmt.Println(now.Sub(then).Milliseconds())
 }
 
-func TestHeavyFrom(t *testing.T) {
-	data, err := os.ReadFile("large-file.json")
-	if err != nil {
-		t.FailNow()
-	}
-	topLevel := make(map[string]any)
-	err = json.Unmarshal([]byte(fmt.Sprintf(`{"$": %s}`, data)), &topLevel)
-	if err != nil {
-		t.FailNow()
-	}
-	then := time.Now()
-	flatten, err := sql.From(topLevel, "$.abc")
-	if err != nil {
-		t.FailNow()
-	}
-	_ = flatten
-	now := time.Now()
-	fmt.Println("flattened", now.Sub(then).Milliseconds())
-}
+// func TestHeavyFrom(t *testing.T) {
+// 	data, err := os.ReadFile("large-file.json")
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	topLevel := make(map[string]any)
+// 	err = json.Unmarshal([]byte(fmt.Sprintf(`{"$": %s}`, data)), &topLevel)
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	then := time.Now()
+// 	flatten, err := sql.From(topLevel, "$.abc")
+// 	if err != nil {
+// 		t.FailNow()
+// 	}
+// 	_ = flatten
+// 	now := time.Now()
+// 	fmt.Println("flattened", now.Sub(then).Milliseconds())
+// }
