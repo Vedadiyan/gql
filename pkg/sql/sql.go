@@ -230,7 +230,7 @@ func (c *Context) Exec() (any, error) {
 			if err != nil {
 				return nil, err
 			}
-			collect[0] = result
+			return result, nil
 		} else {
 			for index, row := range collect {
 				result, err := selectExec(&c.from, row, id, nil, c.selectStmt, nil)

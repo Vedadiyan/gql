@@ -19,7 +19,7 @@ func From(doc Document, key string) ([]any, error) {
 			continue
 		}
 		str := GetIndex(item)
-		if IsWildCard(str) {
+		if !IsWildCard(str) {
 			index, err := strconv.ParseInt(str, 10, 32)
 			if err != nil {
 				return nil, err
