@@ -45,6 +45,9 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
  - ⏳ Having Expression (in development)
  - ✅ Order By (in development)
 
+# Caveats
+- Join conditions ALWAYS require table aliasing even if they are used in a CTE query 
+
 # Examples
 
 1- Basic Example
