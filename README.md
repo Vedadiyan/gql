@@ -12,9 +12,6 @@ GQL allows you to query up data in large and complex data structures at very hig
 # SQL Interpretation
 GQL relies on a modified version of the `sqlparser` package in the Vitess project. It is guaranteed to parse SQL code flawlessly. 
 
-# SQL Interpretation 
-GQL relies on  [sqlparser](https://github.com/Vedadiyan/sqlparser) which itself relies on [vitess](https://github.com/vitessio/vitess). For that reason, interpreting SQL code is done reliably and efficiently as vitess is a reliable database clustering system for horizontal scaling of MySQL through generalized sharding.
-
 # Usage 
 You can use GQL to re-model JSON data structures so that they can be auto mapped to your desired data models. For instance, if you are writing a microservice that retrieves data from a third-party API, you can focus on modeling internal data structures while using GQL to re-shape the output of that API to match the internal data model. Once this is done, the output of GQL can be automatically mapped to the internal data model.  
 
