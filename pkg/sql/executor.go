@@ -15,20 +15,20 @@ func joinExec(il IndexedLookup, l Left, r Right) []any {
 	for index, indexes := range il {
 		for _, referencedIndex := range indexes {
 			out := make(map[string]any)
-			for key, value := range r[index].(map[string]any) {
+			for key, value := range l[index].(map[string]any) {
 				out[key] = value
 			}
-			for key, value := range l[referencedIndex].(map[string]any) {
+			for key, value := range r[referencedIndex].(map[string]any) {
 				out[key] = value
 			}
 			result = append(result, out)
 		}
 		if len(indexes) == 0 {
 			out := make(map[string]any)
-			for key, value := range r[index].(map[string]any) {
+			for key, value := range l[index].(map[string]any) {
 				out[key] = value
 			}
-			for key := range l[0].(map[string]any) {
+			for key := range r[0].(map[string]any) {
 				out[key] = nil
 			}
 			result = append(result, out)
@@ -48,7 +48,7 @@ func whereExec(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
-func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.SelectExprs, groupBy cmn.GroupBy) (map[string]any, error) {
+func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.SelectExprs, groupBy cmn.GroupBy) (any, error) {
 	output := make(map[string]any, 0)
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
@@ -60,6 +60,15 @@ func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.Se
 			}
 		case *sqlparser.AliasedExpr:
 			{
+				if expr, ok := exprType.Expr.(*sqlparser.FuncExpr); ok {
+					res, err := funcExpr(b, row, expr)
+					if err != nil {
+						return nil, err
+					}
+					// wrapper := make(map[string]any)
+					// wrapper[exprType.As.String()] = res
+					return res, nil
+				}
 				name, err := aliasedExpr(exprType)
 				if err != nil {
 					return nil, err

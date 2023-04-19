@@ -164,6 +164,9 @@ func (c *Context) Exec() (any, error) {
 	id := time.Now().UnixNano()
 	collect := make([]any, 0)
 	count := 0
+	if c.from == nil {
+		c.from = make([]any, 1)
+	}
 	for index, row := range c.from {
 		if index < c.offset {
 			continue
