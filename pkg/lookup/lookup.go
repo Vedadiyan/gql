@@ -17,28 +17,28 @@ func ReadObject(row map[string]any, key string) (any, error) {
 	for i := 0; i < len(keys); i++ {
 		key := keys[i]
 		if strings.HasPrefix(key, "{") && strings.HasSuffix(key, "}") {
-			if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") {
-				array := make([]any, 0)
-				for _, v := range ref.([]any) {
-					switch t := v.(type) {
-					case map[string]any:
-						{
-							array = append(array, t[keys[i+1]])
-						}
-					case []any:
-						{
-							for _, v := range t {
-								array = append(array, v.(map[string]any)[keys[i+1]])
+			if key == "{?}" {
+				if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") {
+					array := make([]any, 0)
+					for _, v := range ref.([]any) {
+						switch t := v.(type) {
+						case map[string]any:
+							{
+								array = append(array, t[keys[i+1]])
+							}
+						case []any:
+							{
+								for _, v := range t {
+									array = append(array, v.(map[string]any)[keys[i+1]])
+								}
 							}
 						}
-					}
 
+					}
+					ref = array
+					i++
+					continue
 				}
-				ref = array
-				i++
-				continue
-			}
-			if key == "{?}" {
 				array := make([]any, 0)
 				for _, v := range ref.([]any) {
 					array = append(array, v.([]any)...)
@@ -51,6 +51,24 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			index, err := strconv.ParseInt(key, 10, 32)
 			if err != nil {
 				return nil, err
+			}
+			if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") {
+				array := make([]any, 0)
+				switch t := ref.([]any)[index].(type) {
+				case map[string]any:
+					{
+						array = append(array, t[keys[i+1]])
+					}
+				case []any:
+					{
+						for _, v := range t {
+							array = append(array, v.(map[string]any)[keys[i+1]])
+						}
+					}
+				}
+				ref = array
+				i++
+				continue
 			}
 			array := make([]any, 0)
 			for _, v := range ref.([]any) {
