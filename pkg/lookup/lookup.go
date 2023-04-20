@@ -59,7 +59,20 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			ref = array
 			continue
 		}
-		ref = ref.(map[string]any)[key]
+		switch t := ref.(type) {
+		case map[string]any:
+			{
+				ref = t[key]
+			}
+		case []any:
+			{
+				array := make([]any, 0)
+				for _, v := range t {
+					array = append(array, v.(map[string]any)[key])
+				}
+				ref = array
+			}
+		}
 	}
 	return ref, nil
 }
