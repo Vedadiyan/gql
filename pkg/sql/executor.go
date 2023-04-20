@@ -65,9 +65,8 @@ func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.Se
 					if err != nil {
 						return nil, err
 					}
-					// wrapper := make(map[string]any)
-					// wrapper[exprType.As.String()] = res
-					return res, nil
+					output[exprType.As.String()] = res
+					continue
 				}
 				name, err := aliasedExpr(exprType)
 				if err != nil {

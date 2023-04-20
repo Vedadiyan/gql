@@ -212,7 +212,8 @@ func setArray(ref *any, rows []any, key string) {
 			}
 		case []any:
 			{
-				for i, v := range itemType {
+				_array := make(map[any]map[int]bool)
+				for x, v := range itemType {
 					switch valueType := v.(type) {
 					case []any, map[string]any:
 						{
@@ -224,15 +225,17 @@ func setArray(ref *any, rows []any, key string) {
 						}
 					default:
 						{
-							_, ok := array[valueType]
+							_, ok := _array[valueType]
 							if !ok {
-								array[valueType] = map[int]bool{}
+								_array[valueType] = map[int]bool{}
 							}
-							array[valueType][i] = true
+							// array[valueType][i] = true
+							_array[valueType][x] = true
 						}
 					}
 				}
-
+				array[&_array] = make(map[int]bool)
+				array[&_array][0] = true
 			}
 		default:
 			{
@@ -249,8 +252,21 @@ func ToResult(obj any) any {
 	case LookupTable:
 		{
 			array := make([]any, 0, len(t))
-			for k := range t {
-				array = append(array, k)
+			for k, v := range t {
+				if arr, ok := k.(*map[any]map[int]bool); ok {
+					array = append(array, ToResult(*arr))
+					continue
+				}
+				for i, b := range v {
+					if b {
+						if i >= len(array) {
+							for x := len(array); x < i+1; x++ {
+								array = append(array, nil)
+							}
+						}
+						array[i] = k
+					}
+				}
 			}
 			return array
 		}
