@@ -156,6 +156,7 @@ func set(ref *any, row any, key string) {
 }
 
 func setObjDim(list LookupTable, row *map[string]any, key string) {
+	counter := 0
 	for rk, rv := range *row {
 		if rk != key {
 			continue
@@ -190,12 +191,14 @@ func setObjDim(list LookupTable, row *map[string]any, key string) {
 				if !ok {
 					list[&t] = make(map[int]bool)
 				}
-				list[&t][0] = true
+				list[&t][counter] = true
+				counter++
 			}
 		default:
 			{
 				list[t] = make(map[int]bool)
-				list[t][0] = true
+				list[t][counter] = true
+				counter++
 			}
 		}
 	}
@@ -235,36 +238,43 @@ func setArray(ref *any, rows []any, key string) {
 					}
 				}
 				array[&_array] = make(map[int]bool)
-				array[&_array][0] = true
+				array[&_array][i] = true
 			}
 		default:
 			{
 				array[itemType] = make(map[int]bool)
-				array[itemType][0] = true
+				array[itemType][i] = true
 			}
 		}
 	}
 	*ref = array
 }
 
-func ToResult(obj any) any {
+func ToResult(obj any, opt ...int) any {
 	switch t := obj.(type) {
 	case LookupTable:
 		{
 			array := make([]any, 0, len(t))
 			for k, v := range t {
 				if arr, ok := k.(*map[any]map[int]bool); ok {
-					array = append(array, ToResult(*arr))
+					array = append(array, ToResult(*arr, 1))
 					continue
 				}
 				for i, b := range v {
-					if b {
-						if i >= len(array) {
-							for x := len(array); x < i+1; x++ {
-								array = append(array, nil)
+					if len(opt) > 0 && opt[0] == 1 {
+						if b {
+							if i >= len(array) {
+								l := i - len(array) + 1
+								for x := 0; x < l; x++ {
+									array = append(array, nil)
+								}
 							}
+							array[i] = k
 						}
-						array[i] = k
+						continue
+					}
+					if b {
+						array = append(array, k)
 					}
 				}
 			}
