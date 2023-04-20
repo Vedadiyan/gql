@@ -250,18 +250,18 @@ func setArray(ref *any, rows []any, key string) {
 	*ref = array
 }
 
-func ToResult(obj any, opt ...int) any {
+func ToResult(obj any, recuring bool) any {
 	switch t := obj.(type) {
 	case LookupTable:
 		{
 			array := make([]any, 0, len(t))
 			for k, v := range t {
 				if arr, ok := k.(*map[any]map[int]bool); ok {
-					array = append(array, ToResult(*arr, 1))
+					array = append(array, ToResult(*arr, true))
 					continue
 				}
 				for i, b := range v {
-					if len(opt) > 0 && opt[0] == 1 {
+					if recuring {
 						if b {
 							if i >= len(array) {
 								l := i - len(array) + 1

@@ -417,7 +417,7 @@ func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
 				}
 				return nil, err
 			}
-			return lookup.ToResult(out), nil
+			return lookup.ToResult(out, false), nil
 		}
 	case []any:
 		{
@@ -446,7 +446,7 @@ func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
 				}
 
 			}
-			return lookup.ToResult(output), nil
+			return lookup.ToResult(output, false), nil
 		}
 	}
 	return nil, nil
