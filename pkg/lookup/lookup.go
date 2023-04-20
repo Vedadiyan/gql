@@ -232,7 +232,6 @@ func setArray(ref *any, rows []any, key string) {
 							if !ok {
 								_array[valueType] = map[int]bool{}
 							}
-							// array[valueType][i] = true
 							_array[valueType][x] = true
 						}
 					}
