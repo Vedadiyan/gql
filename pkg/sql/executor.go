@@ -28,8 +28,10 @@ func joinExec(il IndexedLookup, l Left, r Right) []any {
 			for key, value := range l[index].(map[string]any) {
 				out[key] = value
 			}
-			for key := range r[0].(map[string]any) {
-				out[key] = nil
+			if len(r) > 0 {
+				for key := range r[0].(map[string]any) {
+					out[key] = nil
+				}
 			}
 			result = append(result, out)
 		}
