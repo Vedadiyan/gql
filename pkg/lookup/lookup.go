@@ -74,6 +74,9 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			if err != nil {
 				return nil, err
 			}
+			if int(index) >= len(ref.([]any)) {
+				continue
+			}
 			if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") {
 				array := make([]any, 0)
 				switch t := ref.([]any)[index].(type) {
