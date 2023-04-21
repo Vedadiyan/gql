@@ -24,12 +24,34 @@ func ReadObject(row map[string]any, key string) (any, error) {
 						switch t := v.(type) {
 						case map[string]any:
 							{
-								array = append(array, t[keys[i+1]])
+								switch t := t[keys[i+1]].(type) {
+								case []any:
+									{
+										array = append(array, t...)
+									}
+								default:
+									{
+										array = append(array, t)
+									}
+								}
 							}
 						case []any:
 							{
 								for _, v := range t {
-									array = append(array, v.(map[string]any)[keys[i+1]])
+									switch t := v.(type) {
+									case map[string]any:
+										{
+											array = append(array, t[keys[i+1]])
+										}
+									case []any:
+										{
+											array = append(array, t...)
+										}
+									default:
+										{
+											array = append(array, t)
+										}
+									}
 								}
 							}
 						}
@@ -57,12 +79,34 @@ func ReadObject(row map[string]any, key string) (any, error) {
 				switch t := ref.([]any)[index].(type) {
 				case map[string]any:
 					{
-						array = append(array, t[keys[i+1]])
+						switch t := t[keys[i+1]].(type) {
+						case []any:
+							{
+								array = append(array, t...)
+							}
+						default:
+							{
+								array = append(array, t)
+							}
+						}
 					}
 				case []any:
 					{
 						for _, v := range t {
-							array = append(array, v.(map[string]any)[keys[i+1]])
+							switch t := v.(type) {
+							case map[string]any:
+								{
+									array = append(array, t[keys[i+1]])
+								}
+							case []any:
+								{
+									array = append(array, t...)
+								}
+							default:
+								{
+									array = append(array, t)
+								}
+							}
 						}
 					}
 				}
@@ -70,11 +114,7 @@ func ReadObject(row map[string]any, key string) (any, error) {
 				i++
 				continue
 			}
-			array := make([]any, 0)
-			for _, v := range ref.([]any) {
-				array = append(array, v.([]any)[index])
-			}
-			ref = array
+			ref = ref.([]any)[index]
 			continue
 		}
 		switch t := ref.(type) {
@@ -86,7 +126,20 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			{
 				array := make([]any, 0)
 				for _, v := range t {
-					array = append(array, v.(map[string]any)[key])
+					switch t := v.(type) {
+					case map[string]any:
+						{
+							array = append(array, t[key])
+						}
+					case []any:
+						{
+							array = append(array, t...)
+						}
+					default:
+						{
+							array = append(array, t)
+						}
+					}
 				}
 				ref = array
 			}
