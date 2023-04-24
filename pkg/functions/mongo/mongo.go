@@ -20,7 +20,7 @@ func Mongo(jo *[]any, row any, args []any) any {
 		return err
 	}
 	mapper := result.(map[string]string)
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI("mongodb://booqall:Pou96179617!@206.189.26.125:27017"))
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(""))
 	if err != nil {
 		return err
 	}

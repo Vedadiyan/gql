@@ -131,7 +131,7 @@ func TestHeavyZero(t *testing.T) {
 	}
 	_ = query
 	topLevel := make(map[string]any)
-	err = json.Unmarshal([]byte(fmt.Sprintf(`{"$": %s}`, data)), &topLevel)
+	err = json.Unmarshal(data, &topLevel)
 	if err != nil {
 		t.FailNow()
 	}

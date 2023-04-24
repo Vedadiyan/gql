@@ -1,7 +1,7 @@
 WITH Search AS (
     SELECT
         id,
-        (SELECT `AVG`(`daily_prices`) AS `avg` FROM `rates`) AS rates
+        (SELECT `AVG`(`daily_prices`) AS `avg` FROM `$.rates`) AS rates
     FROM
         `$.data.hotels`
 ),
