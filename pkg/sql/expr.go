@@ -67,7 +67,7 @@ func aliasedExpr(expr *sqlparser.AliasedExpr) (string, error) {
 	}
 	return cmn.UnWrap[string](ExprReader(nil, nil, expr.Expr, true))
 }
-func starExpr(row any, key *string, index int) map[string]any {
+func starExpr(row any, index int) map[string]any {
 	switch t := row.(type) {
 	case map[string]any:
 		{
@@ -75,13 +75,8 @@ func starExpr(row any, key *string, index int) map[string]any {
 		}
 	default:
 		{
-			if key == nil {
-				return map[string]any{
-					fmt.Sprintf("col_%d", index): row,
-				}
-			}
 			return map[string]any{
-				*key: row,
+				fmt.Sprintf("col_%d", index): row,
 			}
 		}
 	}

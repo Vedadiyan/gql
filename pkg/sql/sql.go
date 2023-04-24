@@ -7,6 +7,7 @@ import (
 	"time"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/lookup"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
@@ -200,7 +201,7 @@ func (c *Context) Exec() (any, error) {
 			var buffer bytes.Buffer
 			keys := make([]string, 0)
 			for groupBy := range c.groupBy {
-				value, err := cmn.Select(row.(map[string]any), groupBy)
+				value, err := lookup.ReadObject(row.(map[string]any), groupBy)
 				if err != nil {
 					return nil, err
 				}
@@ -228,23 +229,31 @@ func (c *Context) Exec() (any, error) {
 			groupped[key] = append(groupped[key], row)
 		}
 		collect = make([]any, 0)
-		for key, group := range groupped {
-			result, err := selectExec(&c.from, group, id, &key, c.selectStmt, c.groupBy)
+		for _, group := range groupped {
+			result, err := selectExec(&c.from, group, id, c.selectStmt)
 			if err != nil {
 				return nil, err
 			}
-			collect = append(collect, result)
+			// QUICK FIX
+			_result := result.(map[string]any)
+			for key := range c.groupBy {
+				if value, ok := _result[key]; ok {
+					_result[key] = value.([]any)[0]
+				}
+			}
+			// END QUICK FIX
+			collect = append(collect, _result)
 		}
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
-			result, err := selectExec(&c.from, c.doc, id, nil, c.selectStmt, nil)
+			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)
 			if err != nil {
 				return nil, err
 			}
 			return result, nil
 		} else {
 			for index, row := range collect {
-				result, err := selectExec(&c.from, row, id, nil, c.selectStmt, nil)
+				result, err := selectExec(&c.from, row, id, c.selectStmt)
 				if err != nil {
 					return nil, err
 				}

@@ -50,13 +50,13 @@ func whereExec(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
-func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.SelectExprs, groupBy cmn.GroupBy) (any, error) {
+func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (any, error) {
 	output := make(map[string]any, 0)
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
-				for key, value := range starExpr(row, key, index) {
+				for key, value := range starExpr(row, index) {
 					output[key] = value
 				}
 			}
@@ -75,7 +75,7 @@ func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.Se
 					return nil, err
 				}
 				id := fmt.Sprintf("%d_%d", id, index)
-				result := ExprReader(b, row, exprType.Expr, id, groupBy)
+				result := ExprReader(b, row, exprType.Expr, id)
 				output[name] = result
 			}
 		default:
