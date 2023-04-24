@@ -70,6 +70,12 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (a
 					output[exprType.As.String()] = res
 					continue
 				}
+				if colName, ok := exprType.Expr.(*sqlparser.ColName); ok {
+					if colName.Name.String() == "$GROUPBY" {
+						output["$GROUPBY"] = exprType.As.String()
+						continue
+					}
+				}
 				name, err := aliasedExpr(exprType)
 				if err != nil {
 					return nil, err

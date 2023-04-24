@@ -230,17 +230,32 @@ func (c *Context) Exec() (any, error) {
 		}
 		collect = make([]any, 0)
 		for _, group := range groupped {
+			_array := make([]any, 0)
 			result, err := selectExec(&c.from, group, id, c.selectStmt)
 			if err != nil {
 				return nil, err
 			}
 			// QUICK FIX
 			_result := result.(map[string]any)
-			for key := range c.groupBy {
-				if value, ok := _result[key]; ok {
-					_result[key] = value.([]any)[0]
-				}
+			groupByName := "_grouped"
+			if value, ok := _result["$GROUPBY"]; ok {
+				groupByName = value.(string)
+				delete(_result, "$GROUPBY")
 			}
+			for key, value := range _result {
+				if _, ok := c.groupBy[key]; ok {
+					_result[key] = value.([]any)[0]
+					continue
+				}
+				for index, value := range value.([]any) {
+					if index >= len(_array) {
+						_array = append(_array, make(map[string]any))
+					}
+					_array[index].(map[string]any)[key] = value
+				}
+				delete(_result, key)
+			}
+			_result[groupByName] = _array
 			// END QUICK FIX
 			collect = append(collect, _result)
 		}
