@@ -24,7 +24,7 @@ type Context struct {
 
 func New(doc cmn.Document) *Context {
 	ctx := Context{
-		doc:     doc,
+		doc:     map[string]any{"$": doc},
 		offset:  -1,
 		limit:   -1,
 		groupBy: make(map[string]bool),

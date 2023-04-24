@@ -419,37 +419,62 @@ func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
 			}
 			return lookup.ToResult(out, false), nil
 		}
-	case []any:
+	default:
 		{
-			groupBy, _ := cmn.HasGroupBy(opt...)
-			_ = groupBy
-			output := make([]any, 0)
-			for _, row := range r {
-				result, err := colExpr(row, expr, opt...)
-				if err != nil {
-					return nil, err
+			out, err := lookup.ReadObject(map[string]any{"$": r}, "$."+expr.Name.String())
+			if err != nil {
+				if errors.Is(err, sentinel.KEY_NOT_FOUND) {
+					return nil, nil
 				}
-				switch result.(type) {
-				case map[string]any, []any:
-					{
-						output = append(output, result)
-					}
-				default:
-					{
-						_, ok := groupBy[expr.Name.String()]
-						if ok {
-							return result, nil
-						}
-						output = append(output, result)
-
-					}
-				}
-
+				return nil, err
 			}
-			return lookup.ToResult(output, false), nil
+			return lookup.ToResult(out, false), nil
 		}
 	}
-	return nil, nil
+
+	// switch r := row.(type) {
+	// case map[string]any:
+	// 	{
+	// 		out, err := lookup.ReadObject(r, expr.Name.String())
+	// 		if err != nil {
+	// 			if errors.Is(err, sentinel.KEY_NOT_FOUND) {
+	// 				return nil, nil
+	// 			}
+	// 			return nil, err
+	// 		}
+	// 		return lookup.ToResult(out, false), nil
+	// 	}
+	// case []any:
+	// 	{
+	// 		output := make([]any, 0)
+	// 		for _, row := range r {
+	// 			result, err := colExpr(row, expr, opt...)
+	// 			if err != nil {
+	// 				return nil, err
+	// 			}
+	// 			switch result.(type) {
+	// 			case map[string]any, []any:
+	// 				{
+	// 					output = append(output, result)
+	// 				}
+	// 			default:
+	// 				{
+	// 					groupBy, _ := cmn.HasGroupBy(opt...)
+	// 					_ = groupBy
+	// 					_, ok := groupBy[expr.Name.String()]
+	// 					if ok {
+	// 						return result, nil
+	// 					}
+	// 					output = append(output, result)
+
+	// 				}
+	// 			}
+
+	// 		}
+	// 		return lookup.ToResult(output, false), nil
+	// 	}
+	// }
+	// return nil, nil
 }
 
 func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
