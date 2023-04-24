@@ -47,7 +47,7 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 		}
 	case *sqlparser.DerivedTable:
 		{
-			ctx := New(doc)
+			ctx := new(doc, false)
 			ctx.prepare(t.Select)
 			from, err := ctx.Exec()
 			if err != nil {
@@ -144,7 +144,7 @@ func joinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
 func cteExpr(doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
 	output := doc
 	for _, cte := range expr.Ctes {
-		sql := New(doc)
+		sql := new(doc, false)
 		err := sql.prepare(cte.Subquery.Select)
 		if err != nil {
 			return nil, err
@@ -591,7 +591,7 @@ func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
 			switch rowType := row.(type) {
 			case map[string]any:
 				{
-					context := New(rowType)
+					context := new(rowType, false)
 					err := context.prepare(t.Select)
 					if err != nil {
 						return cmn.Wrap(nil, err)

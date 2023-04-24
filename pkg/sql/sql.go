@@ -22,15 +22,25 @@ type Context struct {
 	orderBy    map[string]bool
 }
 
-func New(doc cmn.Document) *Context {
+func new(doc cmn.Document, init bool) *Context {
+	var _doc cmn.Document
+	if init {
+		_doc = map[string]any{"$": doc}
+	} else {
+		_doc = doc
+	}
 	ctx := Context{
-		doc:     map[string]any{"$": doc},
+		doc:     _doc,
 		offset:  -1,
 		limit:   -1,
 		groupBy: make(map[string]bool),
 		orderBy: make(map[string]bool),
 	}
 	return &ctx
+}
+
+func New(doc cmn.Document) *Context {
+	return new(doc, true)
 }
 func (c *Context) setSelect(slct *sqlparser.Select) error {
 	if slct.With != nil {
@@ -120,7 +130,7 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 		}
 	case *sqlparser.Union:
 		{
-			left := New(c.doc)
+			left := new(c.doc, false)
 			err := left.prepare(statementType.Left)
 			if err != nil {
 				return err
@@ -129,7 +139,7 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 			if err != nil {
 				return err
 			}
-			right := New(c.doc)
+			right := new(c.doc, false)
 			err = right.prepare(statementType.Right)
 			if err != nil {
 				return err
@@ -154,7 +164,8 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 	return nil
 }
 func (c *Context) Prepare(query string) error {
-	sqlStatement, err := sqlparser.Parse(cmn.RemoveComments(query))
+	query = cmn.RemoveComments(query)
+	sqlStatement, err := sqlparser.Parse(query)
 	if err != nil {
 		return err
 	}
