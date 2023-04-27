@@ -3,7 +3,7 @@
 ![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.19-%23007d9c)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vedadiyan/gql)](https://goreportcard.com/report/github.com/vedadiyan/gql)
 
-GQL is an implementation of `MySQL` querying syntax for complex data structures.
+GQL is an implementation of `MySQL` dialect for querying data in complex data structures.
 
 
 
