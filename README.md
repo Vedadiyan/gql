@@ -74,6 +74,7 @@ This query will retrieve `amount` from an array of objects called `tax_data`.
 Array indexes can be reached using the `{}` selector. You can pass either a number or a wildcard using the `{?}` to select and query arrays.
 
 ~~*Please note that although multi-dimensional selectors such as `{?}.{?}` are supported, the `FROM` clause does not support multi-dimensional selectors. However, the following is valid `$.data.items.{0}.rates`*~~
+*Updated in the v0.0.3, multi-dimensional selectors can be used in the `FROM` clause*
 
 # Using Functions 
 To use functions, simply import them from the `function` package:
