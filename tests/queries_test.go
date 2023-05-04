@@ -11,6 +11,7 @@ import (
 	_ "github.com/vedadiyan/gql/pkg/functions/count"
 	_ "github.com/vedadiyan/gql/pkg/functions/mongo"
 	_ "github.com/vedadiyan/gql/pkg/functions/nullifempty"
+	_ "github.com/vedadiyan/gql/pkg/functions/selectkey"
 	_ "github.com/vedadiyan/gql/pkg/functions/unwind"
 	"github.com/vedadiyan/gql/pkg/sql"
 )
