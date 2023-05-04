@@ -12,6 +12,9 @@ func ToDouble(jo *[]any, row any, args []any) any {
 	if err != nil {
 		return err
 	}
+	if obj == nil {
+		return nil
+	}
 	value, err := strconv.ParseFloat(obj.(string), 64)
 	if err != nil {
 		return err

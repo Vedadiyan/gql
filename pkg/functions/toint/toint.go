@@ -12,6 +12,9 @@ func ToInt(jo *[]any, row any, args []any) any {
 	if err != nil {
 		return err
 	}
+	if obj == nil {
+		return nil
+	}
 	value, err := strconv.ParseInt(obj.(string), 10, 64)
 	if err != nil {
 		return err
