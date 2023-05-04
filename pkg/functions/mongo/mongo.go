@@ -4,8 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"time"
+	"text/template"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
@@ -15,60 +14,66 @@ import (
 )
 
 func Mongo(jo *[]any, row any, args []any) any {
-	result, err := readArgs(args, row, jo)
+	result, err := readArgsGeneric(args, row, jo)
 	if err != nil {
 		return err
 	}
-	mapper := result.(map[string]string)
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(""))
+	var buff bytes.Buffer
+	err = result.(map[string]any)["query"].(*template.Template).Execute(&buff, result.(map[string]any)["params"])
 	if err != nil {
 		return err
 	}
-	var filter bson.M
-	if mapper["collection"] == "Hotels" {
-		err = json.Unmarshal([]byte(fmt.Sprintf(`{"code": {"$in": %s}}`, result.(map[string]string)["query"])), &filter)
-	} else {
-		err = json.Unmarshal([]byte(fmt.Sprintf(`{"name": {"$in": %s}}`, result.(map[string]string)["query"])), &filter)
+	mapper := result.(map[string]any)
+	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mapper["connection"].(string)))
+	if err != nil {
+		return err
 	}
-	then := time.Now()
-	res, err := client.Database("RateHawk").Collection(mapper["collection"]).Find(context.TODO(), filter)
+	var filter bson.A
+	databse := client.Database(mapper["database"].(string))
+	collection := databse.Collection(mapper["collection"].(string))
+	err = json.Unmarshal(buff.Bytes(), &filter)
+	if err != nil {
+		return err
+	}
+	res, err := collection.Aggregate(context.TODO(), filter)
+	if err != nil {
+		return err
+	}
 	data := make([]any, 0)
 	for res.Next(context.TODO()) {
 		dataMap := make(map[string]any)
 		json.Unmarshal([]byte(res.Current.String()), &dataMap)
 		data = append(data, dataMap)
 	}
-	now := time.Now()
-	_ = err
-	_ = res
-	_ = mapper
-	fmt.Println("mongo time", now.Sub(then).Seconds())
 	return data
 }
-func readArgs(args []any, row any, jo *[]any) (any, error) {
-	mapper := make(map[string]string)
+func readArgsGeneric(args []any, row any, jo *[]any) (any, error) {
+	mapper := make(map[string]any)
 	connection := func(args any) error {
 		mapper["connection"] = args.(string)
+		return nil
+	}
+	database := func(args any) error {
+		mapper["database"] = args.(string)
 		return nil
 	}
 	collection := func(args any) error {
 		mapper["collection"] = args.(string)
 		return nil
 	}
-	query := func(args any) error {
-		buffer := bytes.NewBufferString("[")
-		for _, v := range args.([]any) {
-			buffer.WriteString("\"")
-			buffer.WriteString(v.(map[string]any)["id"].(string))
-			buffer.WriteString("\"")
-			buffer.WriteString(",")
-		}
-		buffer.Truncate(buffer.Len() - 1)
-		buffer.WriteString("]")
-		mapper["query"] = buffer.String()
+	params := func(args any) error {
+		mapper["params"] = args.([]any)[0]
 		return nil
 	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.STRING, functions.STRING, functions.ANY}, []functions.Reader{connection, collection, query})
+	query := func(args any) error {
+		res, err := template.New("").Parse(args.(string))
+		if err != nil {
+			return err
+		}
+		mapper["query"] = res
+		return nil
+	}
+	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.STRING, functions.STRING, functions.STRING, functions.ANY, functions.STRING}, []functions.Reader{connection, database, collection, params, query})
 	if err != nil {
 		return nil, err
 	}
