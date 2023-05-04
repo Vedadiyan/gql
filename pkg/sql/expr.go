@@ -47,7 +47,7 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 		}
 	case *sqlparser.DerivedTable:
 		{
-			ctx := New(doc)
+			ctx := new(doc, false)
 			ctx.prepare(t.Select)
 			from, err := ctx.Exec()
 			if err != nil {
@@ -67,7 +67,7 @@ func aliasedExpr(expr *sqlparser.AliasedExpr) (string, error) {
 	}
 	return cmn.UnWrap[string](ExprReader(nil, nil, expr.Expr, true))
 }
-func starExpr(row any, key *string, index int) map[string]any {
+func starExpr(row any, index int) map[string]any {
 	switch t := row.(type) {
 	case map[string]any:
 		{
@@ -75,13 +75,8 @@ func starExpr(row any, key *string, index int) map[string]any {
 		}
 	default:
 		{
-			if key == nil {
-				return map[string]any{
-					fmt.Sprintf("col_%d", index): row,
-				}
-			}
 			return map[string]any{
-				*key: row,
+				fmt.Sprintf("col_%d", index): row,
 			}
 		}
 	}
@@ -142,9 +137,9 @@ func joinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
 	return joinExec(lookup, r, l), nil
 }
 func cteExpr(doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
-	output := make(cmn.Document)
+	output := doc
 	for _, cte := range expr.Ctes {
-		sql := New(doc)
+		sql := new(doc, false)
 		err := sql.prepare(cte.Subquery.Select)
 		if err != nil {
 			return nil, err
@@ -419,37 +414,62 @@ func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
 			}
 			return lookup.ToResult(out, false), nil
 		}
-	case []any:
+	default:
 		{
-			groupBy, _ := cmn.HasGroupBy(opt...)
-			_ = groupBy
-			output := make([]any, 0)
-			for _, row := range r {
-				result, err := colExpr(row, expr, opt...)
-				if err != nil {
-					return nil, err
+			out, err := lookup.ReadObject(map[string]any{"$": r}, "$."+expr.Name.String())
+			if err != nil {
+				if errors.Is(err, sentinel.KEY_NOT_FOUND) {
+					return nil, nil
 				}
-				switch result.(type) {
-				case map[string]any, []any:
-					{
-						output = append(output, result)
-					}
-				default:
-					{
-						_, ok := groupBy[expr.Name.String()]
-						if ok {
-							return result, nil
-						}
-						output = append(output, result)
-
-					}
-				}
-
+				return nil, err
 			}
-			return lookup.ToResult(output, false), nil
+			return lookup.ToResult(out, false), nil
 		}
 	}
-	return nil, nil
+
+	// switch r := row.(type) {
+	// case map[string]any:
+	// 	{
+	// 		out, err := lookup.ReadObject(r, expr.Name.String())
+	// 		if err != nil {
+	// 			if errors.Is(err, sentinel.KEY_NOT_FOUND) {
+	// 				return nil, nil
+	// 			}
+	// 			return nil, err
+	// 		}
+	// 		return lookup.ToResult(out, false), nil
+	// 	}
+	// case []any:
+	// 	{
+	// 		output := make([]any, 0)
+	// 		for _, row := range r {
+	// 			result, err := colExpr(row, expr, opt...)
+	// 			if err != nil {
+	// 				return nil, err
+	// 			}
+	// 			switch result.(type) {
+	// 			case map[string]any, []any:
+	// 				{
+	// 					output = append(output, result)
+	// 				}
+	// 			default:
+	// 				{
+	// 					groupBy, _ := cmn.HasGroupBy(opt...)
+	// 					_ = groupBy
+	// 					_, ok := groupBy[expr.Name.String()]
+	// 					if ok {
+	// 						return result, nil
+	// 					}
+	// 					output = append(output, result)
+
+	// 				}
+	// 			}
+
+	// 		}
+	// 		return lookup.ToResult(output, false), nil
+	// 	}
+	// }
+	// return nil, nil
 }
 
 func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
@@ -566,7 +586,7 @@ func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
 			switch rowType := row.(type) {
 			case map[string]any:
 				{
-					context := New(rowType)
+					context := new(rowType, false)
 					err := context.prepare(t.Select)
 					if err != nil {
 						return cmn.Wrap(nil, err)

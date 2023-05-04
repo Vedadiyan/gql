@@ -1,0 +1,1 @@
+WITH Q1 (SELECT id from `$.data.hotels`), Q2 AS (SELECT id, (SELECT match_hash as hash FROM rates) from `$.data.hotels`) SELECT Q1 FROM Q1 JOIN Q2 ON Q1.id = Q2.id

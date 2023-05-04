@@ -7,6 +7,7 @@ import (
 	"time"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/lookup"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
@@ -22,15 +23,25 @@ type Context struct {
 	orderBy    map[string]bool
 }
 
-func New(doc cmn.Document) *Context {
+func new(doc cmn.Document, init bool) *Context {
+	var _doc cmn.Document
+	if init {
+		_doc = map[string]any{"$": doc}
+	} else {
+		_doc = doc
+	}
 	ctx := Context{
-		doc:     doc,
+		doc:     _doc,
 		offset:  -1,
 		limit:   -1,
 		groupBy: make(map[string]bool),
 		orderBy: make(map[string]bool),
 	}
 	return &ctx
+}
+
+func New(doc cmn.Document) *Context {
+	return new(doc, true)
 }
 func (c *Context) setSelect(slct *sqlparser.Select) error {
 	if slct.With != nil {
@@ -120,7 +131,7 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 		}
 	case *sqlparser.Union:
 		{
-			left := New(c.doc)
+			left := new(c.doc, false)
 			err := left.prepare(statementType.Left)
 			if err != nil {
 				return err
@@ -129,7 +140,7 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 			if err != nil {
 				return err
 			}
-			right := New(c.doc)
+			right := new(c.doc, false)
 			err = right.prepare(statementType.Right)
 			if err != nil {
 				return err
@@ -154,7 +165,8 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 	return nil
 }
 func (c *Context) Prepare(query string) error {
-	sqlStatement, err := sqlparser.Parse(cmn.RemoveComments(query))
+	query = cmn.RemoveComments(query)
+	sqlStatement, err := sqlparser.Parse(query)
 	if err != nil {
 		return err
 	}
@@ -189,7 +201,7 @@ func (c *Context) Exec() (any, error) {
 			var buffer bytes.Buffer
 			keys := make([]string, 0)
 			for groupBy := range c.groupBy {
-				value, err := cmn.Select(row.(map[string]any), groupBy)
+				value, err := lookup.ReadObject(row.(map[string]any), groupBy)
 				if err != nil {
 					return nil, err
 				}
@@ -217,23 +229,46 @@ func (c *Context) Exec() (any, error) {
 			groupped[key] = append(groupped[key], row)
 		}
 		collect = make([]any, 0)
-		for key, group := range groupped {
-			result, err := selectExec(&c.from, group, id, &key, c.selectStmt, c.groupBy)
+		for _, group := range groupped {
+			_array := make([]any, 0)
+			result, err := selectExec(&c.from, group, id, c.selectStmt)
 			if err != nil {
 				return nil, err
 			}
-			collect = append(collect, result)
+			// QUICK FIX
+			_result := result.(map[string]any)
+			groupByName := "_grouped"
+			if value, ok := _result["$GROUPBY"]; ok {
+				groupByName = value.(string)
+				delete(_result, "$GROUPBY")
+			}
+			for key, value := range _result {
+				if _, ok := c.groupBy[key]; ok {
+					_result[key] = value.([]any)[0]
+					continue
+				}
+				for index, value := range value.([]any) {
+					if index >= len(_array) {
+						_array = append(_array, make(map[string]any))
+					}
+					_array[index].(map[string]any)[key] = value
+				}
+				delete(_result, key)
+			}
+			_result[groupByName] = _array
+			// END QUICK FIX
+			collect = append(collect, _result)
 		}
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
-			result, err := selectExec(&c.from, c.doc, id, nil, c.selectStmt, nil)
+			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)
 			if err != nil {
 				return nil, err
 			}
 			return result, nil
 		} else {
 			for index, row := range collect {
-				result, err := selectExec(&c.from, row, id, nil, c.selectStmt, nil)
+				result, err := selectExec(&c.from, row, id, c.selectStmt)
 				if err != nil {
 					return nil, err
 				}

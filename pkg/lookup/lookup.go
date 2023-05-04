@@ -5,22 +5,20 @@ import (
 	"strings"
 )
 
-const (
-	_WILD_CARD = -1
-)
-
-type LookupTable = map[any]map[int]bool
-
 func ReadObject(row map[string]any, key string) (any, error) {
 	ref := any(row)
 	keys := strings.Split(key, ".")
 	for i := 0; i < len(keys); i++ {
 		key := keys[i]
 		if strings.HasPrefix(key, "{") && strings.HasSuffix(key, "}") {
+			arr, ok := ref.([]any)
+			if !ok {
+				return ref, nil
+			}
 			if key == "{?}" {
 				if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") {
 					array := make([]any, 0)
-					for _, v := range ref.([]any) {
+					for _, v := range arr {
 						switch t := v.(type) {
 						case map[string]any:
 							{
@@ -62,8 +60,21 @@ func ReadObject(row map[string]any, key string) (any, error) {
 					continue
 				}
 				array := make([]any, 0)
-				for _, v := range ref.([]any) {
-					array = append(array, v.([]any)...)
+				for _, v := range arr {
+					switch t := v.(type) {
+					case map[string]any:
+						{
+							array = append(array, t[keys[i+1]])
+						}
+					case []any:
+						{
+							array = append(array, t...)
+						}
+					default:
+						{
+							array = append(array, t)
+						}
+					}
 				}
 				ref = array
 				continue
@@ -74,9 +85,13 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			if err != nil {
 				return nil, err
 			}
+
+			if int(index) >= len(arr) {
+				continue
+			}
 			if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") {
 				array := make([]any, 0)
-				switch t := ref.([]any)[index].(type) {
+				switch t := arr[index].(type) {
 				case map[string]any:
 					{
 						switch t := t[keys[i+1]].(type) {
@@ -114,7 +129,7 @@ func ReadObject(row map[string]any, key string) (any, error) {
 				i++
 				continue
 			}
-			ref = ref.([]any)[index]
+			ref = arr[index]
 			continue
 		}
 		switch t := ref.(type) {

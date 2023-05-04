@@ -28,8 +28,10 @@ func joinExec(il IndexedLookup, l Left, r Right) []any {
 			for key, value := range l[index].(map[string]any) {
 				out[key] = value
 			}
-			for key := range r[0].(map[string]any) {
-				out[key] = nil
+			if len(r) > 0 {
+				for key := range r[0].(map[string]any) {
+					out[key] = nil
+				}
 			}
 			result = append(result, out)
 		}
@@ -48,13 +50,13 @@ func whereExec(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
-func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.SelectExprs, groupBy cmn.GroupBy) (any, error) {
+func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (any, error) {
 	output := make(map[string]any, 0)
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
-				for key, value := range starExpr(row, key, index) {
+				for key, value := range starExpr(row, index) {
 					output[key] = value
 				}
 			}
@@ -68,12 +70,18 @@ func selectExec(b cmn.Bucket, row any, id int64, key *string, exprs sqlparser.Se
 					output[exprType.As.String()] = res
 					continue
 				}
+				if colName, ok := exprType.Expr.(*sqlparser.ColName); ok {
+					if colName.Name.String() == "$GROUPBY" {
+						output["$GROUPBY"] = exprType.As.String()
+						continue
+					}
+				}
 				name, err := aliasedExpr(exprType)
 				if err != nil {
 					return nil, err
 				}
 				id := fmt.Sprintf("%d_%d", id, index)
-				result := ExprReader(b, row, exprType.Expr, id, groupBy)
+				result := ExprReader(b, row, exprType.Expr, id)
 				output[name] = result
 			}
 		default:

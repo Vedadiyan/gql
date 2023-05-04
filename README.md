@@ -3,7 +3,7 @@
 ![Go Version](https://img.shields.io/badge/Go-%3E%3D%201.19-%23007d9c)
 [![Go Report Card](https://goreportcard.com/badge/github.com/vedadiyan/gql)](https://goreportcard.com/report/github.com/vedadiyan/gql)
 
-GQL is an implementation of `MySQL` querying syntax for complex data structures.
+GQL is an implementation of `MySQL` dialect for querying data in complex data structures.
 
 
 
@@ -73,7 +73,9 @@ This query will retrieve `amount` from an array of objects called `tax_data`.
 
 Array indexes can be reached using the `{}` selector. You can pass either a number or a wildcard using the `{?}` to select and query arrays.
 
-*Please note that although multi-dimensional selectors such as `{?}.{?}` are supported, the `FROM` clause does not support multi-dimensional selectors. However, the following is valid `$.data.items.{0}.rates`*
+~~*Please note that although multi-dimensional selectors such as `{?}.{?}` are supported, the `FROM` clause does not support multi-dimensional selectors. However, the following is valid `$.data.items.{0}.rates`*~~
+
+*Updated in the v0.0.3, multi-dimensional selectors can be used in the `FROM` clause*
 
 # Using Functions 
 To use functions, simply import them from the `function` package:
