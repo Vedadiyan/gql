@@ -56,6 +56,7 @@ func (j *Join) ReadCondition(doc map[string]any, expr sqlparser.Expr) (JoinRawRe
 func (j *Join) Compare(expr *sqlparser.ComparisonExpr) (JoinRawResult, error) {
 	j.leftExpr = expr.Left
 	j.rightExpr = expr.Right
+	// BUGGY CODE: CANNOT DETERMINE LEFT OR RIGHT
 	lookup, err := CreateLookupTable(j.left, j.leftExpr)
 	if err != nil {
 		return nil, err

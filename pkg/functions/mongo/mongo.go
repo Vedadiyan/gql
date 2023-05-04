@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"fmt"
 	"text/template"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
@@ -18,12 +19,12 @@ func Mongo(jo *[]any, row any, args []any) any {
 	if err != nil {
 		return err
 	}
+	mapper := result.(map[string]any)
 	var buff bytes.Buffer
-	err = result.(map[string]any)["query"].(*template.Template).Execute(&buff, result.(map[string]any)["params"])
+	err = mapper["query"].(*template.Template).Execute(&buff, mapper["params"])
 	if err != nil {
 		return err
 	}
-	mapper := result.(map[string]any)
 	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mapper["connection"].(string)))
 	if err != nil {
 		return err
@@ -45,6 +46,7 @@ func Mongo(jo *[]any, row any, args []any) any {
 		json.Unmarshal([]byte(res.Current.String()), &dataMap)
 		data = append(data, dataMap)
 	}
+	fmt.Println(len(data))
 	return data
 }
 func readArgsGeneric(args []any, row any, jo *[]any) (any, error) {
@@ -62,7 +64,7 @@ func readArgsGeneric(args []any, row any, jo *[]any) (any, error) {
 		return nil
 	}
 	params := func(args any) error {
-		mapper["params"] = args.([]any)[0]
+		mapper["params"] = args
 		return nil
 	}
 	query := func(args any) error {
