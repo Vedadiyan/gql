@@ -10,6 +10,9 @@ func ToArray(jo *[]any, row any, args []any) any {
 	if err != nil {
 		return err
 	}
+	if obj == nil {
+		return []any{}
+	}
 	return []any{obj}
 }
 
