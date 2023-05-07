@@ -11,7 +11,10 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
+)
+
+var (
+	_conManager func(connKey string) (*mongo.Client, error)
 )
 
 func Mongo(jo *[]any, row any, args []any) any {
@@ -25,13 +28,13 @@ func Mongo(jo *[]any, row any, args []any) any {
 	if err != nil {
 		return err
 	}
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mapper["connection"].(string)))
+	client, err := _conManager(mapper["connection"].(string))
 	if err != nil {
 		return err
 	}
-	var filter bson.A
 	databse := client.Database(mapper["database"].(string))
 	collection := databse.Collection(mapper["collection"].(string))
+	var filter bson.A
 	err = json.Unmarshal(buff.Bytes(), &filter)
 	if err != nil {
 		return err
@@ -80,6 +83,10 @@ func readArgsGeneric(args []any, row any, jo *[]any) (any, error) {
 		return nil, err
 	}
 	return mapper, nil
+}
+
+func RegisterConManager(fn func(connKey string) (*mongo.Client, error)) {
+	_conManager = fn
 }
 
 func init() {
