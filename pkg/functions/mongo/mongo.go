@@ -75,7 +75,7 @@ func readArgsGeneric(args []any, row any, jo *[]any) (*MongoArgs, error) {
 		}
 		var query *template.Template
 		oldQuery, ok := _templates.Load(hash)
-		if !ok {
+		if ok {
 			query = oldQuery.(*template.Template)
 		} else {
 			newQuery, err := template.New(hash).Parse(args.(string))
