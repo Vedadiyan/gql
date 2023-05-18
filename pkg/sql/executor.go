@@ -67,6 +67,9 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (a
 					if err != nil {
 						return nil, err
 					}
+					if len(exprs) == 1 && len(exprType.As.String()) == 0 {
+						return res, nil
+					}
 					output[exprType.As.String()] = res
 					continue
 				}
