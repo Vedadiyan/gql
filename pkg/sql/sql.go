@@ -257,7 +257,7 @@ func (c *Context) Exec() (any, error) {
 			}
 			_result[groupByName] = _array
 			// END QUICK FIX
-			collect = append(collect, _result)
+			collect = append(collect, _result[groupByName])
 		}
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
