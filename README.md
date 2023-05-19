@@ -45,6 +45,7 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
 # Caveats
 - Join conditions ALWAYS require table aliasing even if they are used in a CTE query 
 - Keys should always be specified within backticks. For example: `` `a.b` `` is valid while `a.b` is not.
+- An array selector keeps the data type and always returns an array even though a single index is selected 
 
 # Examples
 
