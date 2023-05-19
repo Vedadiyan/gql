@@ -1,6 +1,8 @@
 package sql
 
 import (
+	"strings"
+
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
@@ -53,10 +55,38 @@ func (j *Join) ReadCondition(doc map[string]any, expr sqlparser.Expr) (JoinRawRe
 	}
 	return nil, nil
 }
+
+func (j *Join) Swap() error {
+	if len(j.left) == 0 {
+		return nil
+	}
+	if len(j.right) == 0 {
+		return nil
+	}
+	switch t := j.leftExpr.(type) {
+	case *sqlparser.ColName:
+		{
+			ident := strings.Split(t.Name.String(), ".")[0]
+			value, ok := j.left[0].(map[string]any)
+			if !ok {
+				return sentinel.INVALID_TYPE
+			}
+			if _, ok := value[ident]; !ok {
+				j.right, j.left = j.left, j.right
+			}
+		}
+	}
+	return nil
+}
+
 func (j *Join) Compare(expr *sqlparser.ComparisonExpr) (JoinRawResult, error) {
 	j.leftExpr = expr.Left
 	j.rightExpr = expr.Right
-	// BUGGY CODE: CANNOT DETERMINE LEFT OR RIGHT
+	// FIXED: CANNOT DETERMINE LEFT OR RIGHT
+	err := j.Swap()
+	if err != nil {
+		return nil, err
+	}
 	lookup, err := CreateLookupTable(j.left, j.leftExpr)
 	if err != nil {
 		return nil, err
