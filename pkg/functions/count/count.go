@@ -1,6 +1,7 @@
 package count
 
 import (
+	"fmt"
 	"strings"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
@@ -34,11 +35,25 @@ func readArgs(args []any, row any, jo *[]any) (any, error) {
 					obj = result
 					return nil
 				}
-				result, err := lookup.ReadObject(row.(map[string]any), argType)
-				if err != nil {
-					return err
+				switch t := row.(type) {
+				case map[string]any:
+					{
+						result, err := lookup.ReadObject(t, argType)
+						if err != nil {
+							return err
+						}
+						obj = result
+					}
+				case []any:
+					{
+						result, err := lookup.ReadObject(map[string]any{"$": t}, fmt.Sprintf("$.%s", argType))
+						if err != nil {
+							return err
+						}
+						obj = result
+					}
 				}
-				obj = result
+
 				return nil
 
 			}

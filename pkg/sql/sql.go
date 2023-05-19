@@ -20,6 +20,7 @@ type Context struct {
 	offset     int
 	limit      int
 	groupBy    map[string]bool
+	havingCond *sqlparser.Where
 	orderBy    map[string]bool
 }
 
@@ -66,6 +67,7 @@ func (c *Context) setSelect(slct *sqlparser.Select) error {
 	if err != nil {
 		return err
 	}
+	c.havingCond = slct.Having
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
 	for _, order := range slct.OrderBy {
@@ -231,6 +233,13 @@ func (c *Context) Exec() (any, error) {
 		collect = make([]any, 0)
 		for _, group := range groupped {
 			_array := make([]any, 0)
+			cond, err := whereExec(nil, group, c.havingCond)
+			if err != nil {
+				return nil, err
+			}
+			if !cond {
+				continue
+			}
 			result, err := selectExec(&c.from, group, id, c.selectStmt)
 			if err != nil {
 				return nil, err
@@ -259,6 +268,8 @@ func (c *Context) Exec() (any, error) {
 			// END QUICK FIX
 			collect = append(collect, _result[groupByName])
 		}
+		c := 10
+		_ = c
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
 			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)
