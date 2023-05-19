@@ -39,8 +39,8 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
  - ⭕ Apply / Cross Apply *(MySQL does not have apply / cross apply and GQL is restricted by the MySQL syntax)*
  - ✅ Unions
  - ✅ CTEs
- - ⏳ Having Expression (in development)
- - ✅ Order By (in development)
+ - ✅ Having Expression (experimental)
+ - ✅ Order By (experimental)
 
 # Caveats
 - Join conditions ALWAYS require table aliasing even if they are used in a CTE query 
