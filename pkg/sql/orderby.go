@@ -12,11 +12,11 @@ func Sort(slice []any, key string, desc bool) {
 	sort.Slice(slice, func(i, j int) bool {
 		_1 := slice[i].(map[string]any)[key]
 		if _1 == nil {
-			return desc
+			return false
 		}
 		_2 := slice[j].(map[string]any)[key]
 		if _2 == nil {
-			return !desc
+			return true
 		}
 		if fmt.Sprintf("%T", _1) != fmt.Sprintf("%T", _2) {
 			return false

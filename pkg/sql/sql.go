@@ -88,7 +88,7 @@ func (c *Context) setSelect(slct *sqlparser.Select) error {
 			{
 				c.orderBy = append(c.orderBy, KeyValue{
 					Key:   name,
-					Value: true,
+					Value: false,
 				})
 			}
 		}
