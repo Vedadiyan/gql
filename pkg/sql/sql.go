@@ -21,7 +21,7 @@ type Context struct {
 	limit      int
 	groupBy    map[string]bool
 	havingCond *sqlparser.Where
-	orderBy    map[string]bool
+	orderBy    []KeyValue
 }
 
 func new(doc cmn.Document, init bool) *Context {
@@ -36,7 +36,7 @@ func new(doc cmn.Document, init bool) *Context {
 		offset:  -1,
 		limit:   -1,
 		groupBy: make(map[string]bool),
-		orderBy: make(map[string]bool),
+		orderBy: make([]KeyValue, 0),
 	}
 	return &ctx
 }
@@ -78,12 +78,18 @@ func (c *Context) setSelect(slct *sqlparser.Select) error {
 		switch order.Direction {
 		case sqlparser.AscOrder:
 			{
-				c.orderBy[name] = true
+				c.orderBy = append(c.orderBy, KeyValue{
+					Key:   name,
+					Value: true,
+				})
 
 			}
 		default:
 			{
-				c.orderBy[name] = false
+				c.orderBy = append(c.orderBy, KeyValue{
+					Key:   name,
+					Value: true,
+				})
 			}
 		}
 	}

@@ -12,11 +12,11 @@ func Sort(slice []any, key string, desc bool) {
 	sort.Slice(slice, func(i, j int) bool {
 		_1 := slice[i].(map[string]any)[key]
 		if _1 == nil {
-			return false
+			return desc
 		}
 		_2 := slice[j].(map[string]any)[key]
 		if _2 == nil {
-			return true
+			return !desc
 		}
 		if fmt.Sprintf("%T", _1) != fmt.Sprintf("%T", _2) {
 			return false
@@ -75,26 +75,21 @@ type KeyValue struct {
 	Value bool
 }
 
-func orderBy(__order map[string]bool, list []any) (err error) {
-	if len(__order) == 0 {
+func orderBy(order []KeyValue, list []any) (err error) {
+	if len(order) == 0 {
 		return nil
 	}
-	order := make([]KeyValue, 0)
-	for key, value := range __order {
-		order = append(order, KeyValue{
-			Key:   key,
-			Value: value,
-		})
-	}
 	Sort(list, order[0].Key, order[0].Value)
-	for idx := range order {
+	for idx := 1; idx < len(order); idx++ {
 		prev := "#"
 		bucket := make([]any, 0)
 		var firstIndex = 0
 		for index, i := range list {
 			var _key string
-			for _, key := range order[:idx] {
-				_key = _key + fmt.Sprintf("%v", i.(map[string]any)[key.Key])
+			arr := order[:idx]
+			for _, key := range arr {
+				value := i.(map[string]any)[key.Key]
+				_key = _key + fmt.Sprintf("%v-", value)
 			}
 			if prev != "#" && _key != prev {
 				prev = "#"
