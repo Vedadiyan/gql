@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sort"
 
-	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/lookup"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
@@ -25,8 +25,13 @@ func orderBy(order map[string]bool, list []any) (err error) {
 				if err != nil {
 					panic(err)
 				}
-				if fmt.Sprintf("%T", first) != fmt.Sprintf("%T", second) {
-					panic("type mismatch")
+				if second == nil {
+					return true
+				}
+				if first != nil && second != nil {
+					if fmt.Sprintf("%T", first) != fmt.Sprintf("%T", second) {
+						panic("type mismatch")
+					}
 				}
 				switch t := first.(type) {
 				case string:
@@ -67,6 +72,10 @@ func orderBy(order map[string]bool, list []any) (err error) {
 							return firstVal > secondVal
 						}
 					}
+				case nil:
+					{
+						return false
+					}
 				default:
 					{
 						panic(sentinel.UNSUPPORTED_CASE)
@@ -83,7 +92,7 @@ func rowValue(list []any, index int, key string) (any, error) {
 	switch rowType := list[index].(type) {
 	case map[string]any:
 		{
-			return cmn.Select(rowType, key)
+			return lookup.ReadObject(rowType, key)
 		}
 	case []any:
 		{
