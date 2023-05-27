@@ -19,6 +19,9 @@ func SelectKey(jo *[]any, row any, args []any) any {
 		return err
 	}
 	if arr, ok := value.([]any); ok {
+		if len(arr) == 0 {
+			return nil
+		}
 		return arr[0]
 	}
 	return value
