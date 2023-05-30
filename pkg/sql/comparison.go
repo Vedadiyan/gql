@@ -92,31 +92,60 @@ func equalityCompare(left any, right any, op string) (bool, error) {
 	return false, sentinel.UNDEFINED_OPERATOR.Extend(op)
 }
 
+func getFloat64Nullable(value any) (*float64, error) {
+	if value == nil {
+		return nil, nil
+	}
+	val, err := cmn.UnWrap[float64](value)
+	if err != nil {
+		return nil, err
+	}
+	return &val, nil
+}
+
 func numericCompare(left any, right any, operator string) (bool, error) {
-	lv, err := cmn.UnWrap[float64](left)
+	lv, err := getFloat64Nullable(left)
 	if err != nil {
 		return false, err
 	}
-	rv, err := cmn.UnWrap[float64](right)
+	rv, err := getFloat64Nullable(right)
 	if err != nil {
 		return false, err
 	}
 	switch operator {
 	case ">":
 		{
-			return lv > rv, nil
+			if lv == nil || rv == nil {
+				return false, nil
+			}
+			return *lv > *rv, nil
 		}
 	case "<":
 		{
-			return lv < rv, nil
+			if lv == nil || rv == nil {
+				return false, nil
+			}
+			return *lv < *rv, nil
 		}
 	case "<=":
 		{
-			return lv <= rv, nil
+			if lv == nil && rv == nil {
+				return true, nil
+			}
+			if lv == nil || rv == nil {
+				return false, nil
+			}
+			return *lv <= *rv, nil
 		}
 	case ">=":
 		{
-			return lv >= rv, nil
+			if lv == nil && rv == nil {
+				return true, nil
+			}
+			if lv == nil || rv == nil {
+				return false, nil
+			}
+			return *lv >= *rv, nil
 		}
 	}
 	return false, sentinel.UNDEFINED_OPERATOR.Extend(operator)
