@@ -37,7 +37,10 @@ func Mongo(jo *[]any, row any, args []any) any {
 	data := make([]any, 0)
 	for res.Next(context.TODO()) {
 		dataMap := make(map[string]any)
-		json.Unmarshal([]byte(res.Current.String()), &dataMap)
+		err := json.Unmarshal([]byte(res.Current.String()), &dataMap)
+		if err != nil {
+			return err
+		}
 		data = append(data, dataMap)
 	}
 	return data

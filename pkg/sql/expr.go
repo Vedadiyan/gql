@@ -48,7 +48,10 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 	case *sqlparser.DerivedTable:
 		{
 			ctx := new(doc, false)
-			ctx.prepare(t.Select)
+			err := ctx.prepare(t.Select)
+			if err != nil {
+				return nil, err
+			}
 			from, err := ctx.Exec()
 			if err != nil {
 				return nil, err
