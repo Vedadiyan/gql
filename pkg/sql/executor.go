@@ -84,7 +84,10 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (a
 					return nil, err
 				}
 				id := fmt.Sprintf("%d_%d", id, index)
-				result := ExprReader(b, row, exprType.Expr, id)
+				result, err := cmn.UnWrap[any](ExprReader(b, row, exprType.Expr, id))
+				if err != nil {
+					return nil, err
+				}
 				output[name] = result
 			}
 		default:
