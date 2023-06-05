@@ -224,12 +224,12 @@ func boolComparison(left any, operator string) (bool, error) {
 }
 
 func regexComparison(left any, pattern string) (bool, error) {
-	regExpr := strings.ReplaceAll(pattern, "_", ".")
+	regExpr := strings.ReplaceAll(strings.ToLower(pattern), "_", ".")
 	regExpr = strings.ReplaceAll(regExpr, "%", ".*")
 	regExpr = "^" + regExpr + "$"
 	if array, ok := left.([]any); ok {
 		for _, val := range array {
-			b, err := regexp.Match(regExpr, []byte(fmt.Sprintf("%v", val)))
+			b, err := regexp.Match(regExpr, []byte(strings.ToLower(fmt.Sprintf("%v", val))))
 			if err != nil {
 				return false, err
 			}
@@ -239,5 +239,5 @@ func regexComparison(left any, pattern string) (bool, error) {
 		}
 		return false, nil
 	}
-	return regexp.Match(regExpr, []byte(fmt.Sprintf("%v", left)))
+	return regexp.Match(regExpr, []byte(strings.ToLower(fmt.Sprintf("%v", left))))
 }
