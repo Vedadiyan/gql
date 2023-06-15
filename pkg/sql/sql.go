@@ -285,7 +285,9 @@ func (c *Context) Exec() (any, error) {
 			return result, nil
 		} else {
 			for index, row := range collect {
-				result, err := selectExec(&c.from, row, id, c.selectStmt)
+				___row := row.(map[string]any)
+				___row["$"] = c.doc
+				result, err := selectExec(&c.from, ___row, id, c.selectStmt)
 				if err != nil {
 					return nil, err
 				}
