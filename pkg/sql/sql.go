@@ -279,6 +279,7 @@ func (c *Context) Exec() (any, error) {
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
 			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)
+			delete(result.(map[string]any), "$")
 			if err != nil {
 				return nil, err
 			}
