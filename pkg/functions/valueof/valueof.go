@@ -9,8 +9,9 @@ import (
 )
 
 type funcArgs struct {
-	key    string
-	bucket map[string]any
+	key        []string
+	bucket     map[string]any
+	resultType string
 }
 
 func valueOf(jo *[]any, row any, args []any) any {
@@ -18,10 +19,25 @@ func valueOf(jo *[]any, row any, args []any) any {
 	if err != nil {
 		return err
 	}
-	if value, ok := obj.bucket[obj.key]; ok {
-		return value
+	out := make([]any, 0)
+	for _, item := range obj.key {
+		if value, ok := obj.bucket[item]; ok {
+			out = append(out, value)
+		}
 	}
-	return nil
+	switch strings.ToLower(obj.resultType) {
+	case "array":
+		{
+			return out
+		}
+	default:
+		{
+			if len(out) > 0 {
+				return out[0]
+			}
+			return nil
+		}
+	}
 }
 
 func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
@@ -38,14 +54,19 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 				if !ok {
 					return fmt.Errorf("unexpected result")
 				}
-				if len(rows) != 1 {
+				if len(rows) == 0 {
 					return fmt.Errorf("unexpected array length")
 				}
-				if value, ok := rows[0].(string); ok {
-					obj.key = value
-					return nil
+				out := make([]string, 0)
+				for _, item := range rows {
+					if value, ok := item.(string); ok {
+						out = append(out, value)
+						continue
+					}
+					return fmt.Errorf("expected string but recieved `%T`", result)
 				}
-				return fmt.Errorf("expected string but recieved `%T`", result)
+				obj.key = out
+				return nil
 			}
 		default:
 			{
@@ -91,7 +112,11 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 			}
 		}
 	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY, functions.ANY}, []functions.Reader{readKey, readBucket})
+	readType := func(arg any) error {
+		obj.resultType = arg.(string)
+		return nil
+	}
+	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY, functions.ANY, functions.STRING}, []functions.Reader{readKey, readBucket, readType})
 	if err != nil {
 		return nil, err
 	}
