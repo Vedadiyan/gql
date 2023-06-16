@@ -1,11 +1,9 @@
 package nullifempty
 
 import (
-	"strings"
-
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
-	"github.com/vedadiyan/gql/pkg/lookup"
+	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
 func NullIfEmpty(jo *[]any, row any, args []any) any {
@@ -25,34 +23,22 @@ func NullIfEmpty(jo *[]any, row any, args []any) any {
 
 func readArgs(args []any, row any, jo *[]any) (any, error) {
 	var fnArg any
-	fnArgReader := func(arg any) error {
-		switch argType := arg.(type) {
-		case string:
-			{
-				if strings.HasPrefix(argType, "$.") {
-					result, err := lookup.ReadObject(map[string]any{"$": *jo}, argType)
-					if err != nil {
-						return err
-					}
-					fnArg = result
-					return nil
-				}
-				result, err := lookup.ReadObject(row.(map[string]any), argType)
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.ANY,
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				value, err := common.Select(arg, row)
 				if err != nil {
 					return err
 				}
-				fnArg = result
+				fnArg = value
 				return nil
-
-			}
-		default:
-			{
-				fnArg = arg
-				return nil
-			}
-		}
-	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{fnArgReader})
+			},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

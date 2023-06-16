@@ -18,11 +18,18 @@ func ToArray(jo *[]any, row any, args []any) any {
 
 func readArgs(args []any, row any, jo *[]any) (any, error) {
 	var fnArg any
-	fnArgReader := func(arg any) error {
-		fnArg = arg
-		return nil
-	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{fnArgReader})
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.ANY,
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				fnArg = arg
+				return nil
+			},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
