@@ -38,7 +38,7 @@ func (a Association) Get(left bool) int {
 	}
 	return a.right
 }
-func (j *Join) ReadCondition(doc map[string]any, expr sqlparser.Expr) (JoinRawResult, error) {
+func (j *Join) ReadCondition(doc cmn.Document, expr sqlparser.Expr) (JoinRawResult, error) {
 	switch joinCondition := expr.(type) {
 	case *sqlparser.ComparisonExpr:
 		{
@@ -121,7 +121,7 @@ func (j *Join) Compare(expr *sqlparser.ComparisonExpr) (JoinRawResult, error) {
 	}
 	return JoinComparerFunc(j.right, j.rightExpr, comparer)
 }
-func (j *Join) And(doc map[string]any, expr *sqlparser.AndExpr) (JoinRawResult, error) {
+func (j *Join) And(doc cmn.Document, expr *sqlparser.AndExpr) (JoinRawResult, error) {
 	leftAscns, err := j.ReadCondition(doc, expr.Left)
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func (j *Join) And(doc map[string]any, expr *sqlparser.AndExpr) (JoinRawResult, 
 	}
 	return jrr, nil
 }
-func (j *Join) Or(doc map[string]any, expr *sqlparser.OrExpr) (JoinRawResult, error) {
+func (j *Join) Or(doc cmn.Document, expr *sqlparser.OrExpr) (JoinRawResult, error) {
 	leftAscns, err := j.ReadCondition(doc, expr.Left)
 	if err != nil {
 		return nil, err

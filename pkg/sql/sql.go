@@ -50,7 +50,9 @@ func (c *Context) setSelect(slct *sqlparser.Select) error {
 		if err != nil {
 			return err
 		}
-		c.doc = data
+		for key, value := range data {
+			c.doc[key] = value
+		}
 	}
 	if len(slct.From) > 1 {
 		return fmt.Errorf("multiple tables are not supported")
@@ -286,9 +288,19 @@ func (c *Context) Exec() (any, error) {
 			return result, nil
 		} else {
 			for index, row := range collect {
-				___row := row.(map[string]any)
-				___row["$"] = c.doc
-				result, err := selectExec(&c.from, ___row, id, c.selectStmt)
+				// Lazy CTE execution
+				if fn, ok := row.(func() (any, error)); ok {
+					res, err := fn()
+					if err != nil {
+						return nil, err
+					}
+					row = res
+				} else {
+					_row := row.(map[string]any)
+					_row["$"] = c.doc
+					row = _row
+				}
+				result, err := selectExec(&c.from, row, id, c.selectStmt)
 				if err != nil {
 					return nil, err
 				}
