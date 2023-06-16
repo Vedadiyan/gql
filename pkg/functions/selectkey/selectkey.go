@@ -27,7 +27,7 @@ func SelectKey(jo *[]any, row any, args []any) any {
 	return value
 }
 
-func readArgs(args []any, row any, jo *[]any) (any, error) {
+func readArgs(args []any, row any, _ *[]any) (any, error) {
 	mapper := make(map[string]any)
 	bucket := func(args any) error {
 		mapper["bucket"] = args

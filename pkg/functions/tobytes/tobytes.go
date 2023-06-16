@@ -22,7 +22,7 @@ func ToBytes(jo *[]any, row any, args []any) any {
 	return json
 }
 
-func readArgs(args []any, row any, jo *[]any) (any, error) {
+func readArgs(args []any, row any, _ *[]any) (any, error) {
 	var fnArg any
 	err := functions.CheckSingnature(
 		args,

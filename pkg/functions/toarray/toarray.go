@@ -16,7 +16,7 @@ func ToArray(jo *[]any, row any, args []any) any {
 	return []any{fnArgs}
 }
 
-func readArgs(args []any, row any, jo *[]any) (any, error) {
+func readArgs(args []any, row any, _ *[]any) (any, error) {
 	var fnArg any
 	err := functions.CheckSingnature(
 		args,
