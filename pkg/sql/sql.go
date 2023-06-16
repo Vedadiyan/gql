@@ -304,6 +304,9 @@ func (c *Context) Exec() (any, error) {
 				if err != nil {
 					return nil, err
 				}
+				if resultMap, ok := result.(map[string]any); ok {
+					delete(resultMap, "$")
+				}
 				collect[index] = result
 			}
 		}
