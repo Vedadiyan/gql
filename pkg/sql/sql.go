@@ -253,7 +253,7 @@ func (c *Context) Exec() (any, error) {
 				return nil, err
 			}
 			// QUICK FIX
-			_result := result.(map[string]any)
+			_result := result
 			groupByName := "_grouped"
 			if value, ok := _result["$GROUPBY"]; ok {
 				groupByName = value.(string)
@@ -281,32 +281,22 @@ func (c *Context) Exec() (any, error) {
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
 			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)
-			delete(result.(map[string]any), "$")
+			delete(result, "$")
 			if err != nil {
 				return nil, err
 			}
 			return result, nil
 		} else {
 			for index, row := range collect {
-				// Lazy CTE execution
-				if fn, ok := row.(func() (any, error)); ok {
-					res, err := fn()
-					if err != nil {
-						return nil, err
-					}
-					row = res
-				} else {
-					_row := row.(map[string]any)
-					_row["$"] = c.doc
-					row = _row
-				}
+				_row := row.(map[string]any)
+				_row["$"] = c.doc
+				row = _row
 				result, err := selectExec(&c.from, row, id, c.selectStmt)
 				if err != nil {
 					return nil, err
 				}
-				if _row, ok := row.(map[string]any); ok {
-					delete(_row, "$")
-				}
+				delete(_row, "$")
+				delete(result, "$")
 				collect[index] = result
 			}
 		}

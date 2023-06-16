@@ -50,7 +50,7 @@ func whereExec(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
-func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (any, error) {
+func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (map[string]any, error) {
 	output := make(map[string]any, 0)
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
@@ -68,7 +68,8 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (a
 						return nil, err
 					}
 					if len(exprs) == 1 && len(exprType.As.String()) == 0 {
-						return res, nil
+						output["col_0"] = res
+						return output, nil
 					}
 					output[exprType.As.String()] = res
 					continue
