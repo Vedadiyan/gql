@@ -276,8 +276,6 @@ func (c *Context) Exec() (any, error) {
 			// END QUICK FIX
 			collect = append(collect, _result[groupByName])
 		}
-		c := 10
-		_ = c
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
 			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)

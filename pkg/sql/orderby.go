@@ -82,13 +82,13 @@ func orderBy(order []KeyValue, list []any) (err error) {
 		bucket := make([]any, 0)
 		var firstIndex = 0
 		for index, i := range list {
-			var _key string
+			var k string
 			arr := order[:idx]
 			for _, key := range arr {
 				value := i.(map[string]any)[key.Key]
-				_key = _key + fmt.Sprintf("%v-", value)
+				k = k + fmt.Sprintf("%v-", value)
 			}
-			if prev != "#" && _key != prev {
+			if prev != "#" && k != prev {
 				prev = "#"
 				Sort(bucket, order[idx].Key, order[idx].Value)
 				j := 0
@@ -99,7 +99,7 @@ func orderBy(order []KeyValue, list []any) (err error) {
 				firstIndex = index
 				bucket = make([]any, 0)
 			}
-			prev = _key
+			prev = k
 			bucket = append(bucket, i)
 		}
 		Sort(bucket, order[idx].Key, order[idx].Value)
