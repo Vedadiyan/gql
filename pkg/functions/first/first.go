@@ -9,15 +9,15 @@ import (
 	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
-func first(jo *[]any, row any, args []any) any {
+func first(jo *[]any, row any, args []any) (any, error) {
 	list, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if len(list) > 0 {
-		return list[0]
+		return list[0], nil
 	}
-	return nil
+	return nil, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) ([]any, error) {

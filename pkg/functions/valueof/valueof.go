@@ -14,10 +14,10 @@ type funcArgs struct {
 	resultType string
 }
 
-func valueOf(jo *[]any, row any, args []any) any {
+func valueOf(jo *[]any, row any, args []any) (any, error) {
 	obj, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	out := make([]any, 0)
 	for _, item := range obj.key {
@@ -28,14 +28,14 @@ func valueOf(jo *[]any, row any, args []any) any {
 	switch strings.ToLower(obj.resultType) {
 	case "array":
 		{
-			return out
+			return out, nil
 		}
 	default:
 		{
 			if len(out) > 0 {
-				return out[0]
+				return out[0], nil
 			}
-			return nil
+			return nil, nil
 		}
 	}
 }

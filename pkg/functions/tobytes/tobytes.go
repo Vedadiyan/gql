@@ -7,19 +7,19 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions"
 )
 
-func ToBytes(jo *[]any, row any, args []any) any {
+func ToBytes(jo *[]any, row any, args []any) (any, error) {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if fnArgs == nil {
-		return nil
+		return nil, nil
 	}
 	json, err := json.Marshal(fnArgs)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return json
+	return json, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

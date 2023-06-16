@@ -9,14 +9,14 @@ import (
 	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
-func Unwind(jo *[]any, row any, args []any) any {
+func Unwind(jo *[]any, row any, args []any) (any, error) {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	list, ok := fnArgs.([]any)
 	if !ok {
-		return nil
+		return nil, nil
 	}
 	output := make([]any, 0)
 	for _, item := range list {
@@ -26,7 +26,7 @@ func Unwind(jo *[]any, row any, args []any) any {
 		}
 		output = append(output, innerList...)
 	}
-	return output
+	return output, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

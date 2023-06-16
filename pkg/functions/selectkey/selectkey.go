@@ -8,23 +8,23 @@ import (
 	"github.com/vedadiyan/gql/pkg/lookup"
 )
 
-func SelectKey(jo *[]any, row any, args []any) any {
+func SelectKey(jo *[]any, row any, args []any) (any, error) {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	mapper := fnArgs.(map[string]any)
 	value, err := lookup.ReadObject(map[string]any{"$": mapper["bucket"]}, fmt.Sprintf("$.%s", mapper["selector"]))
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if arr, ok := value.([]any); ok {
 		if len(arr) == 0 {
-			return nil
+			return nil, nil
 		}
-		return arr[0]
+		return arr[0], nil
 	}
-	return value
+	return value, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

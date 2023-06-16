@@ -34,7 +34,7 @@ func Select(arg any, row any) (any, error) {
 		}
 	default:
 		{
-			return nil, sentinel.UNSUPPORTED_CASE.Extend(fmt.Sprintf("expected `string` but recieved `%T`", argType))
+			return arg, nil
 		}
 	}
 }

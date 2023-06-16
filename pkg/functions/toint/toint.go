@@ -7,19 +7,19 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions"
 )
 
-func ToInt(jo *[]any, row any, args []any) any {
+func ToInt(jo *[]any, row any, args []any) (any, error) {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if fnArgs == nil {
-		return nil
+		return nil, nil
 	}
 	value, err := strconv.ParseInt(fnArgs.(string), 10, 64)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return value
+	return value, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

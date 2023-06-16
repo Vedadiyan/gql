@@ -10,21 +10,21 @@ import (
 	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
-func Avg(jo *[]any, row any, args []any) any {
+func Avg(jo *[]any, row any, args []any) (any, error) {
 	list, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	total := float64(0)
 	for _, item := range list {
 		value, err := strconv.ParseFloat(fmt.Sprintf("%v", item), 64)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		total += value
 	}
 	avg := total / float64(len(list))
-	return avg
+	return avg, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) ([]any, error) {

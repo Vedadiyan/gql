@@ -25,25 +25,25 @@ var (
 	_templates  sync.Map
 )
 
-func Mongo(jo *[]any, row any, args []any) any {
+func Mongo(jo *[]any, row any, args []any) (any, error) {
 	mongoArgs, err := readArgsGeneric(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	res, err := mongoArgs.Collection.Aggregate(context.TODO(), mongoArgs.Query)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	data := make([]any, 0)
 	for res.Next(context.TODO()) {
 		dataMap := make(map[string]any)
 		err := json.Unmarshal([]byte(res.Current.String()), &dataMap)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		data = append(data, dataMap)
 	}
-	return data
+	return data, nil
 }
 func readArgsGeneric(args []any, row any, jo *[]any) (*MongoArgs, error) {
 	mongoArgs := MongoArgs{}

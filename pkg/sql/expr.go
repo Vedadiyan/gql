@@ -404,7 +404,7 @@ func funcExpr(b cmn.Bucket, row any, expr *sqlparser.FuncExpr) (any, error) {
 	if !ok {
 		return nil, sentinel.INVALID_FUNCTION.Extend(fn)
 	}
-	return function(b, row, args), nil
+	return function(b, row, args)
 }
 
 func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {

@@ -6,19 +6,19 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
-func NullIfEmpty(jo *[]any, row any, args []any) any {
+func NullIfEmpty(jo *[]any, row any, args []any) (any, error) {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	list, ok := fnArgs.([]any)
 	if !ok {
-		return fnArgs
+		return fnArgs, nil
 	}
 	if len(list) != 0 {
-		return list
+		return list, nil
 	}
-	return nil
+	return nil, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

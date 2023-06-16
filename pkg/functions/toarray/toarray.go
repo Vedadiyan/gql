@@ -5,15 +5,15 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions"
 )
 
-func ToArray(jo *[]any, row any, args []any) any {
+func ToArray(jo *[]any, row any, args []any) (any, error) {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if fnArgs == nil {
-		return []any{}
+		return []any{}, nil
 	}
-	return []any{fnArgs}
+	return []any{fnArgs}, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {
