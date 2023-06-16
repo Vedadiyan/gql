@@ -135,14 +135,14 @@ func ReadObject(row map[string]any, key string) (any, error) {
 		switch t := ref.(type) {
 		case map[string]any:
 			{
-				// Lazy CTE execution
-				if fn, ok := t[key].(func() (any, error)); ok {
-					res, err := fn()
-					if err != nil {
-						return nil, err
-					}
-					t[key] = res
-				}
+				// // Lazy CTE execution
+				// if fn, ok := t[key].(func() (any, error)); ok {
+				// 	res, err := fn()
+				// 	if err != nil {
+				// 		return nil, err
+				// 	}
+				// 	t[key] = res
+				// }
 				ref = t[key]
 			}
 		case []any:

@@ -38,6 +38,13 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 	case sqlparser.TableName:
 		{
 			objName := t.Name
+			if fn, ok := doc[objName.String()].(func() (any, error)); ok {
+				res, err := fn()
+				if err != nil {
+					return nil, err
+				}
+				doc[objName.String()] = res
+			}
 			from, err := cmn.From(doc, objName.String())
 			if err != nil {
 				return nil, err
@@ -142,9 +149,10 @@ func joinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
 func cteExpr(doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
 	output := make(map[string]any)
 	for _, cte := range expr.Ctes {
-		output[cte.ID.String()] = func() (any, error) {
+		local := *cte
+		output[local.ID.String()] = func() (any, error) {
 			sql := new(doc, false)
-			err := sql.prepare(cte.Subquery.Select)
+			err := sql.prepare(local.Subquery.Select)
 			if err != nil {
 				return nil, err
 			}
