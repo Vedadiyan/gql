@@ -99,3 +99,28 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (m
 	}
 	return output, nil
 }
+
+func (c *Context) fromExec() ([]any, error) {
+	collect := make([]any, 0)
+	count := 0
+	if c.from == nil {
+		c.from = make([]any, 1)
+	}
+	for index, row := range c.from {
+		if index < c.offset {
+			continue
+		}
+		if count == c.limit {
+			break
+		}
+		count++
+		cond, err := whereExec(&c.from, row, c.whereCond)
+		if err != nil {
+			return nil, err
+		}
+		if cond {
+			collect = append(collect, row)
+		}
+	}
+	return collect, nil
+}
