@@ -8,11 +8,11 @@ import (
 )
 
 func Unwind(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
+	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
 		return err
 	}
-	list, ok := obj.([]any)
+	list, ok := fnArgs.([]any)
 	if !ok {
 		return nil
 	}
@@ -28,8 +28,8 @@ func Unwind(jo *[]any, row any, args []any) any {
 }
 
 func readArgs(args []any, row any, jo *[]any) (any, error) {
-	var obj any
-	readObj := func(arg any) error {
+	var fnArg any
+	fnArgReader := func(arg any) error {
 		switch argType := arg.(type) {
 		case string:
 			{
@@ -38,28 +38,28 @@ func readArgs(args []any, row any, jo *[]any) (any, error) {
 					if err != nil {
 						return err
 					}
-					obj = result
+					fnArg = result
 					return nil
 				}
 				result, err := cmn.Select(row.(map[string]any), argType)
 				if err != nil {
 					return err
 				}
-				obj = result
+				fnArg = result
 				return nil
 			}
 		default:
 			{
-				obj = arg
+				fnArg = arg
 				return nil
 			}
 		}
 	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{readObj})
+	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{fnArgReader})
 	if err != nil {
 		return nil, err
 	}
-	return obj, nil
+	return fnArg, nil
 }
 
 func init() {

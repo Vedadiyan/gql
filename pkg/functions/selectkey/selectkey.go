@@ -9,11 +9,11 @@ import (
 )
 
 func SelectKey(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
+	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
 		return err
 	}
-	mapper := obj.(map[string]any)
+	mapper := fnArgs.(map[string]any)
 	value, err := lookup.ReadObject(map[string]any{"$": mapper["bucket"]}, fmt.Sprintf("$.%s", mapper["selector"]))
 	if err != nil {
 		return err

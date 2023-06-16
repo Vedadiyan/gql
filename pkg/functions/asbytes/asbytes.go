@@ -8,14 +8,14 @@ import (
 )
 
 func AsBytes(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
+	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
 		return err
 	}
-	if obj == nil {
+	if fnArgs == nil {
 		return nil
 	}
-	json, err := json.Marshal(obj)
+	json, err := json.Marshal(fnArgs)
 	if err != nil {
 		return err
 	}
@@ -23,16 +23,16 @@ func AsBytes(jo *[]any, row any, args []any) any {
 }
 
 func readArgs(args []any, row any, jo *[]any) (any, error) {
-	var obj any
-	readObj := func(arg any) error {
-		obj = arg
+	var fnArg any
+	fnArgReader := func(arg any) error {
+		fnArg = arg
 		return nil
 	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{readObj})
+	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{fnArgReader})
 	if err != nil {
 		return nil, err
 	}
-	return obj, nil
+	return fnArg, nil
 }
 
 func init() {

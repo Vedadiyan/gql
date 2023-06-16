@@ -9,14 +9,14 @@ import (
 )
 
 func ToString(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
+	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
 		return err
 	}
-	if obj == nil {
+	if fnArgs == nil {
 		return nil
 	}
-	switch t := obj.(type) {
+	switch t := fnArgs.(type) {
 	case float64:
 		{
 			remainder := math.Mod(t, 1)
@@ -37,16 +37,16 @@ func ToString(jo *[]any, row any, args []any) any {
 }
 
 func readArgs(args []any, row any, jo *[]any) (any, error) {
-	var obj any
-	readObj := func(arg any) error {
-		obj = arg
+	var fnArg any
+	fnArgReader := func(arg any) error {
+		fnArg = arg
 		return nil
 	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{readObj})
+	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{fnArgReader})
 	if err != nil {
 		return nil, err
 	}
-	return obj, nil
+	return fnArg, nil
 }
 
 func init() {
