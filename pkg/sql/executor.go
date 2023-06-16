@@ -50,7 +50,7 @@ func whereExec(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
-func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (map[string]any, error) {
+func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[string]any) (map[string]any, error) {
 	output := make(map[string]any, 0)
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
@@ -63,15 +63,28 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (m
 		case *sqlparser.AliasedExpr:
 			{
 				if expr, ok := exprType.Expr.(*sqlparser.FuncExpr); ok {
+					name := exprType.As.String()
+					if len(name) == 0 {
+						name = fmt.Sprintf("col_%d", index)
+					}
+					if cmn.IsSpecialFunction(expr) {
+						result, ok := cache[name]
+						if !ok {
+							r, err := funcExpr(b, row, expr)
+							if err != nil {
+								return nil, err
+							}
+							result = r
+							cache[name] = result
+						}
+						output[name] = result
+						continue
+					}
 					res, err := funcExpr(b, row, expr)
 					if err != nil {
 						return nil, err
 					}
-					if len(exprs) == 1 && len(exprType.As.String()) == 0 {
-						output["col_0"] = res
-						return output, nil
-					}
-					output[exprType.As.String()] = res
+					output[name] = res
 					continue
 				}
 				if colName, ok := exprType.Expr.(*sqlparser.ColName); ok {
@@ -80,12 +93,26 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (m
 						continue
 					}
 				}
-				name, err := aliasedExpr(exprType)
+				expr, err := aliasedExpr(exprType)
+				if fn, ok := expr.(func() (string, func(cmn.Bucket, any) (any, error))); ok {
+					name, funcc := fn()
+					result, ok := cache[name]
+					if !ok {
+						r, err := funcc(b, row)
+						if err != nil {
+							return nil, err
+						}
+						result = r
+						cache[name] = result
+					}
+					output[name] = result
+					continue
+				}
+				name := expr.(string)
 				if err != nil {
 					return nil, err
 				}
-				id := fmt.Sprintf("%d_%d", id, index)
-				result, err := cmn.UnWrap[any](ExprReader(b, row, exprType.Expr, id))
+				result, err := cmn.UnWrap[any](ExprReader(b, row, exprType.Expr))
 				if err != nil {
 					return nil, err
 				}

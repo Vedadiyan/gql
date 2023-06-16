@@ -14,11 +14,11 @@ func Count(jo *[]any, row any, args []any) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	list, ok := fnArgs.([]any)
+	_, ok := fnArgs.([]any)
 	if !ok {
 		return nil, nil
 	}
-	return len(list), nil
+	return len(*jo), nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

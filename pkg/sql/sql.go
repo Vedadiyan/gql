@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"time"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
@@ -53,7 +52,7 @@ func (c *Context) Prepare(query string) error {
 	return c.prepare(sqlStatement)
 }
 func (c *Context) Exec() (any, error) {
-	id := time.Now().UnixNano()
+	cache := make(map[string]any)
 	collect, err := c.fromExec()
 	if err != nil {
 		return nil, err
@@ -101,7 +100,7 @@ func (c *Context) Exec() (any, error) {
 			if !cond {
 				continue
 			}
-			result, err := selectExec(&c.from, group, id, c.selectStmt)
+			result, err := selectExec(&c.from, group, c.selectStmt, cache)
 			if err != nil {
 				return nil, err
 			}
@@ -131,7 +130,7 @@ func (c *Context) Exec() (any, error) {
 		}
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
-			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)
+			result, err := selectExec(&c.from, c.doc, c.selectStmt, cache)
 			delete(result, "$")
 			if err != nil {
 				return nil, err
@@ -142,7 +141,7 @@ func (c *Context) Exec() (any, error) {
 				_row := row.(map[string]any)
 				_row["$"] = c.doc
 				row = _row
-				result, err := selectExec(&c.from, row, id, c.selectStmt)
+				result, err := selectExec(&c.from, row, c.selectStmt, cache)
 				if err != nil {
 					return nil, err
 				}
@@ -155,10 +154,6 @@ func (c *Context) Exec() (any, error) {
 	err = orderBy(c.orderBy, collect)
 	if err != nil {
 		return nil, err
-	}
-	for index := range c.selectStmt {
-		id := fmt.Sprintf("%d_%d", id, index)
-		cmn.Cache.Delete(id)
 	}
 	return collect, nil
 }
