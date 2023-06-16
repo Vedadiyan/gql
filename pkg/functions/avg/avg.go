@@ -3,20 +3,17 @@ package avg
 import (
 	"fmt"
 	"strconv"
-	"strings"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
+	"github.com/vedadiyan/gql/pkg/functions/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
 func Avg(jo *[]any, row any, args []any) any {
-	fnArgs, err := readArgs(args, row, jo)
+	list, err := readArgs(args, row, jo)
 	if err != nil {
 		return err
-	}
-	list, ok := fnArgs.([]any)
-	if !ok {
-		return nil
 	}
 	total := float64(0)
 	for _, item := range list {
@@ -30,36 +27,29 @@ func Avg(jo *[]any, row any, args []any) any {
 	return avg
 }
 
-func readArgs(args []any, row any, jo *[]any) (any, error) {
-	var fnArg any
-	fnArgReader := func(arg any) error {
-		switch argType := arg.(type) {
-		case string:
-			{
-				if strings.HasPrefix(argType, "$.") {
-					result, err := cmn.Select(map[string]any{"$": *jo}, argType)
-					if err != nil {
-						return err
-					}
-					fnArg = result
-					return nil
-				}
-				result, err := cmn.Select(row.(map[string]any), argType)
+func readArgs(args []any, row any, jo *[]any) ([]any, error) {
+	var fnArg []any
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.ANY,
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				value, err := common.Select(arg, row)
 				if err != nil {
 					return err
 				}
-				fnArg = result
-				return nil
-
-			}
-		default:
-			{
-				fnArg = arg
-				return nil
-			}
-		}
-	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{fnArgReader})
+				if out, ok := value.([]any); ok {
+					fnArg = out
+					return nil
+				}
+				return sentinel.
+					EXPECTATION_FAILED.
+					Extend(fmt.Sprintf("expected `[]any` but received `%T`", value))
+			},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}

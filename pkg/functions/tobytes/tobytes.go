@@ -7,7 +7,7 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions"
 )
 
-func AsBytes(jo *[]any, row any, args []any) any {
+func ToBytes(jo *[]any, row any, args []any) any {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
 		return err
@@ -24,11 +24,18 @@ func AsBytes(jo *[]any, row any, args []any) any {
 
 func readArgs(args []any, row any, jo *[]any) (any, error) {
 	var fnArg any
-	fnArgReader := func(arg any) error {
-		fnArg = arg
-		return nil
-	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{fnArgReader})
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.ANY,
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				fnArg = arg
+				return nil
+			},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -36,5 +43,6 @@ func readArgs(args []any, row any, jo *[]any) (any, error) {
 }
 
 func init() {
-	cmn.RegisterFunction("asbytes", AsBytes)
+	cmn.RegisterFunction("tobytes", ToBytes)
+	cmn.RegisterFunction("asbytes", ToBytes)
 }
