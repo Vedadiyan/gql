@@ -71,30 +71,77 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 		}
 	}
 }
-func aliasedExpr(expr *sqlparser.AliasedExpr) (any, error) {
-	if aggr, ok := expr.Expr.(sqlparser.AggrFunc); ok {
-		switch t := aggr.(type) {
-		case *sqlparser.Count:
-			{
-				if len(t.Args) > 1 {
-					return nil, fmt.Errorf("count takes exactly 1 argument")
-				}
-				readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Args[0], true))
-				if err != nil {
-					return nil, err
-				}
-				return func() (string, func(b cmn.Bucket, row any) (any, error)) {
-					return expr.As.String(), func(b cmn.Bucket, row any) (any, error) {
-						return funcExprByName(b, row, "count", readArg)
-					}
-				}, nil
+
+func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, expr sqlparser.AggrFunc) (any, error) {
+	result, ok := cache[alias]
+	if ok {
+		return result, nil
+	}
+	switch t := expr.(type) {
+	case *sqlparser.CountStar:
+		{
+			_ = t
+			result, err := funcExprByName(bucket, nil, "count")
+			if err != nil {
+				return nil, err
 			}
+			cache[alias] = result
+			return result, nil
 		}
 	}
-	if expr.As.String() != "" {
-		return expr.As.String(), nil
+	return nil, sentinel.UNSUPPORTED_CASE
+}
+
+func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any, expr *sqlparser.AliasedExpr) (string, any, error) {
+	alias := expr.As.String()
+	if len(alias) == 0 {
+		alias = fmt.Sprintf("col_%d", colIndex)
 	}
-	return cmn.UnWrap[any](ExprReader(nil, nil, expr.Expr, true))
+	switch t := expr.Expr.(type) {
+	case sqlparser.AggrFunc:
+		{
+			result, err := aggregatedFuncExpr(bucket, alias, cache, t)
+			if err != nil {
+				return "", nil, err
+			}
+			return alias, result, nil
+		}
+	case *sqlparser.FuncExpr:
+		{
+			if cmn.IsSpecialFunction(t) {
+				result, ok := cache[alias]
+				if !ok {
+					r, err := funcExpr(bucket, row, t)
+					if err != nil {
+						return "", nil, err
+					}
+					result = r
+					cache[alias] = result
+				}
+				return alias, result, nil
+			}
+			result, err := funcExpr(bucket, row, t)
+			if err != nil {
+				return "", nil, err
+			}
+			return alias, result, nil
+		}
+	default:
+		{
+			if expr.As.String() == "" {
+				_alias, err := cmn.UnWrap[any](ExprReader(nil, nil, expr.Expr, true))
+				if err != nil {
+					return "", nil, err
+				}
+				alias = _alias.(string)
+			}
+			result, err := cmn.UnWrap[any](ExprReader(bucket, row, expr.Expr))
+			if err != nil {
+				return "", nil, err
+			}
+			return alias, result, nil
+		}
+	}
 }
 func starExpr(row any, index int) map[string]any {
 	switch t := row.(type) {
