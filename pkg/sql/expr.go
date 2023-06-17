@@ -88,6 +88,19 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 			cache[alias] = result
 			return result, nil
 		}
+	case *sqlparser.Avg:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "avg", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
 	}
 	return nil, sentinel.UNSUPPORTED_CASE
 }

@@ -13,13 +13,9 @@ func Select(arg any, row any) (any, error) {
 	case string:
 		{
 			if strings.HasPrefix(argType, "$.") {
-				result, err := cmn.Select(map[string]any{"$": row.(map[string]any)["$"].(map[string]any)}, argType)
+				rows, err := cmn.Select(map[string]any{"$": row.(map[string]any)["$"].(map[string]any)}, argType)
 				if err != nil {
 					return nil, err
-				}
-				rows, ok := result.([]any)
-				if !ok {
-					return nil, sentinel.EXPECTATION_FAILED.Extend(fmt.Sprintf("unexpected type `%T`", rows))
 				}
 				if len(rows) != 1 {
 					return nil, sentinel.EXPECTATION_FAILED.Extend(fmt.Sprintf("unexpected length of array `%d`", len(rows)))
@@ -30,7 +26,7 @@ func Select(arg any, row any) (any, error) {
 			if err != nil {
 				return nil, err
 			}
-			return result, nil
+			return result[0], nil
 		}
 	default:
 		{

@@ -7,7 +7,6 @@ import (
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
 	"github.com/vedadiyan/gql/pkg/functions/common"
-	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
 func Avg(jo *[]any, row any, args []any) (any, error) {
@@ -27,7 +26,7 @@ func Avg(jo *[]any, row any, args []any) (any, error) {
 	return avg, nil
 }
 
-func readArgs(args []any, row any, _ *[]any) ([]any, error) {
+func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 	var fnArg []any
 	err := functions.CheckSingnature(
 		args,
@@ -36,17 +35,16 @@ func readArgs(args []any, row any, _ *[]any) ([]any, error) {
 		},
 		[]functions.Reader{
 			func(arg any) error {
-				value, err := common.Select(arg, row)
-				if err != nil {
-					return err
+				out := make([]any, 0)
+				for _, row := range *jo {
+					value, err := common.Select(arg, row)
+					if err != nil {
+						return err
+					}
+					out = append(out, value)
 				}
-				if out, ok := value.([]any); ok {
-					fnArg = out
-					return nil
-				}
-				return sentinel.
-					EXPECTATION_FAILED.
-					Extend(fmt.Sprintf("expected `[]any` but received `%T`", value))
+				fnArg = out
+				return nil
 			},
 		},
 	)
