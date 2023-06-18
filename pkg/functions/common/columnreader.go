@@ -20,13 +20,13 @@ func Select(arg any, row any) (any, error) {
 				if len(rows) != 1 {
 					return nil, sentinel.EXPECTATION_FAILED.Extend(fmt.Sprintf("unexpected length of array `%d`", len(rows)))
 				}
-				return rows[0], nil
+				return rows, nil
 			}
 			result, err := cmn.Select(row.(map[string]any), argType)
 			if err != nil {
 				return nil, err
 			}
-			return result[0], nil
+			return result, nil
 		}
 	default:
 		{

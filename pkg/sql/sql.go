@@ -138,6 +138,13 @@ func (c *Context) Exec() (any, error) {
 			return result, nil
 		} else {
 			for index, row := range collect {
+				if fn, ok := row.(func() (any, error)); ok {
+					result, err := fn()
+					if err != nil {
+						return nil, err
+					}
+					row = result
+				}
 				_row := row.(map[string]any)
 				_row["$"] = c.doc
 				row = _row
