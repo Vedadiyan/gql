@@ -178,10 +178,7 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 }
 
 func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any, expr *sqlparser.AliasedExpr) (Aliased, error) {
-	alias := expr.As.String()
-	if len(alias) == 0 {
-		alias = fmt.Sprintf("col_%d", colIndex)
-	}
+	alias := expr.ColumnName()
 	switch t := expr.Expr.(type) {
 	case sqlparser.AggrFunc:
 		{
