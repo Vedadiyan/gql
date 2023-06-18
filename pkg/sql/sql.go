@@ -145,15 +145,19 @@ func (c *Context) Exec() (any, error) {
 					}
 					row = result
 				}
-				_row := row.(map[string]any)
-				_row["$"] = c.doc
-				row = _row
+				_row, ok := row.(map[string]any)
+				if ok {
+					_row["$"] = c.doc
+					row = _row
+				}
 				result, err := selectExec(&c.from, row, c.selectStmt, cache)
 				if err != nil {
 					return nil, err
 				}
-				delete(_row, "$")
-				delete(result.(map[string]any), "$")
+				if ok {
+					delete(_row, "$")
+					delete(result.(map[string]any), "$")
+				}
 				collect[index] = result
 			}
 		}
