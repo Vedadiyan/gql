@@ -105,7 +105,7 @@ func (c *Context) Exec() (any, error) {
 				return nil, err
 			}
 			// QUICK FIX
-			_result := result
+			_result := result.(map[string]any)
 			groupByName := "_grouped"
 			if value, ok := _result["$GROUPBY"]; ok {
 				groupByName = value.(string)
@@ -131,7 +131,7 @@ func (c *Context) Exec() (any, error) {
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
 			result, err := selectExec(&c.from, c.doc, c.selectStmt, cache)
-			delete(result, "$")
+			//delete(result, "$")
 			if err != nil {
 				return nil, err
 			}
@@ -153,7 +153,7 @@ func (c *Context) Exec() (any, error) {
 					return nil, err
 				}
 				delete(_row, "$")
-				delete(result, "$")
+				delete(result.(map[string]any), "$")
 				collect[index] = result
 			}
 		}

@@ -143,7 +143,41 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 	return nil, sentinel.UNSUPPORTED_CASE
 }
 
-func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any, expr *sqlparser.AliasedExpr) (string, any, error) {
+type Aliased interface {
+	Name() string
+	Result() any
+}
+
+type AliasedBase struct {
+	name   string
+	result any
+}
+
+type NormalAliased struct {
+	AliasedBase
+}
+
+func (normalAliased NormalAliased) Name() string {
+	return normalAliased.name
+}
+
+func (normalAliased NormalAliased) Result() any {
+	return normalAliased.result
+}
+
+type FunctionAliased struct {
+	AliasedBase
+}
+
+func (functionAliased FunctionAliased) Name() string {
+	return functionAliased.name
+}
+
+func (functionAliased FunctionAliased) Result() any {
+	return functionAliased.result
+}
+
+func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any, expr *sqlparser.AliasedExpr) (Aliased, error) {
 	alias := expr.As.String()
 	if len(alias) == 0 {
 		alias = fmt.Sprintf("col_%d", colIndex)
@@ -153,9 +187,9 @@ func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any,
 		{
 			result, err := aggregatedFuncExpr(bucket, alias, cache, t)
 			if err != nil {
-				return "", nil, err
+				return nil, err
 			}
-			return alias, result, nil
+			return &NormalAliased{AliasedBase{name: alias, result: result}}, nil
 		}
 	case *sqlparser.FuncExpr:
 		{
@@ -164,33 +198,39 @@ func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any,
 				if !ok {
 					r, err := funcExpr(bucket, row, t)
 					if err != nil {
-						return "", nil, err
+						return nil, err
 					}
 					result = r
 					cache[alias] = result
 				}
-				return alias, result, nil
+				if len(expr.As.String()) == 0 {
+					return &FunctionAliased{AliasedBase{name: "", result: result}}, nil
+				}
+				return &FunctionAliased{AliasedBase{name: alias, result: result}}, nil
 			}
 			result, err := funcExpr(bucket, row, t)
 			if err != nil {
-				return "", nil, err
+				return nil, err
 			}
-			return alias, result, nil
+			if len(expr.As.String()) == 0 {
+				return &FunctionAliased{AliasedBase{name: "", result: result}}, nil
+			}
+			return &FunctionAliased{AliasedBase{name: alias, result: result}}, nil
 		}
 	default:
 		{
 			if expr.As.String() == "" {
 				_alias, err := cmn.UnWrap[any](ExprReader(nil, nil, expr.Expr, true))
 				if err != nil {
-					return "", nil, err
+					return nil, err
 				}
 				alias = _alias.(string)
 			}
 			result, err := cmn.UnWrap[any](ExprReader(bucket, row, expr.Expr))
 			if err != nil {
-				return "", nil, err
+				return nil, err
 			}
-			return alias, result, nil
+			return &NormalAliased{AliasedBase{name: alias, result: result}}, nil
 		}
 	}
 }
