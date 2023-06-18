@@ -288,22 +288,22 @@ func (c *Context) Exec() (any, error) {
 			return result, nil
 		} else {
 			for index, row := range collect {
-				// Lazy CTE execution
 				if fn, ok := row.(func() (any, error)); ok {
-					res, err := fn()
+					result, err := fn()
 					if err != nil {
 						return nil, err
 					}
-					row = res
-				} else {
-					_row := row.(map[string]any)
-					_row["$"] = c.doc
-					row = _row
+					row = result
 				}
-				result, err := selectExec(&c.from, row, id, c.selectStmt)
+				_row := row.(map[string]any)
+				_row["$"] = c.doc
+				row = _row
+				result, err := selectExec(&c.from, row, int64(index), c.selectStmt)
 				if err != nil {
 					return nil, err
 				}
+				delete(_row, "$")
+				delete(result.(map[string]any), "$")
 				collect[index] = result
 			}
 		}
