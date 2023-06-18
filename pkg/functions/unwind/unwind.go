@@ -1,20 +1,22 @@
 package unwind
 
 import (
-	"strings"
+	"fmt"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
+	"github.com/vedadiyan/gql/pkg/functions/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
-func Unwind(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
+func Unwind(jo *[]any, row any, args []any) (any, error) {
+	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	list, ok := obj.([]any)
+	list, ok := fnArgs.([]any)
 	if !ok {
-		return nil
+		return nil, nil
 	}
 	output := make([]any, 0)
 	for _, item := range list {
@@ -24,42 +26,36 @@ func Unwind(jo *[]any, row any, args []any) any {
 		}
 		output = append(output, innerList...)
 	}
-	return output
+	return output, nil
 }
 
-func readArgs(args []any, row any, jo *[]any) (any, error) {
-	var obj any
-	readObj := func(arg any) error {
-		switch argType := arg.(type) {
-		case string:
-			{
-				if strings.HasPrefix(argType, "$.") {
-					result, err := cmn.Select(map[string]any{"$": *jo}, argType)
-					if err != nil {
-						return err
-					}
-					obj = result
-					return nil
-				}
-				result, err := cmn.Select(row.(map[string]any), argType)
+func readArgs(args []any, row any, _ *[]any) (any, error) {
+	var fnArg []any
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.ANY,
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				value, err := common.Select(arg, row)
 				if err != nil {
 					return err
 				}
-				obj = result
-				return nil
-			}
-		default:
-			{
-				obj = arg
-				return nil
-			}
-		}
-	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{readObj})
+				if out, ok := value.([]any); ok {
+					fnArg = out
+					return nil
+				}
+				return sentinel.
+					EXPECTATION_FAILED.
+					Extend(fmt.Sprintf("expected `[]any` but recieved `%T`", value))
+			},
+		},
+	)
 	if err != nil {
 		return nil, err
 	}
-	return obj, nil
+	return fnArg, nil
 }
 
 func init() {

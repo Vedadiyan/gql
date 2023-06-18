@@ -40,7 +40,7 @@ You can use GQL to re-model JSON data structures so that they can be auto mapped
  - ✅ Unions
  - ✅ CTEs
  - ✅ Having Expression (experimental)
- - ✅ Order By (experimental)
+ - ✅ Order By
 
 # Caveats
 - Join conditions ALWAYS require table aliasing even if they are used in a CTE query 
@@ -77,6 +77,19 @@ Array indexes can be reached using the `{}` selector. You can pass either a numb
 ~~*Please note that although multi-dimensional selectors such as `{?}.{?}` are supported, the `FROM` clause does not support multi-dimensional selectors. However, the following is valid `$.data.items.{0}.rates`*~~
 
 *Updated in the v0.0.3, multi-dimensional selectors can be used in the `FROM` clause*
+
+5- Look-Behind and Root Selectors
+
+	SELECT 
+		(
+			SELECT
+				`$.$.another_object.name` AS `name`
+			FROM `details` 
+		)
+	FROM 
+		`$.data`
+
+The `FROM` block scopes the reading to the current row. In order to read data not associated with the current row, the Look-Behind or Root Selector feature can be used to navigate back to the previous object. This can be done by using the `$` operator. 
 
 # Using Functions 
 To use functions, simply import them from the `function` package:

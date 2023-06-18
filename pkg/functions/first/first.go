@@ -1,60 +1,52 @@
 package first
 
 import (
-	"strings"
+	"fmt"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
+	"github.com/vedadiyan/gql/pkg/functions/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
-func first(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
-	if err != nil {
-		return err
-	}
-	list, ok := obj.([]any)
-	if !ok {
-		return nil
-	}
-	if len(list) > 0 {
-		return list[0]
-	}
-	return nil
-}
-
-func readArgs(args []any, row any, jo *[]any) (any, error) {
-	var obj any
-	readObj := func(arg any) error {
-		switch argType := arg.(type) {
-		case string:
-			{
-				if strings.HasPrefix(argType, "$.") {
-					result, err := cmn.Select(map[string]any{"$": *jo}, argType)
-					if err != nil {
-						return err
-					}
-					obj = result
-					return nil
-				}
-				result, err := cmn.Select(row.(map[string]any), argType)
-				if err != nil {
-					return err
-				}
-				obj = result
-				return nil
-			}
-		default:
-			{
-				obj = arg
-				return nil
-			}
-		}
-	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{readObj})
+func first(jo *[]any, row any, args []any) (any, error) {
+	list, err := readArgs(args, row, jo)
 	if err != nil {
 		return nil, err
 	}
-	return obj, nil
+	if len(list) > 0 {
+		return list[0], nil
+	}
+	return nil, nil
+}
+
+func readArgs(args []any, row any, _ *[]any) ([]any, error) {
+	var fnArg []any
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.ANY,
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				value, err := common.Select(arg, row)
+				if err != nil {
+					return err
+				}
+				if out, ok := value.([]any); ok {
+					fnArg = out
+					return nil
+				}
+				return sentinel.
+					EXPECTATION_FAILED.
+					Extend(fmt.Sprintf("expected `[]any` but recieved `%T`", value))
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return fnArg, nil
 }
 
 func init() {

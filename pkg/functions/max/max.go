@@ -1,7 +1,8 @@
-package avg
+package max
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
@@ -9,21 +10,22 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
-func Avg(jo *[]any, row any, args []any) (any, error) {
+func Max(jo *[]any, row any, args []any) (any, error) {
 	list, err := readArgs(args, row, jo)
 	if err != nil {
 		return nil, err
 	}
-	total := float64(0)
+	max := math.MaxFloat64 * -1
 	for _, item := range list {
 		value, err := strconv.ParseFloat(fmt.Sprintf("%v", item), 64)
 		if err != nil {
 			return nil, err
 		}
-		total += value
+		if value > max {
+			max = value
+		}
 	}
-	avg := total / float64(len(list))
-	return avg, nil
+	return max, nil
 }
 
 func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
@@ -55,5 +57,5 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 }
 
 func init() {
-	cmn.RegisterFunction("avg", Avg)
+	cmn.RegisterFunction("max", Max)
 }

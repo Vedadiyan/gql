@@ -56,6 +56,8 @@ func (j *Join) ReadCondition(doc cmn.Document, expr sqlparser.Expr) (JoinRawResu
 	return nil, nil
 }
 
+// TODO
+// function needs revision
 func (j *Join) Swap() error {
 	if len(j.left) == 0 {
 		return nil

@@ -1,24 +1,25 @@
-package nullifempty
+package asbytes
 
 import (
+	"encoding/json"
+
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
-	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
-func NullIfEmpty(jo *[]any, row any, args []any) (any, error) {
+func ToBytes(jo *[]any, row any, args []any) (any, error) {
 	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
 		return nil, err
 	}
-	list, ok := fnArgs.([]any)
-	if !ok {
-		return fnArgs, nil
+	if fnArgs == nil {
+		return nil, nil
 	}
-	if len(list) != 0 {
-		return list, nil
+	json, err := json.Marshal(fnArgs)
+	if err != nil {
+		return nil, err
 	}
-	return nil, nil
+	return json, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {
@@ -30,11 +31,7 @@ func readArgs(args []any, row any, _ *[]any) (any, error) {
 		},
 		[]functions.Reader{
 			func(arg any) error {
-				value, err := common.Select(arg, row)
-				if err != nil {
-					return err
-				}
-				fnArg = value
+				fnArg = arg
 				return nil
 			},
 		},
@@ -46,5 +43,6 @@ func readArgs(args []any, row any, _ *[]any) (any, error) {
 }
 
 func init() {
-	cmn.RegisterFunction("nullifempty", NullIfEmpty)
+	cmn.RegisterFunction("tobytes", ToBytes)
+	cmn.RegisterFunction("asbytes", ToBytes)
 }

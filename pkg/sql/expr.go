@@ -13,6 +13,40 @@ import (
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
+type Aliased interface {
+	Name() string
+	Result() any
+}
+
+type AliasedBase struct {
+	name   string
+	result any
+}
+
+type NormalAliased struct {
+	AliasedBase
+}
+
+func (normalAliased NormalAliased) Name() string {
+	return normalAliased.name
+}
+
+func (normalAliased NormalAliased) Result() any {
+	return normalAliased.result
+}
+
+type FunctionAliased struct {
+	AliasedBase
+}
+
+func (functionAliased FunctionAliased) Name() string {
+	return functionAliased.name
+}
+
+func (functionAliased FunctionAliased) Result() any {
+	return functionAliased.result
+}
+
 func tableExpr(doc cmn.Document, expr sqlparser.TableExpr) ([]any, error) {
 	switch t := expr.(type) {
 	case *sqlparser.AliasedTableExpr:
@@ -38,6 +72,13 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 	case sqlparser.TableName:
 		{
 			objName := t.Name
+			if fn, ok := doc[objName.String()].(func() (any, error)); ok {
+				res, err := fn()
+				if err != nil {
+					return nil, err
+				}
+				doc[objName.String()] = res
+			}
 			from, err := cmn.From(doc, objName.String())
 			if err != nil {
 				return nil, err
@@ -64,11 +105,131 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 		}
 	}
 }
-func aliasedExpr(expr *sqlparser.AliasedExpr) (string, error) {
-	if expr.As.String() != "" {
-		return expr.As.String(), nil
+
+func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, expr sqlparser.AggrFunc) (any, error) {
+	result, ok := cache[alias]
+	if ok {
+		return result, nil
 	}
-	return cmn.UnWrap[string](ExprReader(nil, nil, expr.Expr, true))
+	switch t := expr.(type) {
+	case *sqlparser.CountStar:
+		{
+			result, err := funcExprByName(bucket, nil, "count")
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	case *sqlparser.Avg:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "avg", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	case *sqlparser.Min:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "min", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	case *sqlparser.Max:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "max", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	case *sqlparser.Sum:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "sum", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	}
+	return nil, sentinel.UNSUPPORTED_CASE
+}
+
+func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any, expr *sqlparser.AliasedExpr) (Aliased, error) {
+	alias := expr.ColumnName()
+	switch t := expr.Expr.(type) {
+	case sqlparser.AggrFunc:
+		{
+			result, err := aggregatedFuncExpr(bucket, alias, cache, t)
+			if err != nil {
+				return nil, err
+			}
+			return &NormalAliased{AliasedBase{name: alias, result: result}}, nil
+		}
+	case *sqlparser.FuncExpr:
+		{
+			if cmn.IsSpecialFunction(t) {
+				result, ok := cache[alias]
+				if !ok {
+					r, err := funcExpr(bucket, row, t)
+					if err != nil {
+						return nil, err
+					}
+					result = r
+					cache[alias] = result
+				}
+				if len(expr.As.String()) == 0 {
+					return &FunctionAliased{AliasedBase{name: "", result: result}}, nil
+				}
+				return &FunctionAliased{AliasedBase{name: alias, result: result}}, nil
+			}
+			result, err := funcExpr(bucket, row, t)
+			if err != nil {
+				return nil, err
+			}
+			if len(expr.As.String()) == 0 {
+				return &FunctionAliased{AliasedBase{name: "", result: result}}, nil
+			}
+			return &FunctionAliased{AliasedBase{name: alias, result: result}}, nil
+		}
+	default:
+		{
+			if expr.As.String() == "" {
+				_alias, err := cmn.UnWrap[any](ExprReader(nil, nil, expr.Expr, true))
+				if err != nil {
+					return nil, err
+				}
+				alias = _alias.(string)
+			}
+			result, err := cmn.UnWrap[any](ExprReader(bucket, row, expr.Expr))
+			if err != nil {
+				return nil, err
+			}
+			return &NormalAliased{AliasedBase{name: alias, result: result}}, nil
+		}
+	}
 }
 func starExpr(row any, index int) map[string]any {
 	switch t := row.(type) {
@@ -142,7 +303,7 @@ func joinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
 func cteExpr(doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
 	output := make(map[string]any)
 	for _, cte := range expr.Ctes {
-		local := cte
+		local := *cte
 		output[local.ID.String()] = func() (any, error) {
 			sql := new(doc, false)
 			err := sql.prepare(local.Subquery.Select)
@@ -397,7 +558,15 @@ func funcExpr(b cmn.Bucket, row any, expr *sqlparser.FuncExpr) (any, error) {
 	if !ok {
 		return nil, sentinel.INVALID_FUNCTION.Extend(fn)
 	}
-	return function(b, row, args), nil
+	return function(b, row, args)
+}
+
+func funcExprByName(b cmn.Bucket, row any, fn string, args ...any) (any, error) {
+	function, ok := cmn.Functions[strings.ToLower(fn)]
+	if !ok {
+		return nil, sentinel.INVALID_FUNCTION.Extend(fn)
+	}
+	return function(b, row, args)
 }
 
 func colExpr(row any, expr *sqlparser.ColName, opt ...any) (any, error) {
@@ -482,23 +651,6 @@ func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
 		}
 	case *sqlparser.FuncExpr:
 		{
-			if cmn.IsSpecialFunction(t) && len(opt) > 0 {
-				id := opt[0].(string)
-				value, ok := cmn.Cache.Load(id)
-				if ok {
-					if err, ok := value.(error); ok {
-						return cmn.Wrap(nil, err)
-					}
-					return cmn.Wrap(value, nil)
-				}
-				value, err := funcExpr(b, row, t)
-				if err != nil {
-					cmn.Cache.Store(id, err)
-					return cmn.Wrap(nil, err)
-				}
-				cmn.Cache.Store(id, value)
-				return cmn.Wrap(value, nil)
-			}
 			return cmn.Wrap(funcExpr(b, row, t))
 		}
 	case *sqlparser.ColName:

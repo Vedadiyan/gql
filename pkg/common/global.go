@@ -1,12 +1,10 @@
 package common
 
-import "sync"
-
-type Function func(jo *[]any, row any, args []any) any
+type Function func(jo *[]any, row any, args []any) (any, error)
 
 var (
 	Functions map[string]Function
-	Cache     sync.Map
+	//Cache     sync.Map
 )
 
 func init() {

@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func Select(doc Document, key string) (any, error) {
+func Select(doc Document, key string) ([]any, error) {
 	ref := any(doc)
 	keys := strings.Split(key, ".")
 	for i := 0; i < len(keys); i++ {

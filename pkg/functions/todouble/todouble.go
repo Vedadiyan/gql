@@ -7,32 +7,39 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions"
 )
 
-func ToDouble(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
-	if err != nil {
-		return err
-	}
-	if obj == nil {
-		return nil
-	}
-	value, err := strconv.ParseFloat(obj.(string), 64)
-	if err != nil {
-		return err
-	}
-	return value
-}
-
-func readArgs(args []any, row any, jo *[]any) (any, error) {
-	var obj any
-	readObj := func(arg any) error {
-		obj = arg
-		return nil
-	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY}, []functions.Reader{readObj})
+func ToDouble(jo *[]any, row any, args []any) (any, error) {
+	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
 		return nil, err
 	}
-	return obj, nil
+	if fnArgs == nil {
+		return nil, nil
+	}
+	value, err := strconv.ParseFloat(fnArgs.(string), 64)
+	if err != nil {
+		return nil, err
+	}
+	return value, nil
+}
+
+func readArgs(args []any, row any, _ *[]any) (any, error) {
+	var fnArg any
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.ANY,
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				fnArg = arg
+				return nil
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return fnArg, nil
 }
 
 func init() {

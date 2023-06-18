@@ -5,9 +5,9 @@ import (
 	cmn "github.com/vedadiyan/gql/pkg/common"
 )
 
-func UUID(jo *[]any, row any, args []any) any {
+func UUID(jo *[]any, row any, args []any) (any, error) {
 	uuid := uuid.New()
-	return uuid.String()
+	return uuid.String(), nil
 }
 func init() {
 	cmn.RegisterFunction("uuid", UUID)

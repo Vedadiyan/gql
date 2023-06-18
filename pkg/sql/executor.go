@@ -1,8 +1,6 @@
 package sql
 
 import (
-	"fmt"
-
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
@@ -50,45 +48,41 @@ func whereExec(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
-func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (any, error) {
+func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[string]any) (any, error) {
 	output := make(map[string]any, 0)
 	for index, expr := range exprs {
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
+				// MUST NOT CALL strExpr
+				// MUST CALL ReadExpr
 				for key, value := range starExpr(row, index) {
 					output[key] = value
 				}
 			}
 		case *sqlparser.AliasedExpr:
 			{
-				if expr, ok := exprType.Expr.(*sqlparser.FuncExpr); ok {
-					res, err := funcExpr(b, row, expr)
-					if err != nil {
-						return nil, err
-					}
-					if len(exprs) == 1 && len(exprType.As.String()) == 0 {
-						return res, nil
-					}
-					output[exprType.As.String()] = res
-					continue
-				}
+
+				// This feature may no longer be needed
 				if colName, ok := exprType.Expr.(*sqlparser.ColName); ok {
 					if colName.Name.String() == "$GROUPBY" {
 						output["$GROUPBY"] = exprType.As.String()
 						continue
 					}
 				}
-				name, err := aliasedExpr(exprType)
+
+				// MUST NOT CALL aliasedExpr
+				// MUST CALL ReadExpr
+				result, err := aliasedExpr(b, row, index, cache, exprType)
 				if err != nil {
 					return nil, err
 				}
-				id := fmt.Sprintf("%d_%d", id, index)
-				result, err := cmn.UnWrap[any](ExprReader(b, row, exprType.Expr, id))
-				if err != nil {
-					return nil, err
+				if _, ok := result.(*FunctionAliased); ok {
+					if len(result.Name()) == 0 && len(exprs) == 1 {
+						return result.Result(), nil
+					}
 				}
-				output[name] = result
+				output[result.Name()] = result.Result()
 			}
 		default:
 			{
@@ -97,4 +91,29 @@ func selectExec(b cmn.Bucket, row any, id int64, exprs sqlparser.SelectExprs) (a
 		}
 	}
 	return output, nil
+}
+
+func (c *Context) fromExec() ([]any, error) {
+	collect := make([]any, 0)
+	count := 0
+	if c.from == nil {
+		c.from = make([]any, 1)
+	}
+	for index, row := range c.from {
+		if index < c.offset {
+			continue
+		}
+		if count == c.limit {
+			break
+		}
+		count++
+		cond, err := whereExec(&c.from, row, c.whereCond)
+		if err != nil {
+			return nil, err
+		}
+		if cond {
+			collect = append(collect, row)
+		}
+	}
+	return collect, nil
 }

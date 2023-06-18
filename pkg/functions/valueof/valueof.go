@@ -14,10 +14,10 @@ type funcArgs struct {
 	resultType string
 }
 
-func valueOf(jo *[]any, row any, args []any) any {
+func valueOf(jo *[]any, row any, args []any) (any, error) {
 	obj, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	out := make([]any, 0)
 	for _, item := range obj.key {
@@ -28,14 +28,14 @@ func valueOf(jo *[]any, row any, args []any) any {
 	switch strings.ToLower(obj.resultType) {
 	case "array":
 		{
-			return out
+			return out, nil
 		}
 	default:
 		{
 			if len(out) > 0 {
-				return out[0]
+				return out[0], nil
 			}
-			return nil
+			return nil, nil
 		}
 	}
 }
@@ -46,13 +46,9 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 		switch argType := arg.(type) {
 		case string:
 			{
-				result, err := cmn.Select(row.(map[string]any), argType)
+				rows, err := cmn.Select(row.(map[string]any), argType)
 				if err != nil {
 					return err
-				}
-				rows, ok := result.([]any)
-				if !ok {
-					return fmt.Errorf("unexpected result")
 				}
 				if len(rows) == 0 {
 					return fmt.Errorf("unexpected array length")
@@ -63,7 +59,7 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 						out = append(out, value)
 						continue
 					}
-					return fmt.Errorf("expected string but recieved `%T`", result)
+					return fmt.Errorf("expected string but recieved `%T`", rows)
 				}
 				obj.key = out
 				return nil
@@ -79,13 +75,9 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 		case string:
 			{
 				if strings.HasPrefix(argType, "$.") {
-					result, err := cmn.Select(map[string]any{"$": row.(map[string]any)["$"].(map[string]any)}, argType)
+					rows, err := cmn.Select(map[string]any{"$": row.(map[string]any)["$"].(map[string]any)}, argType)
 					if err != nil {
 						return err
-					}
-					rows, ok := result.([]any)
-					if !ok {
-						return fmt.Errorf("unexpected result")
 					}
 					if len(rows) != 1 {
 						return fmt.Errorf("unexpected array length")
@@ -94,17 +86,17 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 						obj.bucket = bucket
 						return nil
 					}
-					return fmt.Errorf("expected map[string]any but recieved `%T`", result)
+					return fmt.Errorf("expected map[string]any but recieved `%T`", row)
 				}
-				result, err := cmn.Select(row.(map[string]any), argType)
-				if err != nil {
-					return err
-				}
-				if bucket, ok := result.(map[string]any); ok {
-					obj.bucket = bucket
-					return nil
-				}
-				return fmt.Errorf("expected map[string]any but recieved `%T`", result)
+				// result, err := cmn.Select(row.(map[string]any), argType)
+				// if err != nil {
+				// 	return err
+				// }
+				// if bucket, ok := result.(map[string]any); ok {
+				// 	obj.bucket = bucket
+				// 	return nil
+				// }
+				return fmt.Errorf("expected map[string]any but recieved `%T`", row)
 			}
 		default:
 			{

@@ -3,9 +3,6 @@ package sql
 import (
 	"fmt"
 	"sort"
-
-	"github.com/vedadiyan/gql/pkg/lookup"
-	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
 func Sort(slice []any, key string, desc bool) {
@@ -85,13 +82,13 @@ func orderBy(order []KeyValue, list []any) (err error) {
 		bucket := make([]any, 0)
 		var firstIndex = 0
 		for index, i := range list {
-			var _key string
+			var k string
 			arr := order[:idx]
 			for _, key := range arr {
 				value := i.(map[string]any)[key.Key]
-				_key = _key + fmt.Sprintf("%v-", value)
+				k = k + fmt.Sprintf("%v-", value)
 			}
-			if prev != "#" && _key != prev {
+			if prev != "#" && k != prev {
 				prev = "#"
 				Sort(bucket, order[idx].Key, order[idx].Value)
 				j := 0
@@ -102,7 +99,7 @@ func orderBy(order []KeyValue, list []any) (err error) {
 				firstIndex = index
 				bucket = make([]any, 0)
 			}
-			prev = _key
+			prev = k
 			bucket = append(bucket, i)
 		}
 		Sort(bucket, order[idx].Key, order[idx].Value)
@@ -113,110 +110,4 @@ func orderBy(order []KeyValue, list []any) (err error) {
 		}
 	}
 	return nil
-}
-
-// func orderBy(order map[string]bool, list []any) (err error) {
-// 	if len(order) > 0 {
-// 		sort.Slice(list, func(i, j int) bool {
-// 			defer func() {
-// 				if r := recover(); r != nil {
-// 					err = r.(error)
-// 				}
-// 			}()
-// 			for key, desc := range order {
-// 				first, err := rowdesc(list, i, key)
-// 				if err != nil {
-// 					panic(err)
-// 				}
-// 				if first == nil {
-// 					return false
-// 				}
-// 				second, err := rowdesc(list, j, key)
-// 				if err != nil {
-// 					panic(err)
-// 				}
-// 				if second == nil {
-// 					return true
-// 				}
-// 				if fmt.Sprintf("%T", first) != fmt.Sprintf("%T", second) {
-// 					panic("type mismatch")
-// 				}
-// 				switch t := first.(type) {
-// 				case string:
-// 					{
-// 						t2 := second.(string)
-// 						if t != t2 {
-// 							if desc {
-// 								return t < t2
-// 							}
-// 							return t > t2
-// 						}
-// 					}
-// 				case float64:
-// 					{
-// 						t2 := second.(float64)
-// 						if t != t2 {
-// 							if desc {
-// 								return t < t2
-// 							}
-// 							return t > t2
-// 						}
-// 						c := 10
-// 						_ = c
-// 					}
-// 				case int64:
-// 					{
-// 						t2 := second.(int64)
-// 						if t != t2 {
-// 							if desc {
-// 								return t < t2
-// 							}
-// 							return t > t2
-// 						}
-// 					}
-// 				case bool:
-// 					{
-// 						t2 := second.(bool)
-// 						if t != t2 {
-// 							firstVal := 0
-// 							if t {
-// 								firstVal = 1
-// 							}
-// 							secondVal := 0
-// 							if t2 {
-// 								secondVal = 1
-// 							}
-// 							if desc {
-// 								return firstVal < secondVal
-// 							}
-// 							return firstVal > secondVal
-// 						}
-// 					}
-// 				default:
-// 					{
-// 						panic(sentinel.UNSUPPORTED_CASE)
-// 					}
-// 				}
-// 			}
-// 			panic(sentinel.UNSUPPORTED_CASE)
-// 		})
-// 	}
-// 	return nil
-// }
-
-func rowdesc(list []any, index int, key string) (any, error) {
-	switch rowType := list[index].(type) {
-	case map[string]any:
-		{
-			return lookup.ReadObject(rowType, key)
-		}
-	case []any:
-		{
-			return nil, sentinel.UNSUPPORTED_CASE
-		}
-	default:
-		{
-			return rowType, nil
-		}
-	}
 }

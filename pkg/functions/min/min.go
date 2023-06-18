@@ -1,7 +1,8 @@
-package avg
+package min
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
@@ -9,21 +10,22 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
-func Avg(jo *[]any, row any, args []any) (any, error) {
+func Min(jo *[]any, row any, args []any) (any, error) {
 	list, err := readArgs(args, row, jo)
 	if err != nil {
 		return nil, err
 	}
-	total := float64(0)
+	min := math.MaxFloat64
 	for _, item := range list {
 		value, err := strconv.ParseFloat(fmt.Sprintf("%v", item), 64)
 		if err != nil {
 			return nil, err
 		}
-		total += value
+		if value < min {
+			min = value
+		}
 	}
-	avg := total / float64(len(list))
-	return avg, nil
+	return min, nil
 }
 
 func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
@@ -35,6 +37,10 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 		},
 		[]functions.Reader{
 			func(arg any) error {
+				if list, ok := arg.([]any); ok {
+					fnArg = list
+					return nil
+				}
 				out := make([]any, 0)
 				for _, row := range *jo {
 					value, err := common.Select(arg, row)
@@ -55,5 +61,6 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 }
 
 func init() {
-	cmn.RegisterFunction("avg", Avg)
+	cmn.RegisterFunction("min", Min)
+	cmn.RegisterFunction("minr", Min)
 }

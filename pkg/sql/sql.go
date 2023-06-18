@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"sort"
-	"time"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
@@ -44,6 +43,132 @@ func new(doc cmn.Document, init bool) *Context {
 func New(doc cmn.Document) *Context {
 	return new(doc, true)
 }
+func (c *Context) Prepare(query string) error {
+	query = cmn.RemoveComments(query)
+	sqlStatement, err := sqlparser.Parse(query)
+	if err != nil {
+		return err
+	}
+	return c.prepare(sqlStatement)
+}
+func (c *Context) Exec() (any, error) {
+	cache := make(map[string]any)
+	collect, err := c.fromExec()
+	if err != nil {
+		return nil, err
+	}
+	if len(c.groupBy) > 0 {
+		groupped := make(map[string][]any)
+		for _, row := range collect {
+			var buffer bytes.Buffer
+			keys := make([]string, 0)
+			for groupBy := range c.groupBy {
+				value, err := lookup.ReadObject(row.(map[string]any), groupBy)
+				if err != nil {
+					return nil, err
+				}
+				switch value.(type) {
+				case map[string]any, []any:
+					{
+						return nil, sentinel.UNSUPPORTED_CASE.Extend("only value types can be used in group by")
+					}
+				default:
+					{
+						keys = append(keys, fmt.Sprintf("%s:%v", groupBy, value))
+					}
+				}
+			}
+			sort.Strings(keys)
+			for _, key := range keys {
+				buffer.WriteString(key)
+				buffer.WriteString(".#.")
+			}
+			key := string(buffer.Bytes()[:buffer.Len()-3])
+			_, ok := groupped[key]
+			if !ok {
+				groupped[key] = make([]any, 0)
+			}
+			groupped[key] = append(groupped[key], row)
+		}
+		collect = make([]any, 0)
+		for _, group := range groupped {
+			_array := make([]any, 0)
+			cond, err := whereExec(nil, group, c.havingCond)
+			if err != nil {
+				return nil, err
+			}
+			if !cond {
+				continue
+			}
+			result, err := selectExec(&c.from, group, c.selectStmt, cache)
+			if err != nil {
+				return nil, err
+			}
+			// QUICK FIX
+			_result := result.(map[string]any)
+			groupByName := "_grouped"
+			if value, ok := _result["$GROUPBY"]; ok {
+				groupByName = value.(string)
+				delete(_result, "$GROUPBY")
+			}
+			for key, value := range _result {
+				if _, ok := c.groupBy[key]; ok {
+					_result[key] = value.([]any)[0]
+					continue
+				}
+				for index, value := range value.([]any) {
+					if index >= len(_array) {
+						_array = append(_array, make(map[string]any))
+					}
+					_array[index].(map[string]any)[key] = value
+				}
+				delete(_result, key)
+			}
+			_result[groupByName] = _array
+			// END QUICK FIX
+			collect = append(collect, _result[groupByName])
+		}
+	} else {
+		if len(c.from) > 0 && c.from[0] == nil {
+			result, err := selectExec(&c.from, c.doc, c.selectStmt, cache)
+			//delete(result, "$")
+			if err != nil {
+				return nil, err
+			}
+			return result, nil
+		} else {
+			for index, row := range collect {
+				if fn, ok := row.(func() (any, error)); ok {
+					result, err := fn()
+					if err != nil {
+						return nil, err
+					}
+					row = result
+				}
+				_row, ok := row.(map[string]any)
+				if ok {
+					_row["$"] = c.doc
+					row = _row
+				}
+				result, err := selectExec(&c.from, row, c.selectStmt, cache)
+				if err != nil {
+					return nil, err
+				}
+				if ok {
+					delete(_row, "$")
+					delete(result.(map[string]any), "$")
+				}
+				collect[index] = result
+			}
+		}
+	}
+	err = orderBy(c.orderBy, collect)
+	if err != nil {
+		return nil, err
+	}
+	return collect, nil
+}
+
 func (c *Context) setSelect(slct *sqlparser.Select) error {
 	if slct.With != nil {
 		data, err := cteExpr(c.doc, slct.With)
@@ -69,10 +194,18 @@ func (c *Context) setSelect(slct *sqlparser.Select) error {
 	if err != nil {
 		return err
 	}
+	err = c.setOrderby(slct.OrderBy)
+	if err != nil {
+		return err
+	}
 	c.havingCond = slct.Having
 	c.selectStmt = slct.SelectExprs
 	c.whereCond = slct.Where
-	for _, order := range slct.OrderBy {
+
+	return nil
+}
+func (c *Context) setOrderby(expr sqlparser.OrderBy) error {
+	for _, order := range expr {
 		name, err := cmn.UnWrap[string](ExprReader(nil, nil, order.Expr, true))
 		if err != nil {
 			return err
@@ -173,148 +306,4 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 		}
 	}
 	return nil
-}
-func (c *Context) Prepare(query string) error {
-	query = cmn.RemoveComments(query)
-	sqlStatement, err := sqlparser.Parse(query)
-	if err != nil {
-		return err
-	}
-	return c.prepare(sqlStatement)
-}
-func (c *Context) Exec() (any, error) {
-	id := time.Now().UnixNano()
-	collect := make([]any, 0)
-	count := 0
-	if c.from == nil {
-		c.from = make([]any, 1)
-	}
-	for index, row := range c.from {
-		if index < c.offset {
-			continue
-		}
-		if count == c.limit {
-			break
-		}
-		count++
-		cond, err := whereExec(&c.from, row, c.whereCond)
-		if err != nil {
-			return nil, err
-		}
-		if cond {
-			collect = append(collect, row)
-		}
-	}
-	if len(c.groupBy) > 0 {
-		groupped := make(map[string][]any)
-		for _, row := range collect {
-			var buffer bytes.Buffer
-			keys := make([]string, 0)
-			for groupBy := range c.groupBy {
-				value, err := lookup.ReadObject(row.(map[string]any), groupBy)
-				if err != nil {
-					return nil, err
-				}
-				switch value.(type) {
-				case map[string]any, []any:
-					{
-						return nil, sentinel.UNSUPPORTED_CASE.Extend("only value types can be used in group by")
-					}
-				default:
-					{
-						keys = append(keys, fmt.Sprintf("%s:%v", groupBy, value))
-					}
-				}
-			}
-			sort.Strings(keys)
-			for _, key := range keys {
-				buffer.WriteString(key)
-				buffer.WriteString(".#.")
-			}
-			key := string(buffer.Bytes()[:buffer.Len()-3])
-			_, ok := groupped[key]
-			if !ok {
-				groupped[key] = make([]any, 0)
-			}
-			groupped[key] = append(groupped[key], row)
-		}
-		collect = make([]any, 0)
-		for _, group := range groupped {
-			_array := make([]any, 0)
-			cond, err := whereExec(nil, group, c.havingCond)
-			if err != nil {
-				return nil, err
-			}
-			if !cond {
-				continue
-			}
-			result, err := selectExec(&c.from, group, id, c.selectStmt)
-			if err != nil {
-				return nil, err
-			}
-			// QUICK FIX
-			_result := result.(map[string]any)
-			groupByName := "_grouped"
-			if value, ok := _result["$GROUPBY"]; ok {
-				groupByName = value.(string)
-				delete(_result, "$GROUPBY")
-			}
-			for key, value := range _result {
-				if _, ok := c.groupBy[key]; ok {
-					_result[key] = value.([]any)[0]
-					continue
-				}
-				for index, value := range value.([]any) {
-					if index >= len(_array) {
-						_array = append(_array, make(map[string]any))
-					}
-					_array[index].(map[string]any)[key] = value
-				}
-				delete(_result, key)
-			}
-			_result[groupByName] = _array
-			// END QUICK FIX
-			collect = append(collect, _result[groupByName])
-		}
-		c := 10
-		_ = c
-	} else {
-		if len(c.from) > 0 && c.from[0] == nil {
-			result, err := selectExec(&c.from, c.doc, id, c.selectStmt)
-			delete(result.(map[string]any), "$")
-			if err != nil {
-				return nil, err
-			}
-			return result, nil
-		} else {
-			for index, row := range collect {
-				if fn, ok := row.(func() (any, error)); ok {
-					result, err := fn()
-					if err != nil {
-						return nil, err
-					}
-					row = result
-				}
-				_row := row.(map[string]any)
-				_row["$"] = c.doc
-				row = _row
-				result, err := selectExec(&c.from, row, int64(index), c.selectStmt)
-				if err != nil {
-					return nil, err
-				}
-				delete(_row, "$")
-				delete(result.(map[string]any), "$")
-				collect[index] = result
-			}
-		}
-	}
-	err := orderBy(c.orderBy, collect)
-	if err != nil {
-		return nil, err
-	}
-	for index := range c.selectStmt {
-		id := fmt.Sprintf("%d_%d", id, index)
-		cmn.Cache.Delete(id)
-	}
-	return collect, nil
 }

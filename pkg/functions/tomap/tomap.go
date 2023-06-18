@@ -13,48 +13,48 @@ type Args struct {
 	value  string
 }
 
-func ToMap(jo *[]any, row any, args []any) any {
-	obj, err := readArgs(args, row, jo)
+func ToMap(jo *[]any, row any, args []any) (any, error) {
+	fnArgs, err := readArgs(args, row, jo)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	mapper := make(map[string]any)
-	for _, item := range obj.bucket {
+	for _, item := range fnArgs.bucket {
 		_item, ok := item.(map[string]any)
 		if !ok {
-			return fmt.Errorf("expected map but recieved %T", item)
+			return nil, fmt.Errorf("expected map but recieved %T", item)
 		}
-		key, ok := _item[obj.key].(string)
+		key, ok := _item[fnArgs.key].(string)
 		if !ok {
-			return fmt.Errorf("expected string but recieved %T", _item[obj.key])
+			return nil, fmt.Errorf("expected string but recieved %T", _item[fnArgs.key])
 		}
 		if _, ok := mapper[key]; ok {
-			return fmt.Errorf("duplicate key `%s` in map", key)
+			return nil, fmt.Errorf("duplicate key `%s` in map", key)
 		}
-		mapper[key] = _item[obj.value]
+		mapper[key] = _item[fnArgs.value]
 	}
-	return mapper
+	return mapper, nil
 }
 
 func readArgs(args []any, row any, jo *[]any) (*Args, error) {
-	_args := Args{}
+	fnArgs := Args{}
 	readBucket := func(arg any) error {
 		if arr, ok := arg.([]any); ok {
-			_args.bucket = arr
+			fnArgs.bucket = arr
 			return nil
 		}
 		return fmt.Errorf("expected an array of objects but recieved %T", arg)
 	}
 	readKey := func(arg any) error {
 		if value, ok := arg.(string); ok {
-			_args.key = value
+			fnArgs.key = value
 			return nil
 		}
 		return fmt.Errorf("expected string but recieved %T", arg)
 	}
 	readValue := func(arg any) error {
 		if value, ok := arg.(string); ok {
-			_args.value = value
+			fnArgs.value = value
 			return nil
 		}
 		return fmt.Errorf("expected string but recieved %T", arg)
@@ -63,7 +63,7 @@ func readArgs(args []any, row any, jo *[]any) (*Args, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &_args, nil
+	return &fnArgs, nil
 }
 
 func init() {

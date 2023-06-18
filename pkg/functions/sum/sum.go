@@ -1,4 +1,4 @@
-package avg
+package sum
 
 import (
 	"fmt"
@@ -9,7 +9,7 @@ import (
 	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
-func Avg(jo *[]any, row any, args []any) (any, error) {
+func Sum(jo *[]any, row any, args []any) (any, error) {
 	list, err := readArgs(args, row, jo)
 	if err != nil {
 		return nil, err
@@ -22,8 +22,7 @@ func Avg(jo *[]any, row any, args []any) (any, error) {
 		}
 		total += value
 	}
-	avg := total / float64(len(list))
-	return avg, nil
+	return total, nil
 }
 
 func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
@@ -55,5 +54,5 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 }
 
 func init() {
-	cmn.RegisterFunction("avg", Avg)
+	cmn.RegisterFunction("sum", Sum)
 }
