@@ -80,7 +80,6 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 	switch t := expr.(type) {
 	case *sqlparser.CountStar:
 		{
-			_ = t
 			result, err := funcExprByName(bucket, nil, "count")
 			if err != nil {
 				return nil, err
@@ -95,6 +94,45 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 				return nil, err
 			}
 			result, err := funcExprByName(bucket, bucket, "avg", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	case *sqlparser.Min:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "min", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	case *sqlparser.Max:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "max", readArg)
+			if err != nil {
+				return nil, err
+			}
+			cache[alias] = result
+			return result, nil
+		}
+	case *sqlparser.Sum:
+		{
+			readArg, err := cmn.UnWrap[any](ExprReader(nil, nil, t.Arg, true))
+			if err != nil {
+				return nil, err
+			}
+			result, err := funcExprByName(bucket, bucket, "sum", readArg)
 			if err != nil {
 				return nil, err
 			}
