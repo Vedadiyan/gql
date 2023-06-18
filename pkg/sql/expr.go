@@ -13,6 +13,40 @@ import (
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
 
+type Aliased interface {
+	Name() string
+	Result() any
+}
+
+type AliasedBase struct {
+	name   string
+	result any
+}
+
+type NormalAliased struct {
+	AliasedBase
+}
+
+func (normalAliased NormalAliased) Name() string {
+	return normalAliased.name
+}
+
+func (normalAliased NormalAliased) Result() any {
+	return normalAliased.result
+}
+
+type FunctionAliased struct {
+	AliasedBase
+}
+
+func (functionAliased FunctionAliased) Name() string {
+	return functionAliased.name
+}
+
+func (functionAliased FunctionAliased) Result() any {
+	return functionAliased.result
+}
+
 func tableExpr(doc cmn.Document, expr sqlparser.TableExpr) ([]any, error) {
 	switch t := expr.(type) {
 	case *sqlparser.AliasedTableExpr:
@@ -141,40 +175,6 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 		}
 	}
 	return nil, sentinel.UNSUPPORTED_CASE
-}
-
-type Aliased interface {
-	Name() string
-	Result() any
-}
-
-type AliasedBase struct {
-	name   string
-	result any
-}
-
-type NormalAliased struct {
-	AliasedBase
-}
-
-func (normalAliased NormalAliased) Name() string {
-	return normalAliased.name
-}
-
-func (normalAliased NormalAliased) Result() any {
-	return normalAliased.result
-}
-
-type FunctionAliased struct {
-	AliasedBase
-}
-
-func (functionAliased FunctionAliased) Name() string {
-	return functionAliased.name
-}
-
-func (functionAliased FunctionAliased) Result() any {
-	return functionAliased.result
 }
 
 func aliasedExpr(bucket cmn.Bucket, row any, colIndex int, cache map[string]any, expr *sqlparser.AliasedExpr) (Aliased, error) {
