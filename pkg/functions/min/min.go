@@ -37,6 +37,10 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 		},
 		[]functions.Reader{
 			func(arg any) error {
+				if list, ok := arg.([]any); ok {
+					fnArg = list
+					return nil
+				}
 				out := make([]any, 0)
 				for _, row := range *jo {
 					value, err := common.Select(arg, row)
@@ -58,4 +62,5 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 
 func init() {
 	cmn.RegisterFunction("min", Min)
+	cmn.RegisterFunction("minr", Min)
 }
