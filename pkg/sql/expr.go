@@ -142,9 +142,10 @@ func joinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
 func cteExpr(doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
 	output := make(map[string]any)
 	for _, cte := range expr.Ctes {
-		output[cte.ID.String()] = func() (any, error) {
+		local := cte
+		output[local.ID.String()] = func() (any, error) {
 			sql := new(doc, false)
-			err := sql.prepare(cte.Subquery.Select)
+			err := sql.prepare(local.Subquery.Select)
 			if err != nil {
 				return nil, err
 			}
