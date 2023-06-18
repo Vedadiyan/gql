@@ -77,8 +77,10 @@ func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[st
 				if err != nil {
 					return nil, err
 				}
-				if _, ok := result.(*FunctionAliased); ok && len(result.Name()) == 0 && len(exprs) == 1 {
-					return result.Result(), nil
+				if _, ok := result.(*FunctionAliased); ok {
+					if len(result.Name()) == 0 && len(exprs) == 1 {
+						return result.Result(), nil
+					}
 				}
 				output[result.Name()] = result.Result()
 			}
