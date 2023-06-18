@@ -54,18 +54,25 @@ func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[st
 		switch exprType := expr.(type) {
 		case *sqlparser.StarExpr:
 			{
+				// MUST NOT CALL strExpr
+				// MUST CALL ReadExpr
 				for key, value := range starExpr(row, index) {
 					output[key] = value
 				}
 			}
 		case *sqlparser.AliasedExpr:
 			{
+
+				// This feature may no longer be needed
 				if colName, ok := exprType.Expr.(*sqlparser.ColName); ok {
 					if colName.Name.String() == "$GROUPBY" {
 						output["$GROUPBY"] = exprType.As.String()
 						continue
 					}
 				}
+
+				// MUST NOT CALL aliasedExpr
+				// MUST CALL ReadExpr
 				name, result, err := aliasedExpr(b, row, index, cache, exprType)
 				if err != nil {
 					return nil, err
