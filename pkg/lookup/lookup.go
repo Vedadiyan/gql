@@ -81,7 +81,13 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			}
 			key = strings.TrimPrefix(key, "{")
 			key = strings.TrimSuffix(key, "}")
-			index, err := strconv.ParseInt(key, 10, 32)
+			split := strings.Split(key, ":")
+			flat := len(split) > 1 && split[1] == "F"
+			if flat {
+				c := 10
+				_ = c
+			}
+			index, err := strconv.ParseInt(split[0], 10, 32)
 			if err != nil {
 				return nil, err
 			}
@@ -89,7 +95,7 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			if int(index) >= len(arr) {
 				continue
 			}
-			if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") {
+			if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") && !flat {
 				array := make([]any, 0)
 				switch t := arr[index].(type) {
 				case map[string]any:
