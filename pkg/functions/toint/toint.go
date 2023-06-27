@@ -1,6 +1,7 @@
 package toint
 
 import (
+	"fmt"
 	"strconv"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
@@ -15,11 +16,28 @@ func ToInt(jo *[]any, row any, args []any) (any, error) {
 	if fnArgs == nil {
 		return nil, nil
 	}
-	value, err := strconv.ParseInt(fnArgs.(string), 10, 64)
-	if err != nil {
-		return nil, err
+	switch t := fnArgs.(type) {
+	case float64:
+		{
+			return int(t), nil
+		}
+	case int32, int:
+		{
+			return t, nil
+		}
+	case string:
+		{
+			value, err := strconv.ParseInt(t, 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			return value, nil
+		}
+	default:
+		{
+			return nil, fmt.Errorf("unsupported type")
+		}
 	}
-	return value, nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

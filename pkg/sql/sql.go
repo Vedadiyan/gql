@@ -131,7 +131,9 @@ func (c *Context) Exec() (any, error) {
 	} else {
 		if len(c.from) > 0 && c.from[0] == nil {
 			result, err := selectExec(&c.from, c.doc, c.selectStmt, cache)
-			//delete(result, "$")
+			if _result, ok := result.(map[string]any); ok {
+				delete(_result, "$")
+			}
 			if err != nil {
 				return nil, err
 			}
