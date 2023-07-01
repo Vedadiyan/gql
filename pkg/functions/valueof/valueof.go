@@ -85,6 +85,9 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 					if len(rows) != 1 {
 						return fmt.Errorf("unexpected array length")
 					}
+					if rows[0] == nil {
+						return nil
+					}
 					if bucket, ok := rows[0].(map[string]any); ok {
 						obj.bucket = bucket
 						return nil
