@@ -55,6 +55,9 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 				}
 				out := make([]string, 0)
 				for _, item := range rows {
+					if item == nil {
+						continue
+					}
 					if value, ok := item.(string); ok {
 						out = append(out, value)
 						continue
