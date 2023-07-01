@@ -93,7 +93,7 @@ func ReadObject(row map[string]any, key string) (any, error) {
 			}
 
 			if int(index) >= len(arr) {
-				continue
+				return []any{map[string]any{}}, nil
 			}
 			if i < len(keys)-1 && !strings.HasPrefix(keys[i+1], "{") && !strings.HasSuffix(keys[i+1], "}") && !flat {
 				array := make([]any, 0)
