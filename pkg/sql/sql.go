@@ -139,6 +139,13 @@ func (c *Context) Exec() (any, error) {
 			}
 			return result, nil
 		} else {
+			if len(collect) == 1 {
+				if mapper, ok := collect[0].(map[string]any); ok {
+					if len(mapper) == 0 {
+						return nil, nil
+					}
+				}
+			}
 			for index, row := range collect {
 				if fn, ok := row.(func() (any, error)); ok {
 					result, err := fn()

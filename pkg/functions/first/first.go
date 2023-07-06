@@ -33,6 +33,9 @@ func readArgs(args []any, row any, _ *[]any) ([]any, error) {
 				if err != nil {
 					return err
 				}
+				if value == nil {
+					return nil
+				}
 				if out, ok := value.([]any); ok {
 					fnArg = out
 					return nil

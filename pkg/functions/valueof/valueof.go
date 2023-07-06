@@ -55,6 +55,9 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 				}
 				out := make([]string, 0)
 				for _, item := range rows {
+					if item == nil {
+						continue
+					}
 					if value, ok := item.(string); ok {
 						out = append(out, value)
 						continue
@@ -81,6 +84,9 @@ func readArgs(args []any, row any, jo *[]any) (*funcArgs, error) {
 					}
 					if len(rows) != 1 {
 						return fmt.Errorf("unexpected array length")
+					}
+					if rows[0] == nil {
+						return nil
 					}
 					if bucket, ok := rows[0].(map[string]any); ok {
 						obj.bucket = bucket
