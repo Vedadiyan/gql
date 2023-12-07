@@ -14,7 +14,6 @@ func Sum(jo *[]any, row any, args []any) (any, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(list)
 	total := float64(0)
 	for _, item := range functions.Expand(list) {
 		value, err := strconv.ParseFloat(fmt.Sprintf("%v", item), 64)
