@@ -127,7 +127,7 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 			if err != nil {
 				return nil, err
 			}
-			result, err := funcExprByName(bucket, bucket, "avg", readArg)
+			result, err := funcExprByName(bucket, bucket, "avg", readArg, true)
 			if err != nil {
 				return nil, err
 			}
@@ -140,7 +140,7 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 			if err != nil {
 				return nil, err
 			}
-			result, err := funcExprByName(bucket, bucket, "min", readArg)
+			result, err := funcExprByName(bucket, bucket, "min", readArg, true)
 			if err != nil {
 				return nil, err
 			}
@@ -153,7 +153,7 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 			if err != nil {
 				return nil, err
 			}
-			result, err := funcExprByName(bucket, bucket, "max", readArg)
+			result, err := funcExprByName(bucket, bucket, "max", readArg, true)
 			if err != nil {
 				return nil, err
 			}
@@ -166,7 +166,8 @@ func aggregatedFuncExpr(bucket cmn.Bucket, alias string, cache map[string]any, e
 			if err != nil {
 				return nil, err
 			}
-			result, err := funcExprByName(bucket, bucket, "sum", readArg)
+
+			result, err := funcExprByName(bucket, bucket, "sum", readArg, "true")
 			if err != nil {
 				return nil, err
 			}
