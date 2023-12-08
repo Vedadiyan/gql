@@ -33,6 +33,14 @@ func ToInt(jo *[]any, row any, args []any) (any, error) {
 			}
 			return value, nil
 		}
+	case cmn.StringValue:
+		{
+			value, err := strconv.ParseInt(string(t), 10, 64)
+			if err != nil {
+				return nil, err
+			}
+			return value, nil
+		}
 	default:
 		{
 			return nil, fmt.Errorf("unsupported type")

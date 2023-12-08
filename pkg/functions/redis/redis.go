@@ -143,13 +143,13 @@ func readRedisSetArgs(args []any, row any, jo *[]any) (*RedisArgs, error) {
 	err := functions.CheckSingnature(
 		args,
 		[]functions.ArgTypes{
-			functions.STRING,
+			functions.STRINGVALUE,
 			functions.ANY,
 			functions.NUMBER,
 		},
 		[]functions.Reader{
 			func(arg any) error {
-				redisArgs.connKey = arg.(string)
+				redisArgs.connKey = string(arg.(cmn.StringValue))
 				return nil
 			},
 			func(arg any) error {
@@ -178,14 +178,14 @@ func readRedisSetWithKeyArgs(args []any, row any, jo *[]any) (*RedisArgs, error)
 	err := functions.CheckSingnature(
 		args,
 		[]functions.ArgTypes{
-			functions.STRING, // Connection String
-			functions.STRING, // Key
-			functions.ANY,    // Value
-			functions.NUMBER, // TTL
+			functions.STRINGVALUE, // Connection String
+			functions.STRING,      // Key
+			functions.ANY,         // Value
+			functions.NUMBER,      // TTL
 		},
 		[]functions.Reader{
 			func(arg any) error {
-				redisArgs.connKey = arg.(string)
+				redisArgs.connKey = string(arg.(cmn.StringValue))
 				return nil
 			},
 			func(arg any) error {
@@ -219,12 +219,12 @@ func readRedisGetArgs(args []any, row any, jo *[]any) (*RedisArgs, error) {
 	err := functions.CheckSingnature(
 		args,
 		[]functions.ArgTypes{
-			functions.STRING,
+			functions.STRINGVALUE,
 			functions.STRING,
 		},
 		[]functions.Reader{
 			func(arg any) error {
-				redisArgs.connKey = arg.(string)
+				redisArgs.connKey = string(arg.(cmn.StringValue))
 				return nil
 			},
 			func(arg any) error {

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/vedadiyan/gql/pkg/common"
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
 	"github.com/vedadiyan/gql/pkg/sentinel"
@@ -458,11 +459,16 @@ func sqlValExpr(expr *sqlparser.Literal) (any, error) {
 	switch expr.Type {
 	case sqlparser.StrVal:
 		{
-			return string(expr.Val), nil
+			fmt.Println(expr.Val)
+			return common.StringValue(expr.Val), nil
 		}
 	default:
 		{
-			return strconv.ParseFloat(string(expr.Val), 64)
+			val, err := strconv.ParseFloat(string(expr.Val), 64)
+			if err != nil {
+				return nil, err
+			}
+			return val, err
 		}
 	}
 }

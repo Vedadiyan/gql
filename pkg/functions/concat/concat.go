@@ -5,12 +5,17 @@ import (
 	"fmt"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
+	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
 func Concat(jo *[]any, row any, args []any) (any, error) {
 	buffer := bytes.NewBufferString("")
 	for _, value := range args {
-		buffer.WriteString(fmt.Sprintf("%v", value))
+		val, err := common.Select(value, row)
+		if err != nil {
+			return nil, err
+		}
+		buffer.WriteString(fmt.Sprintf("%v", val))
 	}
 	return buffer.String(), nil
 }

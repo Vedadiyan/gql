@@ -6,6 +6,7 @@ import (
 	_ "github.com/vedadiyan/gql/pkg/functions/concat"
 	_ "github.com/vedadiyan/gql/pkg/functions/count"
 	_ "github.com/vedadiyan/gql/pkg/functions/first"
+	_ "github.com/vedadiyan/gql/pkg/functions/hash"
 	_ "github.com/vedadiyan/gql/pkg/functions/max"
 	_ "github.com/vedadiyan/gql/pkg/functions/min"
 	_ "github.com/vedadiyan/gql/pkg/functions/mongo"

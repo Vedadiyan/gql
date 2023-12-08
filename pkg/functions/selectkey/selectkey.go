@@ -34,10 +34,10 @@ func readArgs(args []any, row any, _ *[]any) (any, error) {
 		return nil
 	}
 	selector := func(args any) error {
-		mapper["selector"] = args.(string)
+		mapper["selector"] = string(args.(cmn.StringValue))
 		return nil
 	}
-	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY, functions.STRING}, []functions.Reader{bucket, selector})
+	err := functions.CheckSingnature(args, []functions.ArgTypes{functions.ANY, functions.STRINGVALUE}, []functions.Reader{bucket, selector})
 	if err != nil {
 		return nil, err
 	}
