@@ -109,6 +109,35 @@ func RedisGet(jo *[]any, row any, args []any) (any, error) {
 	return mapper, nil
 }
 
+func RedisGetAndDelete(jo *[]any, row any, args []any) (any, error) {
+	redisArgs, err := readRedisGetArgs(args, row, jo)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := _conManager(redisArgs.connKey)
+	if err != nil {
+		return nil, err
+	}
+	res := conn.Get(context.TODO(), redisArgs.key)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	delRes := conn.Del(context.TODO(), redisArgs.key)
+	if delRes.Err() != nil {
+		return nil, err
+	}
+	data, err := base64.StdEncoding.DecodeString(res.Val())
+	if err != nil {
+		return nil, err
+	}
+	mapper := make(map[string]any)
+	err = json.Unmarshal(data, &mapper)
+	if err != nil {
+		return nil, err
+	}
+	return mapper, nil
+}
+
 func readRedisSetArgs(args []any, row any, jo *[]any) (*RedisArgs, error) {
 	redisArgs := RedisArgs{}
 	err := functions.CheckSingnature(
@@ -220,4 +249,5 @@ func init() {
 	cmn.RegisterFunction("redissetsync", RedisSetSync)
 	cmn.RegisterFunction("redissetkeysync", RedisSetWithKeySync)
 	cmn.RegisterFunction("redisget", RedisGet)
+	cmn.RegisterFunction("redisdelete", RedisGetAndDelete)
 }
