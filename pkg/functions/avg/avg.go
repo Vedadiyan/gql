@@ -70,5 +70,6 @@ func readArgs(args []any, row any, jo *[]any) ([]any, error) {
 
 func init() {
 	cmn.RegisterFunction("avg", Avg)
+	cmn.RegisterFunction("avgr", Avg) // Obsolete
 	cmn.RegisterFunction("$avg", Avg)
 }

@@ -69,5 +69,6 @@ func readArgs(args []any, row any, jo *[]any) ([]any, error) {
 
 func init() {
 	cmn.RegisterFunction("sum", Sum)
+	cmn.RegisterFunction("sumr", Sum) // Obsolete
 	cmn.RegisterFunction("$sum", Sum)
 }

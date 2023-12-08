@@ -76,5 +76,6 @@ func readArgs(args []any, row any, jo *[]any) ([]any, error) {
 
 func init() {
 	cmn.RegisterFunction("min", Min)
+	cmn.RegisterFunction("minr", Min) // Obsolete
 	cmn.RegisterFunction("$min", Min)
 }

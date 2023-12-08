@@ -62,5 +62,6 @@ func readArgs(args []any, row any, _ *[]any) (any, error) {
 }
 
 func init() {
+	cmn.RegisterFunction("selectkey", SelectKey) // Obsolete
 	cmn.RegisterFunction("$select", SelectKey)
 }

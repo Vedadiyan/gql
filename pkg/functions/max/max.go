@@ -72,5 +72,6 @@ func readArgs(args []any, row any, jo *[]any) ([]any, error) {
 
 func init() {
 	cmn.RegisterFunction("max", Max)
+	cmn.RegisterFunction("maxr", Max) // Obsolete
 	cmn.RegisterFunction("$max", Max)
 }
