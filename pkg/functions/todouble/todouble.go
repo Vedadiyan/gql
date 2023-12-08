@@ -29,7 +29,7 @@ func ToDouble(jo *[]any, row any, args []any) (any, error) {
 		}
 	case common.StringValue:
 		{
-			value, err := strconv.ParseFloat(fnArgs.(string), 64)
+			value, err := strconv.ParseFloat(string(t), 64)
 			if err != nil {
 				return nil, err
 			}
