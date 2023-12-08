@@ -22,7 +22,7 @@ func SelectKey(jo *[]any, row any, args []any) (any, error) {
 		if len(arr) == 0 {
 			return nil, nil
 		}
-		return arr[0], nil
+		return arr, nil
 	}
 	return value, nil
 }
