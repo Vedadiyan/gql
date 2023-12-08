@@ -12,6 +12,7 @@ func Concat(jo *[]any, row any, args []any) (any, error) {
 	buffer := bytes.NewBufferString("")
 	for _, value := range args {
 		val, err := common.Select(value, row)
+		fmt.Println("DEBUG:", value, fmt.Sprintf("%T", value))
 		if err != nil {
 			return nil, err
 		}

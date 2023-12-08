@@ -5,6 +5,7 @@ import (
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
+	"github.com/vedadiyan/gql/pkg/functions/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
 )
 
@@ -24,7 +25,7 @@ func SelectKey(jo *[]any, row any, args []any) (any, error) {
 		}
 		return arr, nil
 	}
-	return value, nil
+	return common.BoxValue(value), nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

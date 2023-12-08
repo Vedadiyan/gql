@@ -6,6 +6,7 @@ import (
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
+	"github.com/vedadiyan/gql/pkg/functions/common"
 )
 
 type funcArgs struct {
@@ -33,7 +34,7 @@ func valueOf(jo *[]any, row any, args []any) (any, error) {
 	default:
 		{
 			if len(out) > 0 {
-				return out[0], nil
+				return common.BoxValue(out[0]), nil
 			}
 			return nil, nil
 		}

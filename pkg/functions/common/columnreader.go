@@ -34,3 +34,16 @@ func Select(arg any, row any) (any, error) {
 		}
 	}
 }
+
+func BoxValue(value any) any {
+	switch t := value.(type) {
+	case string:
+		{
+			return cmn.StringValue(t)
+		}
+	default:
+		{
+			return t
+		}
+	}
+}
