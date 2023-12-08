@@ -15,7 +15,7 @@ func Avg(jo *[]any, row any, args []any) (any, error) {
 		return nil, err
 	}
 	total := float64(0)
-	for _, item := range list {
+	for _, item := range functions.Expand(list) {
 		value, err := strconv.ParseFloat(fmt.Sprintf("%v", item), 64)
 		if err != nil {
 			return nil, err
@@ -26,8 +26,13 @@ func Avg(jo *[]any, row any, args []any) (any, error) {
 	return avg, nil
 }
 
-func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
+func readArgs(args []any, row any, jo *[]any) ([]any, error) {
 	var fnArg []any
+	isReservedAvg := false
+	if len(args) == 2 {
+		isReservedAvg = true
+		args = args[:1]
+	}
 	err := functions.CheckSingnature(
 		args,
 		[]functions.ArgTypes{
@@ -36,13 +41,22 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 		[]functions.Reader{
 			func(arg any) error {
 				out := make([]any, 0)
-				for _, row := range *jo {
-					value, err := common.Select(arg, row)
-					if err != nil {
-						return err
+				if isReservedAvg {
+					for _, row := range *jo {
+						value, err := common.Select(arg, row)
+						if err != nil {
+							return err
+						}
+						out = append(out, value)
 					}
-					out = append(out, value)
+					fnArg = out
+					return nil
 				}
+				value, err := common.Select(arg, row)
+				if err != nil {
+					return err
+				}
+				out = append(out, value)
 				fnArg = out
 				return nil
 			},
@@ -56,4 +70,5 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 
 func init() {
 	cmn.RegisterFunction("avg", Avg)
+	cmn.RegisterFunction("avgr", Avg)
 }

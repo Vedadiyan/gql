@@ -16,7 +16,7 @@ func Min(jo *[]any, row any, args []any) (any, error) {
 		return nil, err
 	}
 	min := math.MaxFloat64
-	for _, item := range list {
+	for _, item := range functions.Expand(list) {
 		value, err := strconv.ParseFloat(fmt.Sprintf("%v", item), 64)
 		if err != nil {
 			return nil, err
@@ -28,8 +28,13 @@ func Min(jo *[]any, row any, args []any) (any, error) {
 	return min, nil
 }
 
-func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
+func readArgs(args []any, row any, jo *[]any) ([]any, error) {
 	var fnArg []any
+	isReservedMin := false
+	if len(args) == 2 {
+		isReservedMin = true
+		args = args[:1]
+	}
 	err := functions.CheckSingnature(
 		args,
 		[]functions.ArgTypes{
@@ -42,13 +47,22 @@ func readArgs(args []any, _ any, jo *[]any) ([]any, error) {
 					return nil
 				}
 				out := make([]any, 0)
-				for _, row := range *jo {
-					value, err := common.Select(arg, row)
-					if err != nil {
-						return err
+				if isReservedMin {
+					for _, row := range *jo {
+						value, err := common.Select(arg, row)
+						if err != nil {
+							return err
+						}
+						out = append(out, value)
 					}
-					out = append(out, value)
+					fnArg = out
+					return nil
 				}
+				value, err := common.Select(arg, row)
+				if err != nil {
+					return err
+				}
+				out = append(out, value)
 				fnArg = out
 				return nil
 			},
