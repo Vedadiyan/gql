@@ -48,6 +48,19 @@ func whereExec(scope *[]any, row any, expr *sqlparser.Where) (bool, error) {
 	return true, nil
 }
 
+func valueof(input any) any {
+	switch t := input.(type) {
+	case cmn.StringValue:
+		{
+			return string(t)
+		}
+	default:
+		{
+			return input
+		}
+	}
+}
+
 func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[string]any) (any, error) {
 	output := make(map[string]any, 0)
 	for index, expr := range exprs {
@@ -57,7 +70,7 @@ func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[st
 				// MUST NOT CALL strExpr
 				// MUST CALL ReadExpr
 				for key, value := range starExpr(row, index) {
-					output[key] = value
+					output[key] = valueof(value)
 				}
 			}
 		case *sqlparser.AliasedExpr:
@@ -79,10 +92,10 @@ func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[st
 				}
 				if _, ok := result.(*FunctionAliased); ok {
 					if len(result.Name()) == 0 && len(exprs) == 1 {
-						return result.Result(), nil
+						return valueof(result.Result()), nil
 					}
 				}
-				res := result.Result()
+				res := valueof(result.Result())
 				if res == nil {
 					continue
 				}
@@ -92,7 +105,7 @@ func selectExec(b cmn.Bucket, row any, exprs sqlparser.SelectExprs, cache map[st
 						continue
 					}
 				}
-				output[result.Name()] = res
+				output[result.Name()] = valueof(res)
 			}
 		default:
 			{
