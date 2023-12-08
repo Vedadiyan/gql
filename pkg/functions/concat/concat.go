@@ -18,7 +18,7 @@ func Concat(jo *[]any, row any, args []any) (any, error) {
 		}
 		buffer.WriteString(fmt.Sprintf("%v", val))
 	}
-	return buffer.String(), nil
+	return common.BoxValue(buffer.String()), nil
 }
 
 func init() {
