@@ -2,11 +2,13 @@ package selectkey
 
 import (
 	"fmt"
+	"strings"
 
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
 	"github.com/vedadiyan/gql/pkg/functions/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
 func SelectKey(jo *[]any, row any, args []any) (any, error) {
@@ -31,8 +33,22 @@ func SelectKey(jo *[]any, row any, args []any) (any, error) {
 func readArgs(args []any, row any, _ *[]any) (any, error) {
 	mapper := make(map[string]any)
 	bucket := func(args any) error {
-		mapper["bucket"] = args
-		return nil
+		switch t := args.(type) {
+		case string:
+			{
+				value := strings.ToLower(t)
+				if value == "$row" {
+					mapper["bucket"] = row
+					return nil
+				}
+				return sentinel.UNSUPPORTED_CASE.Extend(fmt.Sprintf("%s is not supported", t))
+			}
+		default:
+			{
+				mapper["bucket"] = args
+				return nil
+			}
+		}
 	}
 	selector := func(args any) error {
 		mapper["selector"] = string(args.(cmn.StringValue))
@@ -46,5 +62,5 @@ func readArgs(args []any, row any, _ *[]any) (any, error) {
 }
 
 func init() {
-	cmn.RegisterFunction("selectkey", SelectKey)
+	cmn.RegisterFunction("$select", SelectKey)
 }
