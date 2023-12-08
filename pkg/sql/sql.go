@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sort"
 
+	_ "github.com/vedadiyan/gql/pkg/bootstrapper"
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
 	"github.com/vedadiyan/gql/pkg/sentinel"
