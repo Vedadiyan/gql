@@ -38,6 +38,23 @@ func RedisSet(jo *[]any, row any, args []any) (any, error) {
 	return uuid.String(), nil
 }
 
+func RedisSetSync(jo *[]any, row any, args []any) (any, error) {
+	redisArgs, err := readRedisSetArgs(args, row, jo)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := _conManager(redisArgs.connKey)
+	if err != nil {
+		return nil, err
+	}
+	uuid := uuid.New()
+	res := conn.Set(context.TODO(), uuid.String(), redisArgs.value, redisArgs.ttl)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
+	return uuid.String(), nil
+}
+
 func RedisSetWithKey(jo *[]any, row any, args []any) (any, error) {
 	redisArgs, err := readRedisSetWithKeyArgs(args, row, jo)
 	if err != nil {
@@ -48,6 +65,22 @@ func RedisSetWithKey(jo *[]any, row any, args []any) (any, error) {
 		return nil, err
 	}
 	go conn.Set(context.TODO(), redisArgs.key, redisArgs.value, redisArgs.ttl)
+	return redisArgs.originalValue, nil
+}
+
+func RedisSetWithKeySync(jo *[]any, row any, args []any) (any, error) {
+	redisArgs, err := readRedisSetWithKeyArgs(args, row, jo)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := _conManager(redisArgs.connKey)
+	if err != nil {
+		return nil, err
+	}
+	res := conn.Set(context.TODO(), redisArgs.key, redisArgs.value, redisArgs.ttl)
+	if res.Err() != nil {
+		return nil, res.Err()
+	}
 	return redisArgs.originalValue, nil
 }
 
@@ -183,6 +216,8 @@ func RegisterConManager(fn func(connKey string) (*redis.Client, error)) {
 
 func init() {
 	cmn.RegisterFunction("redisset", RedisSet)
-	cmn.RegisterFunction("redissetkey", RedisSet)
+	cmn.RegisterFunction("redissetkey", RedisSetWithKey)
+	cmn.RegisterFunction("redissetsync", RedisSetSync)
+	cmn.RegisterFunction("redissetkeysync", RedisSetWithKeySync)
 	cmn.RegisterFunction("redisget", RedisGet)
 }
