@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/functions"
+	"github.com/vedadiyan/gql/pkg/functions/common"
+	"github.com/vedadiyan/gql/pkg/sentinel"
 )
 
 type RedisArgs struct {
@@ -179,7 +182,7 @@ func readRedisSetWithKeyArgs(args []any, row any, jo *[]any) (*RedisArgs, error)
 		args,
 		[]functions.ArgTypes{
 			functions.STRINGVALUE, // Connection String
-			functions.STRING,      // Key
+			functions.ANY,         // Key
 			functions.ANY,         // Value
 			functions.NUMBER,      // TTL
 		},
@@ -189,8 +192,26 @@ func readRedisSetWithKeyArgs(args []any, row any, jo *[]any) (*RedisArgs, error)
 				return nil
 			},
 			func(arg any) error {
-				redisArgs.key = arg.(string)
-				return nil
+				value, err := common.Select(arg, row)
+				if err != nil {
+					return err
+				}
+				switch t := value.(type) {
+				case string:
+					{
+						redisArgs.key = t
+						return nil
+					}
+				case cmn.StringValue:
+					{
+						redisArgs.key = string(t)
+						return nil
+					}
+				default:
+					{
+						return sentinel.UNSUPPORTED_CASE.Extend(fmt.Sprintf("%T is not supported", value))
+					}
+				}
 			},
 			func(arg any) error {
 				redisArgs.originalValue = arg
