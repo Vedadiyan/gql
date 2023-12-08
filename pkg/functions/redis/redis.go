@@ -13,10 +13,11 @@ import (
 )
 
 type RedisArgs struct {
-	connKey string
-	key     string
-	value   string
-	ttl     time.Duration
+	connKey       string
+	key           string
+	value         string
+	originalValue any
+	ttl           time.Duration
 }
 
 var (
@@ -35,6 +36,19 @@ func RedisSet(jo *[]any, row any, args []any) (any, error) {
 	uuid := uuid.New()
 	go conn.Set(context.TODO(), uuid.String(), redisArgs.value, redisArgs.ttl)
 	return uuid.String(), nil
+}
+
+func RedisSetWithKey(jo *[]any, row any, args []any) (any, error) {
+	redisArgs, err := readRedisSetWithKeyArgs(args, row, jo)
+	if err != nil {
+		return nil, err
+	}
+	conn, err := _conManager(redisArgs.connKey)
+	if err != nil {
+		return nil, err
+	}
+	go conn.Set(context.TODO(), redisArgs.key, redisArgs.value, redisArgs.ttl)
+	return redisArgs.originalValue, nil
 }
 
 func RedisGet(jo *[]any, row any, args []any) (any, error) {
@@ -97,6 +111,47 @@ func readRedisSetArgs(args []any, row any, jo *[]any) (*RedisArgs, error) {
 	return &redisArgs, nil
 }
 
+func readRedisSetWithKeyArgs(args []any, row any, jo *[]any) (*RedisArgs, error) {
+	redisArgs := RedisArgs{}
+	err := functions.CheckSingnature(
+		args,
+		[]functions.ArgTypes{
+			functions.STRING, // Connection String
+			functions.STRING, // Key
+			functions.ANY,    // Value
+			functions.NUMBER, // TTL
+		},
+		[]functions.Reader{
+			func(arg any) error {
+				redisArgs.connKey = arg.(string)
+				return nil
+			},
+			func(arg any) error {
+				redisArgs.key = arg.(string)
+				return nil
+			},
+			func(arg any) error {
+				redisArgs.originalValue = arg
+				json, err := json.Marshal(arg)
+				if err != nil {
+					return err
+				}
+				base64 := base64.StdEncoding.EncodeToString(json)
+				redisArgs.value = base64
+				return nil
+			},
+			func(arg any) error {
+				redisArgs.ttl = time.Second * time.Duration((arg.(float64)))
+				return nil
+			},
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+	return &redisArgs, nil
+}
+
 func readRedisGetArgs(args []any, row any, jo *[]any) (*RedisArgs, error) {
 	redisArgs := RedisArgs{}
 	err := functions.CheckSingnature(
@@ -128,5 +183,6 @@ func RegisterConManager(fn func(connKey string) (*redis.Client, error)) {
 
 func init() {
 	cmn.RegisterFunction("redisset", RedisSet)
+	cmn.RegisterFunction("redissetkey", RedisSet)
 	cmn.RegisterFunction("redisget", RedisGet)
 }
