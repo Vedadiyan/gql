@@ -15,7 +15,7 @@ func first(jo *[]any, row any, args []any) (any, error) {
 		return nil, err
 	}
 	if len(list) > 0 {
-		return common.BoxValue(list[0]), nil
+		return common.ToStringValue(list[0]), nil
 	}
 	return nil, nil
 }

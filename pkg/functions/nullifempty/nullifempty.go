@@ -13,7 +13,7 @@ func NullIfEmpty(jo *[]any, row any, args []any) (any, error) {
 	}
 	list, ok := fnArgs.([]any)
 	if !ok {
-		return common.BoxValue(fnArgs), nil
+		return common.ToStringValue(fnArgs), nil
 	}
 	if len(list) != 0 {
 		return list, nil

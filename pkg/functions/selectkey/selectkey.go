@@ -27,7 +27,7 @@ func SelectKey(jo *[]any, row any, args []any) (any, error) {
 		}
 		return arr, nil
 	}
-	return common.BoxValue(value), nil
+	return common.ToStringValue(value), nil
 }
 
 func readArgs(args []any, row any, _ *[]any) (any, error) {

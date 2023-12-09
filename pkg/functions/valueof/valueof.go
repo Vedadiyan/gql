@@ -34,7 +34,7 @@ func valueOf(jo *[]any, row any, args []any) (any, error) {
 	default:
 		{
 			if len(out) > 0 {
-				return common.BoxValue(out[0]), nil
+				return common.ToStringValue(out[0]), nil
 			}
 			return nil, nil
 		}

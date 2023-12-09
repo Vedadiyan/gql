@@ -35,7 +35,7 @@ func Select(arg any, row any) (any, error) {
 	}
 }
 
-func BoxValue(value any) any {
+func ToStringValue(value any) any {
 	switch t := value.(type) {
 	case string:
 		{
