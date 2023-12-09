@@ -10,6 +10,7 @@ import (
 	"github.com/vedadiyan/gql/pkg/common"
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
+	"github.com/vedadiyan/gql/pkg/monitor"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
@@ -48,11 +49,11 @@ func (functionAliased FunctionAliased) Result() any {
 	return functionAliased.result
 }
 
-func tableExpr(doc cmn.Document, expr sqlparser.TableExpr) ([]any, error) {
+func tableExpr(b cmn.Bucket, doc cmn.Document, expr sqlparser.TableExpr) ([]any, error) {
 	switch t := expr.(type) {
 	case *sqlparser.AliasedTableExpr:
 		{
-			result, err := aliasedTableExpr(doc, t)
+			result, err := aliasedTableExpr(b, doc, t)
 			if err != nil {
 				return nil, err
 			}
@@ -60,7 +61,7 @@ func tableExpr(doc cmn.Document, expr sqlparser.TableExpr) ([]any, error) {
 		}
 	case *sqlparser.JoinTableExpr:
 		{
-			return joinExpr(doc, t)
+			return joinExpr(b, doc, t)
 		}
 	default:
 		{
@@ -68,7 +69,7 @@ func tableExpr(doc cmn.Document, expr sqlparser.TableExpr) ([]any, error) {
 		}
 	}
 }
-func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any, error) {
+func aliasedTableExpr(b cmn.Bucket, doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any, error) {
 	switch t := expr.Expr.(type) {
 	case sqlparser.TableName:
 		{
@@ -98,6 +99,10 @@ func aliasedTableExpr(doc cmn.Document, expr *sqlparser.AliasedTableExpr) ([]any
 			if err != nil {
 				return nil, err
 			}
+			monitor.SubmitToWorkerQueue(*b, func() error {
+				ctx.Wait()
+				return nil
+			})
 			return cmn.ReadFrom(expr, from)
 		}
 	default:
@@ -247,12 +252,12 @@ func starExpr(row any, index int) map[string]any {
 		}
 	}
 }
-func joinExpr(doc cmn.Document, expr *sqlparser.JoinTableExpr) ([]any, error) {
-	left, err := tableExpr(doc, expr.LeftExpr)
+func joinExpr(b cmn.Bucket, doc cmn.Document, expr *sqlparser.JoinTableExpr) ([]any, error) {
+	left, err := tableExpr(b, doc, expr.LeftExpr)
 	if err != nil {
 		return nil, err
 	}
-	right, err := tableExpr(doc, expr.RightExpr)
+	right, err := tableExpr(b, doc, expr.RightExpr)
 	if err != nil {
 		return nil, err
 	}
@@ -302,7 +307,7 @@ func joinRightExpr(jrr JoinRawResult, l Left, r Right) ([]any, error) {
 	lookup := CreateIndexedLookup(jrr, r, false)
 	return joinExec(lookup, r, l), nil
 }
-func cteExpr(doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
+func cteExpr(b cmn.Bucket, doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
 	output := make(map[string]any)
 	for _, cte := range expr.Ctes {
 		local := *cte
@@ -312,7 +317,15 @@ func cteExpr(doc cmn.Document, expr *sqlparser.With) (cmn.Document, error) {
 			if err != nil {
 				return nil, err
 			}
-			return sql.Exec()
+			rs, err := sql.Exec()
+			if err != nil {
+				return nil, err
+			}
+			monitor.SubmitToWorkerQueue(*b, func() error {
+				sql.Wait()
+				return nil
+			})
+			return rs, nil
 		}
 	}
 	return output, nil
@@ -704,7 +717,12 @@ func ExprReader(b cmn.Bucket, row any, expr sqlparser.Expr, opt ...any) any {
 					if err != nil {
 						return cmn.Wrap(nil, err)
 					}
-					return cmn.Wrap(context.Exec())
+					rs := cmn.Wrap(context.Exec())
+					monitor.SubmitToWorkerQueue(*b, func() error {
+						context.Wait()
+						return nil
+					})
+					return rs
 				}
 			case []any:
 				{

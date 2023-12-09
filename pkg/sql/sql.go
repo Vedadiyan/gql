@@ -8,6 +8,7 @@ import (
 	_ "github.com/vedadiyan/gql/pkg/bootstrapper"
 	cmn "github.com/vedadiyan/gql/pkg/common"
 	"github.com/vedadiyan/gql/pkg/lookup"
+	"github.com/vedadiyan/gql/pkg/monitor"
 	"github.com/vedadiyan/gql/pkg/sentinel"
 	"github.com/vedadiyan/sqlparser/pkg/sqlparser"
 )
@@ -179,9 +180,13 @@ func (c *Context) Exec() (any, error) {
 	return collect, nil
 }
 
+func (c *Context) Wait() {
+	monitor.WaitToFinish(c.from)
+}
+
 func (c *Context) setSelect(slct *sqlparser.Select) error {
 	if slct.With != nil {
-		data, err := cteExpr(c.doc, slct.With)
+		data, err := cteExpr(&c.from, c.doc, slct.With)
 		if err != nil {
 			return err
 		}
@@ -241,7 +246,7 @@ func (c *Context) setOrderby(expr sqlparser.OrderBy) error {
 	return nil
 }
 func (c *Context) setFrom(expr sqlparser.TableExpr) error {
-	result, err := tableExpr(c.doc, expr)
+	result, err := tableExpr(&c.from, c.doc, expr)
 	if err != nil {
 		return err
 	}
@@ -290,6 +295,10 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 				return err
 			}
 			leftRs, err := left.Exec()
+			monitor.SubmitToWorkerQueue(c.from, func() error {
+				left.Wait()
+				return nil
+			})
 			if err != nil {
 				return err
 			}
@@ -299,6 +308,10 @@ func (c *Context) prepare(statement sqlparser.Statement) error {
 				return err
 			}
 			rightRs, err := right.Exec()
+			monitor.SubmitToWorkerQueue(c.from, func() error {
+				right.Wait()
+				return nil
+			})
 			if err != nil {
 				return err
 			}
