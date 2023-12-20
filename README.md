@@ -1,5 +1,5 @@
 #**IMPORTANT NOTICE**
-GenQL v1.0.0 is on the way! It has been fully rewritten and it comes with breaking changes. A selector language has been added to the SQL syntaxt. If you would like to use GenQL, please wait for the first release (by Jan 2024).
+GQL is now fully re-written and enhanced. The repository has been moved to this link https://github.com/Vedadiyan/genql however this repository will remain as it is since many of our project already use this repository and have referenced it. 
 
 # GQL (General Querying Language)
 GQL is an implementation of `MySQL` dialect for querying data in complex data structures.
